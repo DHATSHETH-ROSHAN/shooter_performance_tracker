@@ -1,0 +1,40 @@
+/* General Reset */
+body, ul, li, a {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-decoration: none;
+}
+.logo_txt{
+    color: #00ddff;
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+    font-style: italic;
+}
+
+.center-container {
+    background: url('/static/images/shooter.jpg') no-repeat center center;
+    background-size: cover;  /* Ensure the image fits without cropping */
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 140%;
+    height: 80vh;  /* Adjust height as needed */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    border-radius: 20px;
+}
+#wello{
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 1.5s ease-out;
+}
+/* Active Link Styling */
+.navbar-nav .nav-link.active {
+    font-weight: bold !important;
+    color: #00ddff !important; 
+}
+
+

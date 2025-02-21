@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Shooter's Home
+{% endblock %}
+{% block extra_css %}
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}
+{% block content %}
+{% include 'navbar.html' %}
+<div class="container align-items-center ">
+    <div class="row align-items-start">
+        <div class="col" style="background-color: #202020;color: aliceblue; margin: 10px;">
+            <p>Column</p>
+        </div>
+        <div class="col" style="background-color: #202020; color: aliceblue; margin: 10px;">
+            <p>Column</p>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% include 'footer.html' %}
+{% endblock %}

@@ -1,0 +1,45 @@
+{% load static %}
+<footer class="text-light py-4" style="background-color: #050505;">
+    <div class="container">
+        <div class="row">
+            <!-- Left Column: Branding & Description -->
+            <div class="col-md-4">
+                <h5 class="fw-bold">Performance Tracker</h5>
+                <p class="small">
+                    Track, analyze, and improve your performance with real-time insights. Helping shooters and coaches achieve their best!
+                </p>
+            </div>
+
+            <!-- Center Column: Quick Links -->
+            <div class="col-md-4">
+                <h5 class="fw-bold">Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% if user.is_authenticated %}{% if user.role == 'Shooter' %}{% url 'shooter_home' %}{% elif user.role == 'Coach' %}{% url 'coach.html' %}{% else %}{% url 'home' %}{% endif %}{% else %}{% url 'home' %}{% endif %}" class="text-light text-decoration-none">Home</a></li>
+                    <li><a href="{% url 'activities'%}" class="text-light text-decoration-none">Activities</a></li>
+                </ul>
+            </div>
+            <!-- Right Column: Contact & Social Media -->
+            <div class="col-md-4 ms-auto">
+                <h5 class="fw-bold">Contact Us</h5>
+                <p class="small">📧 Email: support@performancetracker.com</p>
+
+                <!-- Social Media Icons -->
+                <div>
+                    <a href="#" class="text-light me-2"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-light me-2"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="text-light me-2"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-light"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="text-center mt-3">
+            <hr class="border-light">
+            <p class="small">© 2025 Performance Tracker. All Rights Reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap Icons CDN (Add to base.html if not already included) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">

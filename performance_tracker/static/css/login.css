@@ -1,0 +1,52 @@
+/* Style for the input container */
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px; /* Added spacing below the input field */
+}
+
+/* Style for the password input field */
+.input-field {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px; /* Slightly rounded edges for a modern look */
+    border: 2px solid #00DDFF ;
+    background-color: #1e1e1e;
+    color: white;
+    font-size: 16px;
+    padding-right: 40px; /* Ensure space for the eye icon */
+}
+
+
+/* Ensure the button does not affect input height */
+.toggle-password i {
+    pointer-events: none; /* Prevent click issues */
+}
+
+/* Hover effect for better UI */
+.toggle-password:hover {
+    cursor: pointer;
+    color: #ffffff;
+}
+
+/* Style for login button */
+.custom-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #00DDFF;
+    color: black;
+    border: none;
+    border-radius: 8px; /* Smooth edges */
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+/* Button hover effect */
+.custom-btn:hover {
+    background-color: #00bbdd;
+}

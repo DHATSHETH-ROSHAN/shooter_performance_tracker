@@ -1,6 +1,6 @@
 {% load static %}
 <footer class="text-light py-4" style="background-color: #050505;">
-    <div class="container">
+    <div class="container-sm">
         <div class="row">
             <!-- Left Column: Branding & Description -->
             <div class="col-md-4">
@@ -14,7 +14,32 @@
             <div class="col-md-4">
                 <h5 class="fw-bold">Quick Links</h5>
                 <ul class="list-unstyled">
-                    <li><a href="{% if user.is_authenticated %}{% if user.role == 'Shooter' %}{% url 'shooter_home' %}{% elif user.role == 'Coach' %}{% url 'coach.html' %}{% else %}{% url 'home' %}{% endif %}{% else %}{% url 'home' %}{% endif %}" class="text-light text-decoration-none">Home</a></li>
+                    <li><a class="nav-link {% if user.is_authenticated %}
+                        {% if user.role == 'Shooter' %}
+                            {% if request.path == '/shooter/home/' %}
+                                active
+                            {% endif %}
+                        {% endif %}
+                        {% if user.role == 'Coach' %}
+                            {% if request.path == '/coach/home/' %}
+                                active
+                            {% endif %}
+                        {% endif %}
+                    {% elif request.path == '/' %}
+                        active
+                    {% endif %} 
+                    text-light" 
+                    href="{% if user.is_authenticated %}
+                            {% if user.role == 'Shooter' %}
+                                {% url 'shooter_home' %}
+                            {% elif user.role == 'Coach' %}
+                                {% url 'coach_home' %}
+                            {% else %}
+                                {% url 'home' %}
+                            {% endif %}
+                        {% else %}
+                            {% url 'home' %}
+                        {% endif %}">Home</a></li>
                     <li><a href="{% url 'activities'%}" class="text-light text-decoration-none">Activities</a></li>
                 </ul>
             </div>

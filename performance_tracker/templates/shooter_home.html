@@ -5,23 +5,335 @@
 Shooter's Home
 {% endblock %}
 {% block extra_css %}
-<script src="{% static 'js/home.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
 {% endblock %}
 {% block content %}
 {% include 'navbar.html' %}
-<div class="container align-items-center ">
-    <div class="row align-items-start">
-        <div class="col" style="background-color: #202020;color: aliceblue; margin: 10px;">
-            <p>Column</p>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+    <!--Left column(profile holder)-->
+    <div class="col-lg-3 col-md-4 col-sm-12 mb-4" style="size: auto-fit;" >
+        <div style="background-color: #050505; padding: 10px; border-radius: 10px; height: 100%; margin-bottom: 10px;">
+            <div class="card text-white shadow-sm" style="background-color: #050505;" >
+                <div class="card-body text-white text-center">
+                    <img src="{% static 'images/shooter.jpg' %}" alt="Profile Pic" class="rounded-circle" width="80" height="80">
+                    <h4 class="mt-2">Welcome, {{ user.first_name }}🎯</h4>
+                    <p class="logo_txt">{{ user.role }}</p>
+                    <hr>
+                    <p>{{ user.description }}</p>
+                    <div class="col">
+                        <div class="row">
+                            <div class="col-6">
+                                <h6>Last session</h6>
+                                <p class="fw-bold">{{ last_session|date:"d.m.Y" }}</p>
+                            </div>
+                            <div class="col-6">
+                                <h6>Session duraion</h6>
+                                <p class="fw-bold">{{ session_timing }} </p>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+            <!-- Panel contents -->
+            <div class="card" style="background-color: #050505;">
+                <div class="card-body text-white text-center">
+                    <h5 class="card-title">Training categories</h5>
+                    <button class="btn btn-sm btn-info mb-2" onclick="showContent('shooting')">Shooting</button>
+                    <button class="btn btn-sm btn-info mb-2" onclick="showContent('workout')">Workout</button>
+                    <button class="btn btn-sm btn-info mb-2" onclick="showContent('meditation')">Meditation</button>
+                    <button class="btn btn-sm btn-info mb-2" onclick="showContent('equipment')">Equipment</button>
+                </div>
+                <div class="card-body text-white">
+                    <div id="shooting" class="training-content">
+                        <h6>Shooting session</h6>
+                        <p>Track your shooting practice and analyze your performance</p>
+                    </div>
+                    <div id="workout" class="training-content" style="display: none;" >
+                        <h6>Workout session</h6>
+                        <p>Monitor your fitness and strength training for better stability.</p>
+                    </div>
+                    <div id="meditation" class="training-content" style="display: none;">
+                        <h6>Meditation & Focus</h6>
+                        <p>Improve your concentration and mental clarity for shooting.</p>
+                    </div>
+                    <div id="equipment" class="training-content" style="display: none;">
+                        <h6>Equipment Maintenance</h6>
+                        <p>Keep track of your rifle maintenance and adjustments.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col" style="background-color: #202020; color: aliceblue; margin: 10px;">
-            <p>Column</p>
+    </div>
+    <!-- center column(stats holder & some perfomance ) -->
+     <div class="col-lg-6 col-md-8 col-sm-12 mb-4" style="background-color: #050505; padding: 10px; border-radius: 10px;">
+        <div class="card text-white" style="background-color: #050505;">
+            <div class="card-body">
+                <h5 class="card-title logo_txt "> Performance Overview</h5>
+                <br>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h6>Total Sesions</h6>
+                        <p class="fw-bold text-primary">{{ total_sesion }}</p>
+                    </div>
+                    <div class="col-4">
+                        <h6>Best Score</h6>
+                        <p class="fw-bold text-success">{{ best_score }}</p>
+                    </div>
+                    <div class="col-4">
+                        <h6>30-Day Avg</h6>
+                        <p class="fw-bold text-warning">{{ avg_score }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
+        <hr style="color: aliceblue;" >
+        <!-- chart -->
+        <div class="card mt-4" style="background-color: #050505;">
+            <div class="card-body">
+                <div id="weeklyChart">
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Riglt colum(traing activities) -->
+
+         <div class="col-lg-3 col-md-4 col-sm-12 mb-4">
+            <div style="background-color: #050505; padding: 10px; height: 100%; border-radius: 10px;">
+                <div class="card text-white shadow-sm" style="background-color: #020202;">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">🔥 Streaks</h5>
+                        <p class="fw-bold">Current Streak:<span id="streakDays">7</span>Days</p>
+                        <div class="progress" style="height: 5px;">
+                            <div id="streakProgress" class="progress-bar bg-warning" role="progressbar" style="width: 70%;" aria-valuenow="7" aria-valuemin="0" aria-valuemax="30"></div>
+                        </div>
+                        <small>Maintain your streaks to score more.</small>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-around">
+                        <button class="btn btn-info btn-sm" onclick="openPopup('notificationsPopup')">🔔 Notifications</button>
+                        <button class="btn btn-info btn-sm" onclick="openPopup('messagessPopup')">💬 Messages</button>
+                    </div>
+                    <hr>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Training & Activities</h5>
+                        <br>
+                        <div class="row">
+                            <a href="{% url 'manual_upload' %}" class="btn btn-danger btn-sm mb-2">Manually Upload Score</a>
+                            <a href="{% url 'pdf_upload' %}" class="btn btn-success btn-sm mb-2">Upload Pdf</a>
+                        </div>
+                        <br>
+                        <a href="{% url 'activities' %}" class="btn btn-primary btn-sm">Activities</a>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title logo_txt">🎯 Goal Tracker</h5>
+                        <p>Current Score:<span id="currentscore">{{ current_score }}</span>/ Target Score: <span id="targetscore">{{ target_score }}</span></p>
+                        <div id="goalTrackerChart">
+                            
+                        </div>
+                        <p  class="mt-2"><b>Progress: <span id="progressPercentage"></span></b></p>
+                    </div>
+                    <div id="notificationsPopup" class="popup">
+                        <div class="popup-content">
+                            <span class="close" onclick="closePopup('notificationsPopup')">&times;</span>
+                            <h5>Notifications</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item">Your coach Commented on your session!</li>
+                                <li class="list-group-item">New training module available.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div id="messagessPopup" class="popup">
+                        <div class="popup-content">
+                            <span class="close" onclick="closePopup('messagessPopup')">&times;</span>
+                            <h5>Messages</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item">Coach:"Great Progress this weeek!"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+     </div>
     </div>
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    // charts dipalayed inn the center of the page
+    var options = {
+      chart: {
+        type: 'bar'
+      },
+      title: {
+        text: "Average Practice Time Per Day", // Updated Title
+        align: 'center',
+        style: {
+          fontSize: '16px',
+          fontWeight: 'bold',
+          color: '#ffffff'
+        }
+      },
+      plotOptions: {
+        bar: {
+          horizontal: false, // Vertical chart
+          columnWidth: '50%'    
+        }
+      },
+      xaxis: {
+        title: {
+          text: 'Days of the Week',
+          style: {
+            fontSize: '14px',
+            fontWeight: 'bold',
+            color: '#ffffff'
+          }
+        },
+        categories: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], 
+        labels: {
+          style: {
+            colors: '#ffffff' // X-axis label color
+          }
+        }
+      },
+      yaxis: {
+        title: {
+          text: 'Avg. Practice Time (minutes)', // Updated Y-axis label
+          style: {
+            fontSize: '14px',
+            fontWeight: 'bold',
+            color: '#ffffff'
+          }
+        },
+        labels: {
+          style: {
+            colors: '#ffffff'
+          }
+        }
+      },
+      series: [
+        {
+          name: 'Average Time', // Updated legend name
+          data: [75, 60, 50, 65, 55, 80, 70] // Replace with actual average practice time values
+        }
+      ],
+      colors: ['#00ddff'], // Bar color
+      grid: {
+        borderColor: '#444'
+      }
+    };
+    
+    var chart = new ApexCharts(document.querySelector("#weeklyChart"), options);
+    chart.render();
+
+// show and hide the taabs in the rigth side panel  
+function showContent(section) {
+    document.querySelectorAll('.training-content').forEach(el => el.style.display = 'none');
+    let content = document.getElementById(section.toLowerCase());
+    if (content) {
+        content.style.display = 'block';
+    }
+}
+
+// goal tracker
+
+let currentScore = parseInt('{{ current_score }}');
+let targetScore = parseInt('{{ target_score }}');
+var progress = (currentScore / targetScore) * 100;
+progress = progress > 100 ? 100 : progress;
+
+// Update the progress text
+document.getElementById("progressPercentage").innerText = progress.toFixed(1);
+
+var goalTrackerOptions = {
+    series: [progress],
+    chart: {
+        height: 250,
+        type: "radialBar"
+    },
+    plotOptions: {
+        radialBar: {
+            startAngle: -90,
+            endAngle: 90,
+            track: {
+                background: "#333",
+                strokeWidth: "90%"
+            },
+            dataLabels: {
+                name: {
+                    show: false
+                },
+                value: {
+                    offsetY: 5,
+                    fontSize: "22px",
+                    color: "#ffffff",
+                    formatter: function (val) {
+                        return val + "%";
+                    }
+                }
+            }
+        }
+    },
+    fill: {
+        colors: ["#00ddff"]
+    },
+    stroke: {
+        lineCap: "round"
+    },
+    labels: ["Progress"]
+};
+
+var goaltrackerChart = new ApexCharts(document.querySelector("#goalTrackerChart"), goalTrackerOptions);
+goaltrackerChart.render();
 
 
+// popup messages and notification thing
+function openPopup(id) {
+    document.getElementById(id).style.display = "block";
+}
+function closePopup(id) {
+    document.getElementById(id).style.display = "none";
+}
+
+
+</script>
+
+<style>
+    .popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #202020;
+    padding: 15px;
+    border-radius: 10px;
+    z-index: 1000;
+    width: 300px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.popup-content {
+    text-align: center;
+    color: white;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+</style>
+    
 {% include 'footer.html' %}
 {% endblock %}

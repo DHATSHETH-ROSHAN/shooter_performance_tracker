@@ -18,24 +18,42 @@
         border-radius: 5px;
         font-weight: bold;
     }
+        /* Ensure the page takes full height */
+        html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Pushes content upwards to keep footer at bottom */
+    .content-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .footer {
+        margin-top: auto; /* Push footer to bottom */
+    }
 </style>
 {% endblock %}
 {% block content %}
 {% include 'navbar.html' %}
-    <div class="container mt-4" style="border-radius: 10px; padding: 10px;">
-        <!-- Company Name Header -->
-        <h1 class="text-center logo_txt">Performance Tracker</h1>
-        <h5 class="text-center" style="color: #004ab9;">Get one step closer to your goals</h5>
-    <div class="container mt-4" style="background-color: #e0e0e0; border-radius: 10px; padding: 10px;">
+    <div class="container mt-4 content-wrapper" style="border-radius: 10px; padding: 10px; padding-bottom: 15px;">
+    <div class="container mt-4" style="background-color: #e0e0e0; border-radius: 10px; padding: 10px; padding-bottom: 10px;">
         <!-- Page Layout with Logo and Form -->
         <div class="row d-flex justify-content-center align-items-center">
             <!-- Left Column for Logo -->
             <div class="col-md-6 text-center">
                 <img src="{% static 'images/letter&logo.png' %}" alt="Performance Tracker Logo" class="img-fluid rounded-circle object-fit-cover" style="max-width: 70%;">
+                <h5 class="text-center" style="color: #004ab9; font-style: italic; font-weight: bold; ">Get one step closer to your goals</h5>
             </div>          
             <!-- Right Column for Form -->
             <div class="col-md-6">
-                <div class="card p-4 shadow-lg signup-card" style="border-radius: 10px; background-color: #202020; ">
+                <div class="card p-4 shadow-lg signup-card" style="border-radius: 10px; background-color: #050505; ">
                     <div class="text-center">
                         <h3 style="color: #e0e0e0;">Register for new user</h3>
                         <h5 style="color: #e0e0e0;">Create your account</h5>
@@ -48,27 +66,39 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="first_name" class="form-label">First Name</label>
-                                <input type="text" id="first_name" name="first_name" class="form-control" placeholder="Enter your first name" required>
+                                <input type="text" id="first_name" name="first_name" class="form-control" placeholder="Enter your first name" minlength="6" maxlength="255" required >
                             </div>
                             <div class="col-md-6">
                                 <label for="last_name" class="form-label">Last Name</label>
-                                <input type="text" id="last_name" name="last_name" class="form-control" placeholder="Enter your last name" required>
+                                <input type="text" id="last_name" name="last_name" class="form-control" placeholder="Enter your last name" minlength="6" maxlength="256" required >
                             </div>
+                            <small class="text-light" id="first_last-requirements" style="display: none;">Alphabets only accepted<br>
+                                * Must contain a lower case letter(a-z)<br>
+                                * Must contain an upper case letter(A-Z)<br>
+                                * Must not contain a number(0-9)<br>
+                                * Must not contain a symbol(!#$%^&*>?)</small>
                         </div>
                         
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <input type="text" id="username" name="username" class="form-control" placeholder="Set your username" required>
+                            <input type="text" id="username" name="username" class="form-control" placeholder="Set your username" minlength="8" maxlength="16" required>
                         </div>
                         
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+                            <small class="text-light" id="email-requirements" style="display: none;">Enter a proper email-id.<br></small>
+</small>
                         </div>
                         
                         <div class="mb-3">
                             <label for="password1" class="form-label">Password</label>
-                            <input type="password" id="password1" name="password1" class="form-control" placeholder="Enter your password" required>
+                            <input type="password" id="password1" name="password1" class="form-control" placeholder="Enter your password" required pattern="(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}">
+                            <small class="text-light" id="password-requirements" style="display: none;">Password must be at least 8 characters long.<br>
+                                                                * Must contain a lower case letter(a-z)<br>
+                                                                * Must contain an upper case letter(A-Z)<br>
+                                                                * Must contain a number(0-9)<br>
+                                                                * Must contain a symbol(!#$%^&*>?)</small>
                         </div>
                         
                         <div class="mb-3">
@@ -85,7 +115,7 @@
                             </select>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                        <button type="submit" class="btn text-dark w-100 " style="background-color: #00ddff;">Register</button>
                     </form>
                     
                     <p class="text-center mt-3" style="color: #ffffff;">Already have an account? <a href="{% url 'login' %}" class="text-primary">Login here</a></p>
@@ -94,5 +124,101 @@
         </div>
     </div>
 </div>
-{% include 'footer.html' %}
+
+<script>
+    const passwordInput = document.getElementById('password1');
+    const passwordRequirements = document.getElementById('password-requirements');
+
+    passwordInput.addEventListener('input', function() {
+        const password = passwordInput.value;
+        const isValid = password.length >= 8 && 
+                        /[a-z]/.test(password) && 
+                        /[A-Z]/.test(password) && 
+                        /\d/.test(password) && 
+                        /[!#$%^&*>?]/.test(password);
+        setTimeout(() => {
+            passwordRequirements.style.display = 'none';
+        }, 5000);
+        passwordRequirements.style.display = isValid ? 'none' : 'block';
+    });
+    document.addEventListener("DOMContentLoaded", function() {
+    const firstnameInput = document.getElementById("first_name");
+    const lastnameInput = document.getElementById("last_name");
+    const firstLastRequirements = document.getElementById("first_last-requirements");
+    let firstLastTimeout;
+// first name and last name validation
+    function validateAlphabetInput(event) {
+        const input = event.target;
+        const regex = /^[A-Za-z]+$/; // Allow alphabets only
+
+        if (!regex.test(input.value)) {
+            input.value = input.value.replace(/[^A-Za-z]/g, ''); // Remove all non-alphabetic characters
+            firstLastRequirements.style.display = "block"; // Show message
+
+            clearTimeout(firstLastTimeout); // Clear existing timeout if any
+            firstLastTimeout = setTimeout(() => {
+                firstLastRequirements.style.display = "none"; // Hide message after 5 seconds
+            }, 5000);
+        } else {
+            firstLastRequirements.style.display = "none";
+        }
+    }
+
+    firstnameInput.addEventListener("input", validateAlphabetInput);
+    lastnameInput.addEventListener("input", validateAlphabetInput);
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    const usernameInput = document.getElementById("username");
+    let usernameTimeout;
+
+    usernameInput.addEventListener("input", function() {
+        const regex = /^[a-zA-Z0-9_@]+$/; // Allow letters, numbers, _ and @
+        if (!regex.test(usernameInput.value)) {
+            usernameInput.value = usernameInput.value.replace(/[^a-zA-Z0-9_@]/g, ''); // Remove unwanted characters
+
+            clearTimeout(usernameTimeout); // Clear existing timeout if any
+            usernameTimeout = setTimeout(() => {
+                usernameInput.style.borderColor = ""; // Reset border color after 5 seconds
+            }, 5000);
+
+            usernameInput.style.borderColor = "red"; // Temporarily highlight input
+        } else {
+            usernameInput.style.borderColor = ""; // Reset immediately if valid
+        }
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const emailInput = document.getElementById("email");
+    const emailRequirements = document.getElementById("email-requirements");
+    let emailTimeout;
+
+    function validateEmail() {
+        const emailPattern = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; 
+        // Ensures email starts with a letter/number and follows proper structure
+
+        if (!emailPattern.test(emailInput.value)) {
+            emailInput.style.borderColor = "red"; // Highlight input in red
+            emailRequirements.style.display = "block"; // Show message
+
+            clearTimeout(emailTimeout); // Clear existing timeout
+            emailTimeout = setTimeout(() => {
+                emailRequirements.style.display = "none"; // Hide message after 5 seconds
+                emailInput.style.borderColor = ""; // Reset border color
+            }, 5000);
+        } else {
+            emailInput.style.borderColor = ""; // Reset border color
+            emailRequirements.style.display = "none"; // Hide error message
+        }
+    }
+
+    emailInput.addEventListener("input", validateEmail);
+});
+
+
+</script>
+<footer class="footer">
+    {% include 'footer.html' %}
+</footer>
 {% endblock %}

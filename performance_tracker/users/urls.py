@@ -23,8 +23,10 @@ urlpatterns = [
 
     path('register/', views.user_register, name = 'register'),
     path('activities/', views.user_activities, name='activities'),
+    
     path('shooter/home/', views.shooter_home, name = 'shooter_home'),
 
+       
     path('coach/home/',views.coach_home, name= 'coach_home'),
     
     path('login/home/', views.user_admin, name = 'admin_home'),

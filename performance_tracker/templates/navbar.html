@@ -1,6 +1,13 @@
 {% load static %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/main.css'%}">
+<style>
+    .navbar-message {
+    background-color: #050505; /* Match your navbar shade */
+    padding: 10px 0;
+    transition: all 0.4s ease-in-out;
+}
+</style>
 {% endblock %}
 
 <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #050505; padding: 20px;">
@@ -22,8 +29,33 @@
             <!-- Navigation Links (Placed After App Name) -->
             <ul class="navbar-nav ms-4">  <!-- ms-4 adds spacing -->
                 <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/' %}active{% endif %} text-light" href="{% if user.is_authenticated %}{% if user.role == 'Shooter' %}{% url 'shooter_home' %}{% elif user.role == 'Coach' %}{% url 'coach_home' %}{% else %}{% url 'home' %}
-                    {% endif %}{% else %}{% url 'home' %}{% endif %}">Home</a>
+
+                    <a class="nav-link {% if user.is_authenticated %}
+                                            {% if user.role == 'Shooter' %}
+                                                {% if request.path == '/shooter/home/' %}
+                                                    active
+                                                {% endif %}
+                                            {% endif %}
+                                            {% if user.role == 'Coach' %}
+                                                {% if request.path == '/coach/home/' %}
+                                                    active
+                                                {% endif %}
+                                            {% endif %}
+                                        {% elif request.path == '/' %}
+                                            active
+                                        {% endif %} 
+                                        text-light" 
+                                        href="{% if user.is_authenticated %}
+                                                {% if user.role == 'Shooter' %}
+                                                    {% url 'shooter_home' %}
+                                                {% elif user.role == 'Coach' %}
+                                                    {% url 'coach_home' %}
+                                                {% else %}
+                                                    {% url 'home' %}
+                                                {% endif %}
+                                            {% else %}
+                                                {% url 'home' %}
+                                            {% endif %}">Home</a>
                 </li>
                 <li class="nav-item">
                     <a id="activities-link" class="nav-link {% if request.path == '/activities/' %}active{% endif %} text-light" href="{% url 'activities'%}">Activities</a>
@@ -32,6 +64,21 @@
             <!-- Right Side: Login Button (ms-auto pushes it to the right) -->
             <ul class="navbar-nav ms-auto">
             {% if user.is_authenticated %}
+                {% if user.role == "Shooter" %}
+                    <li class="nav-item">
+                        <span class="nav-link text-light fw-bold">Welcome, {{ user.first_name }}</span>
+                    </li>
+                {% elif user.role == "Coach" %}
+                    <li class="nav-item d-flex align-items-center">
+                        <div class="coach-icon d-flex align-items-center justify-content-center text-dark fw-bold" style="width: 40px; height: 40px; background-color: #00ddff; border-radius: 50%;">
+                            {% if user.first_name and user.last_name %}
+                                {{ user.first_name.0}}{{ user.last_name.0}}
+                            {% endif %}
+                        </div>
+                        
+                    </li>
+                {% endif %}
+                
                 <li class="nav-item">
                     <a href="{% url 'logout' %}" class="btn fw-bold text-dark" style="background-color: #00ddff;">Logout</a>
                 </li>
@@ -44,5 +91,34 @@
         </div>
     </div>
 </nav>
+<!-- Messages Container (Initially Hidden) -->
+<div id="navbarMessageContainer" class="collapse navbar-message">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert {% if message.tags == error %} alert-error {% else %} alert-info {% endif %} text-center">
+        {{ message }}
+    </div>
+        {% endfor %}
+    {% endif %}
+</div>
+<script>
+    // navbar message collapse and show 
+    document.addEventListener("DOMContentLoaded", function () {
+    let messageContainer = document.getElementById("navbarMessageContainer");
+
+    if (messageContainer && messageContainer.innerText.trim() !== "") {
+        // Expand the message container
+        let bsCollapse = new bootstrap.Collapse(messageContainer, {
+            toggle: true
+        });
+
+        // Collapse after 5 seconds
+        setTimeout(() => {
+            bsCollapse.hide();
+        }, 5000);
+    }
+});
+
+</script>
 <script src="{% static 'js/navbar.js'%}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

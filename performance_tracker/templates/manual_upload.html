@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Manual Upload
+{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="{% static 'css/login.css' %}"> <!-- Use same styling as login -->
+<style>
+    #date_input::-webkit-calendar-picker-indicator {
+    filter: invert(71%) sepia(67%) saturate(749%) hue-rotate(144deg);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 75vh; background-color: #202020;">
+    <div class="card p-4 shadow-lg" style=" background-color: #050505; border-radius: 12px;">
+        <h3 class="text-center logo_txt">Manual Score Entry</h3>
+        <p class="text-center text-white" style="font-weight: bold; font-size: 18px;" >or <a class="text-success" href="{% url 'pdf_upload'%}">Upload using Pdf </a></p>
+        
+        <form method="POST" action="{% url 'manual_upload' %}" class="mt-3">
+            {% csrf_token %}
+
+            <!-- select the date  -->
+            <div class="mb-3 d-flex justify-content-between align-items-center">
+                <label class="form-label col-3 text-light">Select Date:</label>
+                <input type="date" name="date" id="date_input" class="input-field" required>
+            </div>
+            <!-- Select Training Type -->
+            <div class="mb-3 text-center">
+                <label class="form-label text-light" style="font-size: large;">Select Training Type:</label><br>
+                <button type="button" class="btn w-40 mb-2" style="background-color: #00DDFF; color: black; font-weight: bold; border-radius: 8px;" onclick="createScoreTable(4)">40 Shots</button>
+                <button type="button" class="btn w-40 mb-2" style="background-color: #00DDFF; color: black; font-weight: bold; border-radius: 8px;" onclick="createScoreTable(6)">60 Shots</button>
+                <input type="hidden" name="training_type" id="training_type">
+            </div>
+
+            <!-- Scores Input Table -->
+            <div id="score_table_container" style="display: none; width: auto;">
+                <table class="table table-dark text-center">
+                    <thead>
+                        <tr>
+                            <th>Series / Shots</th>
+                            <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="score_table_body"></tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="11">Grand Total</th>
+                            <th><input type="text" id="grand_total" class="input-field" readonly></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Duration Input -->
+            <div class="mb-3">
+                <label class="form-label text-light">Duration of Practice (minutes):</label>
+                <input type="number" name="duration" class="input-field" required>
+            </div>
+
+            <!-- Notes Input -->
+            <div class="mb-3">
+                <label class="form-label text-light">Notes:</label>
+                <textarea name="notes" class="input-field" style="height: 100px;"></textarea>
+            </div>
+
+            <!-- Adjustments Checkbox -->
+            <div class="mb-3">
+                <label class="form-label text-light">
+                    <input type="checkbox" id="adjustment_checkbox" name="adjustment" onclick="toggleAdjustmentField()">
+                    Adjustments Made?
+                </label>
+            </div>
+            <!-- Adjustment Comment -->
+            <div id="adjustment_comment" class="mb-3" style="display: none;">
+                <label class="form-label text-light">Adjustment Comment:</label>
+                <input type="text" name="adjustment_comment" class="input-field">
+            </div>
+            <!-- Submit Button -->
+            <button type="submit" class="btn w-100" style="background-color: #00DDFF; color: black; font-weight: bold; border-radius: 8px;">Save Training</button>
+        
+        </form>
+    </div>
+</div>
+
+<script>
+    function createScoreTable(seriesCount) {
+        document.getElementById("training_type").value = seriesCount == 4 ? "40" : "60";
+        document.getElementById("score_table_container").style.display = "block";
+        
+        let tableBody = document.getElementById("score_table_body");
+        tableBody.innerHTML = ""; // Clear previous content
+
+        for (let series = 1; series <= seriesCount; series++) {
+            let row = `<tr>
+                <td>Series ${series}</td>`;
+
+            for (let shot = 1; shot <= 10; shot++) {
+                row += `<td><input type="number" name="series${series}_shot${shot}" class="series${series} input-field" min="0" max="10" oninput="validateScore(this,${series})" required></td>`;
+            }
+
+            row += `<td><input type="text" id="series${series}_total" class="input-field" readonly></td></tr>`;
+            tableBody.innerHTML += row;
+        }
+    }
+    function validateScore(input, series) {
+    if (input.value > 10) {
+        input.value = 10; // Restrict value to 10
+    } else if (input.value < 0) {
+        input.value = 0; // Restrict value to 0
+    }
+    calculateSeriesTotal(series);
+}
+
+    function calculateSeriesTotal(series) {
+        let shots = document.getElementsByClassName(`series${series}`);
+        let total = 0;
+
+        for (let i = 0; i < shots.length; i++) {
+            total += parseInt(shots[i].value) || 0;
+        }
+
+        document.getElementById(`series${series}_total`).value = total;
+        calculateGrandTotal();
+    }
+
+    function calculateGrandTotal() {
+        let totalFields = document.querySelectorAll("[id^=series][id$=_total]");
+        let grandTotal = 0;
+
+        totalFields.forEach(field => {
+            grandTotal += parseInt(field.value) || 0;
+        });
+
+        document.getElementById("grand_total").value = grandTotal;
+    }
+
+    function toggleAdjustmentField() {
+        let adjustmentField = document.getElementById("adjustment_comment");
+        adjustmentField.style.display = document.getElementById("adjustment_checkbox").checked ? "block" : "none";
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // using the date field by calling its id
+        let dateInput = document.getElementById("date_input");
+        // get todays date
+        let today = new Date().toISOString().split("T")[0];
+        // set max date is today date
+        dateInput.setAttribute("max", today);
+
+        // prevent manual typing of wrong date
+        dateInput.addEventListener("keypress", function(event) {
+            event.preventDefault();
+        });
+
+        dateInput.addEventListener("input", function() {
+            let selectedDate = new Date(this.value);
+            let year = selectedDate.getFullYear();
+            let month = selectedDate.getMonth() + 1;
+            let day = selectedDate.getDate();
+            //getting last valid date of month
+            let lastDay = new Date(year, month, 0).getDate();
+            // if invalid date is input then reset
+            if (day > lastDay) {
+                this.value = "";
+            } 
+        });
+    });
+
+</script>
+
+
+</script>
+
+{% include 'footer.html' %}
+{% endblock %}

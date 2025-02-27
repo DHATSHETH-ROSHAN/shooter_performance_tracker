@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-leyx08ecx#%cgp^@%06db&u_v^g-h$&k9+6d#97()lpads!0%2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.10.10.211']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.10.10.81', '0.0.0.0','*']
 
 
 # Application definition
@@ -152,6 +152,14 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'your-email@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'your-email-password'  # Use an App Password instead of your actual password
+
+
+#sessions part
+SESSION_COOKIE_NAME = "mysite_session"
+SESSION_COOKIE_AGE = 600 # 600 seconds 10 mins the session will stay alive
+SESSION_SAVE_EVERY_REQUEST = True # this will make the session expire only after 10 mins of inactivity
+SESSION_COOKIE_SECURE = False
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
 
 AUTHENTICATION_BACKENDS = ['users.auth_backend.EmailAuthBackend', 'django.contrib.auth.backends.ModelBackend']

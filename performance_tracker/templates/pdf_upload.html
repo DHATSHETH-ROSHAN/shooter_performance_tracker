@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Shooter's Home | Upload PDF Score
+{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<style>
+    /* Ensure the page takes full height */
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Pushes content upwards to keep footer at bottom */
+    .content-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .footer {
+        margin-top: auto; /* Push footer to bottom */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="container mt-4 content-wrapper">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h4>Upload PDF Score File</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" id="pdf-upload-form">
+                        {% csrf_token %}
+                    
+                        <div class="mb-3">
+                            <label for="pdf_file" class="form-label">Upload a PDF File</label>
+                            <input type="file" name="pdf_file" id="pdf_file" class="form-control" accept=".pdf" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Upload</button>
+                    </form>                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("pdf-upload-form").addEventListener("submit", function(event) {
+        let fileInput = document.querySelector("input[type='file']");
+        if (fileInput.files.length > 0) {
+            let file = fileInput.files[0];
+            if (file.type !== "application/pdf") {
+                alert("Please upload a valid PDF file.");
+                event.preventDefault();  // Stop form submission
+            }
+        }
+    });
+</script>
+
+<footer class="footer">
+    {% include 'footer.html' %}
+</footer>
+{% endblock %}

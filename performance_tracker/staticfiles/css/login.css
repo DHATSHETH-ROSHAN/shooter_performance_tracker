@@ -7,6 +7,12 @@
     margin-bottom: 15px; /* Added spacing below the input field */
 }
 
+.input-field:focus {
+    outline: none;
+    border-color: #00DDFF;
+    box-shadow: 0 0 5px #00DDFF;
+}
+
 /* Style for the password input field */
 .input-field {
     width: 100%;
@@ -16,7 +22,6 @@
     background-color: #1e1e1e;
     color: white;
     font-size: 16px;
-    padding-right: 40px; /* Ensure space for the eye icon */
 }
 
 
@@ -27,9 +32,10 @@
 
 /* Hover effect for better UI */
 .toggle-password:hover {
-    cursor: pointer !important;
+    cursor: pointer;
     color: #ffffff;
 }
+
 /* Style for login button */
 .custom-btn {
     width: 100%;

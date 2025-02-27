@@ -36,5 +36,25 @@ body, ul, li, a {
     font-weight: bold !important;
     color: #00ddff !important; 
 }
+    /* Ensure the page takes full height */
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Pushes content upwards to keep footer at bottom */
+    .content-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .footer {
+        margin-top: auto; /* Push footer to bottom */
+    }
 
 

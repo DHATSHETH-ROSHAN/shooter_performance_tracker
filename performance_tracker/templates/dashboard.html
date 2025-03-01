@@ -1,11 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}
-Dashboard - Score Analytics
-{% endblock %}
+{% block title %}Dashboard - Score Analytics{% endblock %}
+
 {% block extra_css %}
-<script src="{% static 'js/home.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -19,124 +18,104 @@ Dashboard - Score Analytics
         align-items: center;
         margin: 20px;
     }
-    .toggle-label {
-        font-size: 18px;
-        margin-right: 10px;
-    }
-    .toggle-switch {
-        position: relative;
-        display: inline-block;
-        width: 50px;
-        height: 24px;
-    }
-    .toggle-switch input {
-        display: none;
-    }
+    .toggle-label { font-size: 18px; margin-right: 10px; }
+    .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+    .toggle-switch input { display: none; }
     .slider {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: 0.4s;
-        border-radius: 24px;
+        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #ccc; transition: 0.4s; border-radius: 24px;
     }
     .slider:before {
-        position: absolute;
-        content: "";
-        height: 18px;
-        width: 18px;
-        left: 3px;
-        bottom: 3px;
-        background-color: white;
-        transition: 0.4s;
-        border-radius: 50%;
+        position: absolute; content: ""; height: 18px; width: 18px;
+        left: 3px; bottom: 3px; background-color: white;
+        transition: 0.4s; border-radius: 50%;
     }
-    input:checked + .slider {
-        background-color: #00DDFF;
-    }
-    input:checked + .slider:before {
-        transform: translateX(26px);
-    }
+    input:checked + .slider { background-color: #00DDFF; }
+    input:checked + .slider:before { transform: translateX(26px); }
     .score-container {
-        margin: 20px;
-        padding: 20px;
-        border: 1px solid #00DDFF;
-        border-radius: 8px;
+        margin: 20px; padding: 20px;
+        border: 1px solid #00DDFF; border-radius: 8px;
     }
 </style>
 {% endblock %}
+
 {% block content %}
 {% include 'navbar.html' %}
 
-{% load static %}
-    <h1>Score Analytics</h1>
+<h1>Score Analytics</h1>
 
-    <div class="toggle-container">
-        <label class="toggle-label">Manual Score</label>
-        <label class="toggle-switch">
-            <input type="checkbox" id="scoreToggle">
-            <span class="slider"></span>
-        </label>
-        <label class="toggle-label">PDF Score</label>
-    </div>
+<div class="toggle-container">
+    <label class="toggle-label">Manual Score</label>
+    <label class="toggle-switch">
+        <input type="checkbox" id="scoreToggle">
+        <span class="slider"></span>
+    </label>
+    <label class="toggle-label">PDF Score</label>
+</div>
 
-    <div id="manualScore" class="score-container">
-        <h2>Manual Score Analytics</h2>
-        {% if last_entry %}
-            <p><strong>Date:</strong> {{ last_entry.date }}</p>
-            <p><strong>Score:</strong> {{ last_entry.total }}</p>
-            <p><strong>Duration:</strong> {{ last_entry.duration }} minutes</p>
-        {% else %}
-            <p>No manual scores available.</p>
-        {% endif %}
-    </div>
+<div id="manualScore" class="score-container">
+    <h2>Manual Score Analytics</h2>
+    {% if last_entry %}
+        <p><strong>Date:</strong> {{ last_entry.date }}</p>
+        <p><strong>Score:</strong> {{ last_entry.total }}</p>
+        <p><strong>Duration:</strong> {{ last_entry.duration }} minutes</p>
+    {% else %}
+        <p>No manual scores available.</p>
+    {% endif %}
+</div>
 
-    <div id="pdfScore" class="score-container" style="display: none;">
-        <h2>PDF Score Analytics</h2>
-        {% if last_pdf_entry %}
-            <p><strong>Date:</strong> {{ last_pdf_entry.date }}</p>
-            <p><strong>Score:</strong> {{ last_pdf_entry.total }}</p>
-            <p><strong>Duration:</strong> {{ last_pdf_entry.duration }} minutes</p>
-        {% else %}
-            <p>No PDF scores available.</p>
-        {% endif %}
-    </div>
+<div id="pdfScore" class="score-container" style="display: none;">
+    <h2>PDF Score Analytics</h2>
+    {% if last_pdf_entry %}
+        <p><strong>Date:</strong> {{ last_pdf_entry.date }}</p>
+        <p><strong>Score:</strong> {{ last_pdf_entry.total }}</p>
+        <p><strong>Duration:</strong> {{ last_pdf_entry.duration }} minutes</p>
+    {% else %}
+        <p>No PDF scores available.</p>
+    {% endif %}
+</div>
+
 <div class="score-container">
     <div class="row">
-        <!-- Series Trends Chart -->
         <div class="chart-container col-6">
             <h2>Series Trends</h2>
             <div id="seriesTrendChart"></div>
         </div>
-
-        <!-- Shot Trends Chart -->
         <div class="chart-container col-6">
-            <h2>Shot Trends (Per Series)</h2>
-            <div id="shotTrendChart"></div>
-        </div>
-    </div>
-    <div class="row">
-        <!-- Pie Chart -->
-        <div class="chart-container col-6 ">
             <h2>Score Distribution</h2>
             <div id="pieChart"></div>
         </div>
-
-        <!-- Line Chart for Series Totals -->
+    </div>
+    <div class="row">
         <div class="chart-container col-6">
-            <h2>Series Total Over Time</h2>
-            <div id="lineChart"></div>
+            <h2>Training Duration vs. Performance</h2>
+            <div id="scatterChart"></div>
+        </div>
+        <div class="chart-container col-6">
+            <h2>Series Score Comparison</h2>
+            <div id="barChart"></div>
         </div>
     </div>
-
 </div>
-    <script>
-        document.getElementById("scoreToggle").addEventListener("change", function() {
-            var manualScoreDiv = document.getElementById("manualScore");
-            var pdfScoreDiv = document.getElementById("pdfScore");
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var referrer = document.referrer;
+        var toggle = document.getElementById("scoreToggle");
+        var manualScoreDiv = document.getElementById("manualScore");
+        var pdfScoreDiv = document.getElementById("pdfScore");
+        
+        if (referrer.includes("manual_upload")) {
+            toggle.checked = false;
+            manualScoreDiv.style.display = "block";
+            pdfScoreDiv.style.display = "none";
+        } else if (referrer.includes("pdf_upload")) {
+            toggle.checked = true;
+            manualScoreDiv.style.display = "none";
+            pdfScoreDiv.style.display = "block";
+        }
+
+        toggle.addEventListener("change", function() {
             if (this.checked) {
                 manualScoreDiv.style.display = "none";
                 pdfScoreDiv.style.display = "block";
@@ -145,50 +124,9 @@ Dashboard - Score Analytics
                 pdfScoreDiv.style.display = "none";
             }
         });
+    });
 
-    var seriesData = {{ series_trends }};
-    var shotData = {{ shot_trends|safe }};
-    var pieChartData = {{ pie_chart_data|safe }};
-    var seriesTotals = {{ series_totals|safe }};
-
-    // Series Trend Chart
-    var seriesChartOptions = {
-        chart: { type: 'bar', height: 350 },
-        series: [
-            { name: "Series 1", data: seriesData.map(s => s.series_1) },
-            { name: "Series 2", data: seriesData.map(s => s.series_2) },
-            { name: "Series 3", data: seriesData.map(s => s.series_3) },
-            { name: "Series 4", data: seriesData.map(s => s.series_4) },
-        ],
-        xaxis: { categories: seriesData.map(s => s.date) }
-    };
-    new ApexCharts(document.querySelector("#seriesTrendChart"), seriesChartOptions).render();
-
-    // Shot Trend Chart
-    var shotChartOptions = {
-        chart: { type: 'line', height: 350 },
-        series: [{ name: "Shots", data: shotData.map(s => s.shots) }],
-        xaxis: { categories: shotData.map(s => s.date) }
-    };
-    new ApexCharts(document.querySelector("#shotTrendChart"), shotChartOptions).render();
-
-    // Pie Chart
-    var pieChartOptions = {
-        chart: { type: 'pie', height: 350 },
-        series: Object.values(pieChartData),
-        labels: Object.keys(pieChartData)
-    };
-    new ApexCharts(document.querySelector("#pieChart"), pieChartOptions).render();
-
-    // Line Chart for Series Totals
-    var lineChartOptions = {
-        chart: { type: 'line', height: 350 },
-        series: [{ name: "Total Score", data: seriesTotals.map(s => s.total) }],
-        xaxis: { categories: seriesTotals.map(s => s.date) }
-    };
-    new ApexCharts(document.querySelector("#lineChart"), lineChartOptions).render();
 </script>
 
-    </script>
 {% include 'footer.html' %}
 {% endblock %}

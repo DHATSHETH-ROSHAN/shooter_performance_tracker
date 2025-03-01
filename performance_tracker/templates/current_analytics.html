@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Score Analytics{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<style>
+    #manualContainer, #pdfContainer {
+        display: none; /* Hide both containers initially */
+    }
+
+        /* Toggle Switch Styles */
+        .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    input:checked + .slider {
+        background-color: #00DDFF;
+    }
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<!-- Toggle Switch -->
+<label class="switch">
+    <input type="checkbox" id="toggleSwitch" onchange="toggleView()">
+    <span class="slider"></span>
+</label>
+
+<!-- Manual Upload Content -->
+<div class="text-light" id="manualContainer">
+    <h1>Manual Upload Analytics</h1>
+    {% if source == "manual" %}
+        <h3>Latest Manual Score Data</h3>
+        {% if latest_score %}
+            <div>
+                <p><strong>Date:</strong> {{ latest_score.date }}</p>
+                <p><strong>Match Type:</strong> {{ latest_score.match_type }}</p>
+                <p><strong>Total Score:</strong> {{ latest_score.total }}</p>
+                <p><strong>Average Score:</strong> {{ latest_score.average }}</p>
+                <p><strong>Duration:</strong> {{ latest_score.duration }} min</p>
+                <p><strong>Notes:</strong> {{ latest_score.notes|default:"N/A" }}</p>
+                <p><strong>Adjustment Made:</strong> {% if latest_score.adjustment_made %} Yes {% else %} No {% endif %}</p>
+            </div>
+
+            <!-- ApexCharts Container -->
+            <div id="scoreChart"></div>
+            <script>
+                var options = {
+                    series: [{
+                        name: "Series Scores",
+                        data: [
+                            { latest_score.s1t },
+                            {{ latest_score.s2t|default:0 }},
+                            {{ latest_score.s3t|default:0 }},
+                            {{ latest_score.s4t|default:0 }},
+                            {% if latest_score.match_type == "60-Shots" %}
+                                {{ latest_score.s5t|default:0 }},
+                                {{ latest_score.s6t|default:0 }}
+                            {% endif %}
+                        ]
+                    }],
+                    chart: {
+                        type: 'bar',
+                        height: 350
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'rounded'
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    xaxis: {
+                        categories: [
+                            "Series 1", "Series 2", "Series 3", "Series 4"
+                            {% if latest_score.match_type == "60-Shots" %}, "Series 5", "Series 6" {% endif %}
+                        ]
+                    }
+                };
+
+                var chart = new ApexCharts(document.querySelector("#scoreChart"), options);
+                chart.render();
+            </script>
+
+        {% else %}
+            <p>No manual scores available.</p>
+        {% endif %}
+    
+    {% elif source == "pdf" %}
+        <h3>PDF Uploaded Score Data</h3>
+        <p>PDF data visualization is not yet implemented.</p>
+    
+    {% endif %}
+
+</div>
+
+<!-- PDF Upload Content -->
+<div class="text-light" id="pdfContainer">
+    <h1>PDF Upload Analytics</h1>
+</div>
+<script>
+    // Get the source from Django session (sent via template rendering)
+    let source = "{{ request.session.analytics_source|default:'' }}"; // Avoid undefined errors
+
+    console.log("Analytics Source:", source); // Debugging
+
+    function showContainer() {
+        let manualDiv = document.getElementById("manualContainer");
+        let pdfDiv = document.getElementById("pdfContainer");
+        let toggleSwitch = document.getElementById("toggleSwitch");
+
+        // Hide both initially
+        manualDiv.style.display = "none";
+        pdfDiv.style.display = "none";
+
+        // Show based on source
+        if (source === "manual") {
+            manualDiv.style.display = "block";
+            toggleSwitch.checked = false; // Default switch position
+        } else if (source === "pdf") {
+            pdfDiv.style.display = "block";
+            toggleSwitch.checked = true; // Default switch position
+        } else {
+            // Default to manual if source is missing
+            manualDiv.style.display = "block";
+            toggleSwitch.checked = false;
+        }
+    }
+
+    // Toggle function for the button
+    function toggleView() {
+        let manualDiv = document.getElementById("manualContainer");
+        let pdfDiv = document.getElementById("pdfContainer");
+        let toggleSwitch = document.getElementById("toggleSwitch");
+
+        if (toggleSwitch.checked) {
+            manualDiv.style.display = "none";
+            pdfDiv.style.display = "block";
+        } else {
+            manualDiv.style.display = "block";
+            pdfDiv.style.display = "none";
+        }
+    }
+    // Show container on page load
+    showContainer();
+</script>
+
+{% include 'footer.html' %}
+{% endblock %}

@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Score
+from .models import pdfScore
 from users.models import UserProfiles
 from django.utils.dateparse import parse_date
-import json
+
 
 @login_required(login_url='/login/')
 def manual_upload(request):
@@ -89,86 +90,43 @@ def manual_upload(request):
         )
 
         messages.success(request, "Training data saved successfully!")
-        return redirect("dashboard")  # Redirect to dashboard or another page
+        return redirect("/score/shooter/home/analytics/?source=manual")  # Redirect to dashboard or another page
 
     return render(request, "manual_upload.html")
 
 @login_required(login_url='/login/')
 def pdf_uploading(request):
+    if request:
+        messages.success(request, "Training data saved successfully!")
+        return redirect("/score/shooter/home/analytics/?source=manual") 
     return render(request, 'pdf_upload.html')
 
 @login_required(login_url='/login/')
 def dashboard(request):
+    if not request.user.is_authenticated:
+        messages.warning(request,"You need to login to access this page!!")
+        return redirect(request,'/login/')
+    return render(request, 'dashboard.html')
+
+@login_required(login_url='/login/')
+def analytics(request):
+    source = request.GET.get("source", "manual")  # Get source from query params
+    request.session["analytics_source"] = source  # Save in session
     user = request.user
+    # Get the latest score entry
+    if source == "manual":
+        latest_score = Score.objects.filter(user_profile=user).order_by("-current_time").first()
+        print(latest_score)    
+    elif source == "pdf":
+        latest_score = pdfScore.objects.filter(user_profile=user).order_by("-date").first()
+    else:
+        latest_score = None
 
-    # Fetch manual scores only for the logged-in user
-    manual_scores = Score.objects.filter(user_profile=user).order_by('-date', '-current_time')
-
-    # Get the most recent entry
-    last_entry = manual_scores.first()
-
-    # Prepare data for charts
-    series_trends = []   # Stores series-wise trends over time
-    shot_trends = []     # Stores total shot trends over time
-    series_totals = []   # Line chart data for total score trends
-    pie_chart_data = {
-        "Series 1": 0,
-        "Series 2": 0,
-        "Series 3": 0,
-        "Series 4": 0,
-        "Series 5": 0,
-        "Series 6": 0
-    }
-
-    for score in manual_scores:
-        formatted_date = score.date.strftime("%Y-%m-%d")
-
-        # Add series-wise scores to trends
-        series_trends.append({
-            "date": formatted_date,
-            "series_1": score.s1t,
-            "series_2": score.s2t,
-            "series_3": score.s3t,
-            "series_4": score.s4t,
-            "series_5": score.s5t if score.match_type == "60-Shots" else None,
-            "series_6": score.s6t if score.match_type == "60-Shots" else None,
-            "total": score.total
-        })
-
-        # Extract shot-wise trends for each series
-        total_shots = sum(score.series_1 or []) + sum(score.series_2 or []) + sum(score.series_3 or []) + sum(score.series_4 or [])
-        if score.match_type == "60-Shots":
-            total_shots += sum(score.series_5 or []) + sum(score.series_6 or [])
-
-        shot_trends.append({
-            "date": formatted_date,
-            "shots": total_shots
-        })
-
-        # Pie chart data (total contribution of each series)
-        pie_chart_data["Series 1"] += score.s1t
-        pie_chart_data["Series 2"] += score.s2t
-        pie_chart_data["Series 3"] += score.s3t
-        pie_chart_data["Series 4"] += score.s4t
-        if score.match_type == "60-Shots":
-            pie_chart_data["Series 5"] += score.s5t
-            pie_chart_data["Series 6"] += score.s6t
-
-        # Total score trend over time
-        series_totals.append({
-            "date": formatted_date,
-            "total": score.total
-        })
-
-    # Convert data to JSON for the frontend
     context = {
-        "last_entry": last_entry,
-        "series_trends": json.dumps(series_trends),
-        "shot_trends": json.dumps(shot_trends),
-        "pie_chart_data": json.dumps(pie_chart_data),
-        "series_totals": json.dumps(series_totals),
+        "source": source,
+        "latest_score": latest_score
     }
-
-    return render(request, 'dashboard.html', context)
+    print("Analytics Source:", source) 
+    return render(request, 'current_analytics.html', context)
 
 # Create your views here.

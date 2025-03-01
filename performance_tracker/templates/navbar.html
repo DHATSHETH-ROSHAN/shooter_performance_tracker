@@ -29,7 +29,6 @@
             <!-- Navigation Links (Placed After App Name) -->
             <ul class="navbar-nav ms-4">  <!-- ms-4 adds spacing -->
                 <li class="nav-item">
-
                     <a class="nav-link {% if user.is_authenticated %}
                                             {% if user.role == 'Shooter' %}
                                                 {% if request.path == '/shooter/home/' %}
@@ -59,6 +58,9 @@
                 </li>
                 <li class="nav-item">
                     <a id="activities-link" class="nav-link {% if request.path == '/activities/' %}active{% endif %} text-light" href="{% url 'activities'%}">Activities</a>
+                </li>
+                <li class="nav-item">
+                    <a id ="dashboard-link" class="nav-link text-light" href="{% url 'dashboard' %}">Dashboard</a>
                 </li>
             </ul>
             <!-- Right Side: Login Button (ms-auto pushes it to the right) -->

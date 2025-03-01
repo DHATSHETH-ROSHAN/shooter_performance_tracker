@@ -30,7 +30,7 @@ Shooter's Home
                                 <p class="fw-bold">{{ last_session|date:"d.m.Y" }}</p>
                             </div>
                             <div class="col-6">
-                                <h6>Session duraion</h6>
+                                <h6>Session duration</h6>
                                 <p class="fw-bold">{{ session_timing }} </p>
                             </div>
                         </div>
@@ -72,20 +72,47 @@ Shooter's Home
      <div class="col-lg-6 col-md-8 col-sm-12 mb-4" style="background-color: #050505; padding: 10px; border-radius: 10px;">
         <div class="card text-white" style="background-color: #050505;">
             <div class="card-body">
-                <h5 class="card-title logo_txt "> Performance Overview</h5>
+                <h5 class="card-title logo_txt text-center"> Performance Overview</h5>
                 <br>
                 <div class="row text-center">
                     <div class="col-4">
-                        <h6>Total Sesions</h6>
-                        <p class="fw-bold text-primary">{{ total_sesion }}</p>
+                        <h6>Total Session</h6>
+                        <div class="row">
+                        <div class="col-6">
+                            <p>40 shots</p>    
+                            <p class="fw-bold text-success">{{ total_session_40 }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p>60 shots</p>    
+                            <p class="fw-bold text-success">{{ total_session_60 }}</p>
+                        </div>
+                        </div>
                     </div>
                     <div class="col-4">
                         <h6>Best Score</h6>
-                        <p class="fw-bold text-success">{{ best_score }}</p>
+                        <div class="row">
+                        <div class="col-6">
+                            <p>40 shots</p>    
+                            <p class="fw-bold text-success">{{ best_score_40 }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p>60 shots</p>    
+                            <p class="fw-bold text-success">{{ best_score_60 }}</p>
+                        </div>
+                        </div>
                     </div>
                     <div class="col-4">
-                        <h6>30-Day Avg</h6>
-                        <p class="fw-bold text-warning">{{ avg_score }}</p>
+                        <h6>30 Days Average</h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <p>40 shots</p>    
+                                <p class="fw-bold text-success">{{ avg_score_40 }}</p>
+                            </div>
+                            <div class="col-6">
+                                <p>60 shots</p>    
+                                <p class="fw-bold text-success">{{ avg_score_60 }}</p>
+                            </div>
+                            </div>
                     </div>
                 </div>
             </div>
@@ -107,9 +134,9 @@ Shooter's Home
                 <div class="card text-white shadow-sm" style="background-color: #020202;">
                     <div class="card-body text-center">
                         <h5 class="card-title">🔥 Streaks</h5>
-                        <p class="fw-bold">Current Streak:<span id="streakDays">7</span>Days</p>
+                        <p class="fw-bold">Current Streak:<span id="streakDays">{{ streak_count }}</span>Days</p>
                         <div class="progress" style="height: 5px;">
-                            <div id="streakProgress" class="progress-bar bg-warning" role="progressbar" style="width: 70%;" aria-valuenow="7" aria-valuemin="0" aria-valuemax="30"></div>
+                            <div id="streakProgress" class="progress-bar bg-warning" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="30"></div>
                         </div>
                         <small>Maintain your streaks to score more.</small>
                     </div>
@@ -129,13 +156,23 @@ Shooter's Home
                         <br>
                         <a href="{% url 'activities' %}" class="btn btn-primary btn-sm">Activities</a>
                     </div>
-                    <div class="card-body text-center">
+                    <!-- for 40 shots -->
+                    <div class="card-body text-center" id="goalTracker40Container">
                         <h5 class="card-title logo_txt">🎯 Goal Tracker</h5>
-                        <p>Current Score:<span id="currentscore">{{ current_score }}</span>/ Target Score: <span id="targetscore">{{ target_score }}</span></p>
-                        <div id="goalTrackerChart">
+                        <p>Current Score:<span id="currentscore">{{ current_score_40 }}</span>/ Target Score: <span id="targetscore">{{ target_score_40 }}</span></p>
+                        <div id="goalTrackerChart40">
                             
                         </div>
-                        <p  class="mt-2"><b>Progress: <span id="progressPercentage"></span></b></p>
+                        <p  class="mt-2"><b>Progress: <span id="progressPercentage40"></span></b></p>
+                    </div>
+                    <!-- for 60 shots -->
+                    <div class="card-body text-center" id="goalTracker60Container">
+                        <h5 class="card-title logo_txt">🎯 Goal Tracker</h5>
+                        <p>Current Score:<span id="currentscore">{{ current_score_60 }}</span>/ Target Score: <span id="targetscore">{{ target_score_60 }}</span></p>
+                        <div id="goalTrackerChart60">
+                            
+                        </div>
+                        <p  class="mt-2"><b>Progress: <span id="progressPercentage60"></span></b></p>
                     </div>
                     <div id="notificationsPopup" class="popup">
                         <div class="popup-content">
@@ -168,6 +205,7 @@ Shooter's Home
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
     // charts dipalayed inn the center of the page
+    
     var options = {
       chart: {
         type: 'bar'
@@ -233,6 +271,17 @@ Shooter's Home
     var chart = new ApexCharts(document.querySelector("#weeklyChart"), options);
     chart.render();
 
+// streak progress
+document.addEventListener("DOMContentLoaded", function () {
+    let streakCount = parseInt("{{ streak_count }}", 10);
+    let maxStreak = 30;  // You can adjust this limit
+    let progressPercentage = (streakCount / maxStreak) * 100;
+
+    document.getElementById("streakProgress").style.width = progressPercentage + "%";
+    document.getElementById("streakProgress").setAttribute("aria-valuenow", streakCount);
+});
+
+
 // show and hide the taabs in the rigth side panel  
 function showContent(section) {
     document.querySelectorAll('.training-content').forEach(el => el.style.display = 'none');
@@ -240,19 +289,20 @@ function showContent(section) {
     if (content) {
         content.style.display = 'block';
     }
-}
+};
+
 
 // goal tracker
-
-let currentScore = parseInt('{{ current_score }}');
-let targetScore = parseInt('{{ target_score }}');
-var progress = (currentScore / targetScore) * 100;
+// goal tracker chrt 40
+// Update the progress text
+let currentScore_40 = parseInt('{{ current_score_40 }}');
+let targetScore_40 = parseInt('{{ target_score_40 }}');
+var progress = (currentScore_40 / targetScore_40) * 100;
 progress = progress > 100 ? 100 : progress;
 
-// Update the progress text
-document.getElementById("progressPercentage").innerText = progress.toFixed(1);
+document.getElementById("progressPercentage40").innerText = progress.toFixed(1);
 
-var goalTrackerOptions = {
+var goalTrackerOptions40 = {
     series: [progress],
     chart: {
         height: 250,
@@ -275,7 +325,7 @@ var goalTrackerOptions = {
                     fontSize: "22px",
                     color: "#ffffff",
                     formatter: function (val) {
-                        return val + "%";
+                        return val.toFixed(1) + "%";
                     }
                 }
             }
@@ -290,9 +340,72 @@ var goalTrackerOptions = {
     labels: ["Progress"]
 };
 
-var goaltrackerChart = new ApexCharts(document.querySelector("#goalTrackerChart"), goalTrackerOptions);
-goaltrackerChart.render();
+var goaltrackerChart40 = new ApexCharts(document.querySelector("#goalTrackerChart40"), goalTrackerOptions40);
+goaltrackerChart40.render();
 
+
+// goal tracker chart 60
+// Update the progress text
+let currentScore60 = parseInt('{{ current_score_60 }}');
+let targetScore60 = parseInt('{{ target_score_60 }}');
+var progress = (currentScore60 / targetScore60) * 100;
+progress = progress > 100 ? 100 : progress;
+document.getElementById("progressPercentage60").innerText = progress.toFixed(1);
+
+var goalTrackerOptions60 = {
+    series: [progress],
+    chart: {
+        height: 250,
+        type: "radialBar"
+    },
+    plotOptions: {
+        radialBar: {
+            startAngle: -90,
+            endAngle: 90,
+            track: {
+                background: "#333",
+                strokeWidth: "90%"
+            },
+            dataLabels: {
+                name: {
+                    show: false
+                },
+                value: {
+                    offsetY: 5,
+                    fontSize: "22px",
+                    color: "#ffffff",
+                    formatter: function (val) {
+                        return val.toFixed(1) + "%";
+                    }
+                }
+            }
+        }
+    },
+    fill: {
+        colors: ["#00ddff"]
+    },
+    stroke: {
+        lineCap: "round"
+    },
+    labels: ["Progress"]
+};
+
+var goalTrackerChart60 = new ApexCharts(document.querySelector("#goalTrackerChart60"), goalTrackerOptions60);
+goalTrackerChart60.render();
+
+document.addEventListener("DOMContentLoaded", function () {
+    let lastMatchType = "{{ last_match_type }}";
+    let goalTracker40 = document.getElementById("goalTracker40Container");
+    let goalTracker60 = document.getElementById("goalTracker60Container");
+
+    if (lastMatchType == "60-Shots") {
+        goalTracker40.style.display = "none";
+        goalTracker60.style.display = "block";
+    } else {
+        goalTracker40.style.display = "block";
+        goalTracker60.style.display = "none";
+    }
+});
 
 // popup messages and notification thing
 function openPopup(id) {

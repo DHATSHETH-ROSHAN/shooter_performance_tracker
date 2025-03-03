@@ -19,10 +19,11 @@ Manual Upload
 {% block content %}
 {% include 'navbar.html' %}
 
-<div class="d-flex justify-content-center align-items-center" style="min-height: 75vh; background-color: #202020;">
+<div class="container justify-content-center align-items-center" style=" background-color: #202020; padding-top: 10px; padding-bottom: 10px; padding-right: 10%; padding-left: 10%;">
     <div class="card p-4 shadow-lg" style=" background-color: #050505; border-radius: 12px;">
         <h3 class="text-center logo_txt">Manual Score Entry</h3>
-        <p class="text-center text-white" style="font-weight: bold; font-size: 18px;" >or <a class="text-success" href="{% url 'pdf_upload'%}">Upload using Pdf </a></p>
+        <p class="text-center text-white" style="font-weight: bold; font-size: 18px;" >or </p>
+        <a class="text-success text-center" style="font-weight: bold; font-size: large;" href="{% url 'pdf_upload'%}">Upload using Pdf </a>
         
         <form method="POST" action="{% url 'manual_upload' %}" class="mt-3">
             {% csrf_token %}
@@ -65,13 +66,11 @@ Manual Upload
                 <label class="form-label text-light">Duration of Practice (minutes):</label>
                 <input type="number" name="duration" class="input-field" required>
             </div>
-
             <!-- Notes Input -->
             <div class="mb-3">
                 <label class="form-label text-light">Notes:</label>
                 <textarea name="notes" class="input-field" style="height: 100px;"></textarea>
             </div>
-
             <!-- Adjustments Checkbox -->
             <div class="mb-3">
                 <label class="form-label text-light">

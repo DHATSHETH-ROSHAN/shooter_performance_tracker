@@ -80,47 +80,6 @@
 
             <!-- ApexCharts Container -->
             <div id="scoreChart"></div>
-            <script>
-                var options = {
-                    series: [{
-                        name: "Series Scores",
-                        data: [
-                            { latest_score.s1t },
-                            {{ latest_score.s2t|default:0 }},
-                            {{ latest_score.s3t|default:0 }},
-                            {{ latest_score.s4t|default:0 }},
-                            {% if latest_score.match_type == "60-Shots" %}
-                                {{ latest_score.s5t|default:0 }},
-                                {{ latest_score.s6t|default:0 }}
-                            {% endif %}
-                        ]
-                    }],
-                    chart: {
-                        type: 'bar',
-                        height: 350
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            columnWidth: '55%',
-                            endingShape: 'rounded'
-                        }
-                    },
-                    dataLabels: {
-                        enabled: false
-                    },
-                    xaxis: {
-                        categories: [
-                            "Series 1", "Series 2", "Series 3", "Series 4"
-                            {% if latest_score.match_type == "60-Shots" %}, "Series 5", "Series 6" {% endif %}
-                        ]
-                    }
-                };
-
-                var chart = new ApexCharts(document.querySelector("#scoreChart"), options);
-                chart.render();
-            </script>
-
         {% else %}
             <p>No manual scores available.</p>
         {% endif %}
@@ -138,6 +97,64 @@
     <h1>PDF Upload Analytics</h1>
 </div>
 <script>
+
+// Check if the source is valid
+if (source !== "manual" && source !== "pdf") {
+    console.error("Invalid source:", source);
+    alert("An error occurred: Invalid source.");
+}
+document.addEventListener("DOMContentLoaded", function () {
+        let source = "{{ request.session.analytics_source|default:'manual' }}";
+
+        // Fetch latest score data from Django API
+        fetch(`/score/shooter/get_latest_score/?source=${source}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error("Error fetching score data:", data.error);
+                    alert("Failed to retrieve score data.");
+                    return;
+                }
+
+                console.log("Score Data Received:", data);
+
+                var seriesData = data.series_scores.filter(score => score !== null);  // Remove null values
+                var categoriesData = data.categories;
+
+                var options = {
+                    series: [{
+                        name: "Series Scores",
+                        data: seriesData
+                    }],
+                    chart: {
+                        type: 'bar',
+                        height: 350
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'rounded'
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    xaxis: {
+                        categories: categoriesData
+                    }
+                };
+
+                var chart = new ApexCharts(document.querySelector("#scoreChart"), options);
+                chart.render();
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while fetching score data.");
+            });
+    });
+
+
     // Get the source from Django session (sent via template rendering)
     let source = "{{ request.session.analytics_source|default:'' }}"; // Avoid undefined errors
 

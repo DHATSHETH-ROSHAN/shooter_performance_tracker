@@ -7,7 +7,12 @@ Shooter's Home | Upload PDF Score
 
 {% block extra_css %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
 <style>
+        #date_input::-webkit-calendar-picker-indicator {
+    filter: invert(71%) sepia(67%) saturate(749%) hue-rotate(144deg);
+}
     /* Ensure the page takes full height */
     html, body {
         height: 100%;
@@ -34,14 +39,16 @@ Shooter's Home | Upload PDF Score
 {% block content %}
 {% include 'navbar.html' %}
 
-<div class="container mt-4 content-wrapper">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header text-center">
-                    <h4>Upload PDF Score File</h4>
+<div class="container mt-4 content-wrapper" >
+    <div class="row justify-content-center" >
+        <div class="col-md-6 justify-content-center align-items-center" style="padding-bottom: 10px;">
+            <div class="card" style=" background-color: #050505; border-radius: 12px;">
+                <div class="card-header text-center" >
+                    <h4 class="logo_txt">Upload PDF Score File</h4>
+                    <p class="text-center text-light" style="font-weight: bold;">or</p>
+                    <a class="text-success text-center" style="font-weight: bold; font-size: large;" href="{% url 'manual_upload' %}">Enter scores manually </a>
                 </div>
-                <div class="card-body">
+                <div class="card-body" >
                     {% if messages %}
                         {% for message in messages %}
                             <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
@@ -49,33 +56,71 @@ Shooter's Home | Upload PDF Score
                             </div>
                         {% endfor %}
                     {% endif %}
-
                     <form method="post" enctype="multipart/form-data" id="pdf-upload-form">
                         {% csrf_token %}
-                    
                         <div class="mb-3">
-                            <label for="pdf_file" class="form-label">Upload a PDF File</label>
-                            <input type="file" name="pdf_file" id="pdf_file" class="form-control" accept=".pdf" required>
+                            <label for="pdf_file" class="form-label text-light">Upload a PDF File</label>
+                            <input type="file" name="pdf_file" id="pdf_file" class="form-control" style="border-color: #00DDFF;" accept=".pdf" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Upload</button>
-                    </form>                    
+                        <!-- Duration Input -->
+                        <div class="mb-3">
+                            <label class="form-label text-light">Duration of Practice (minutes):</label>
+                            <input type="number" name="duration" class="input-field" required>
+                        </div>
+                        <!-- Notes Input -->
+                        <div class="mb-3">
+                            <label class="form-label text-light">Notes:</label>
+                            <textarea name="notes" class="input-field" style="height: 100px;"></textarea>
+                        </div>
+                        <!-- Adjustments Checkbox -->
+                        <div class="mb-3">
+                            <label class="form-label text-light">
+                                <input type="checkbox" id="adjustment_checkbox" name="adjustment" onclick="toggleAdjustmentField()">
+                                Adjustments Made?
+                            </label>
+                        </div>
+                        <!-- Adjustment Comment -->
+                        <div id="adjustment_comment" class="mb-3" style="display: none;">
+                            <label class="form-label text-light">Adjustment Comment:</label>
+                            <input type="text" name="adjustment_comment" class="input-field">
+                        </div>   
+                        <button type="submit" class="btn btn-outline-success w-100" style="background-color: #00DDFF; color: black; font-weight: bold; border-radius: 8px;" >Upload</button>
+                    </form>                 
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 <script>
-    document.getElementById("pdf-upload-form").addEventListener("submit", function(event) {
-        let fileInput = document.querySelector("input[type='file']");
-        if (fileInput.files.length > 0) {
-            let file = fileInput.files[0];
-            if (file.type !== "application/pdf") {
-                alert("Please upload a valid PDF file.");
-                event.preventDefault();  // Stop form submission
-            }
-        }
-    });
+// file type checking
+document.getElementById("pdf-upload-form").addEventListener("submit", function(event) {
+    let fileInput = document.getElementById("pdf_file");
+    let file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select a file before uploading.");
+        event.preventDefault();
+        return;
+    }
+    let validExtensions = [".pdf"];
+    let fileName = file.name.toLowerCase();
+    let isValid = validExtensions.some(ext => fileName.endsWith(ext));
+
+    if (!isValid) {
+        alert("Only PDF files are allowed.");
+        event.preventDefault();
+    }
+});
+// toogle bar
+function toggleAdjustmentField() {
+        let adjustmentField = document.getElementById("adjustment_comment");
+        adjustmentField.style.display = document.getElementById("adjustment_checkbox").checked ? "block" : "none";
+    }
+// Auto-hide alert messages after 5 seconds
+setTimeout(() => {
+    document.querySelectorAll(".alert").forEach(alert => alert.remove());
+}, 5000);
+
 </script>
 
 <footer class="footer">

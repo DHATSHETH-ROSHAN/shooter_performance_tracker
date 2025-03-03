@@ -156,7 +156,7 @@ EMAIL_HOST_PASSWORD = 'your-email-password'  # Use an App Password instead of yo
 
 #sessions part
 SESSION_COOKIE_NAME = "mysite_session"
-SESSION_COOKIE_AGE = 600 # 600 seconds 10 mins the session will stay alive
+SESSION_COOKIE_AGE = 6000 # 600 seconds 10 mins the session will stay alive
 SESSION_SAVE_EVERY_REQUEST = True # this will make the session expire only after 10 mins of inactivity
 SESSION_COOKIE_SECURE = False
 SESSION_ENGINE = "django.contrib.sessions.backends.db"

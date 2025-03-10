@@ -22,7 +22,6 @@ urlpatterns = [
     ), name='password_reset_complete'),
 
     path('register/', views.user_register, name = 'register'),
-    path('activities/', views.user_activities, name='activities'),
     
     path('shooter/home/', views.shooter_home, name = 'shooter_home'),
 

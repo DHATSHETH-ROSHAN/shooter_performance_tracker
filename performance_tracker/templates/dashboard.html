@@ -53,58 +53,187 @@
     <label class="toggle-label">PDF Score</label>
 </div>
 
+
 <div id="manualScore" class="score-container">
-    <h2>Manual Score Analytics</h2>
-    {% if last_entry %}
-        <p><strong>Date:</strong> {{ last_entry.date }}</p>
-        <p><strong>Score:</strong> {{ last_entry.total }}</p>
-        <p><strong>Duration:</strong> {{ last_entry.duration }} minutes</p>
-    {% else %}
-        <p>No manual scores available.</p>
-    {% endif %}
+    <div class="row text-center">
+        <div class="col-3">
+            <h5>Total Session</h5>
+            <div class="row">
+            <div class="col-6">
+                <p>40 shots</p>    
+                <p class="fw-bold text-success">{{ total_man_40_shots }}</p>
+            </div>
+            <div class="col-6">
+                <p>60 shots</p>    
+                <p class="fw-bold text-success">{{ total_man_60_shots }}</p>
+            </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <h5>Personal Best</h5>
+            <div class="row">
+            <div class="col-6">
+                <p>40 shots</p>    
+                <p class="fw-bold text-success">{{ best_man_40_shots }}</p>
+            </div>
+            <div class="col-6">
+                <p>60 shots</p>    
+                <p class="fw-bold text-success">{{ best_man_60_shots }}</p>
+            </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <h5>30 Days Average</h5>
+            <div class="row">
+                <div class="col-6">
+                    <p>40 shots</p>    
+                    <p class="fw-bold text-success">{{ last_30_avg_40_man }}</p>
+                </div>
+                <div class="col-6">
+                    <p>60 shots</p>    
+                    <p class="fw-bold text-success">{{ last_30_avg_60_man }}</p>
+                </div>
+                </div>
+        </div>
+        <div class="col-3">
+            <div class="card-body text-center">
+                <h5 class="card-title">Streaks</h5>
+                <p class="fw-bold">Current Streak:<span id="streakDays">{{ streak_count }}</span>Days</p>
+                <div class="progress" style="height: 5px;">
+                    <div id="streakProgress" class="progress-bar bg-warning" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="30"></div>
+                </div>
+                <small>Maintain your streaks to score more.</small>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="pdfScore" class="score-container" style="display: none;">
-    <h2>PDF Score Analytics</h2>
-    {% if last_pdf_entry %}
-        <p><strong>Date:</strong> {{ last_pdf_entry.date }}</p>
-        <p><strong>Score:</strong> {{ last_pdf_entry.total }}</p>
-        <p><strong>Duration:</strong> {{ last_pdf_entry.duration }} minutes</p>
-    {% else %}
-        <p>No PDF scores available.</p>
-    {% endif %}
+    <div class="row text-center">
+        <div class="col-3">
+            <h6>Total Session</h6>
+            <div class="row">
+            <div class="col-6">
+                <p>40 shots</p>    
+                <p class="fw-bold text-success">{{ total_pdf_40_shots }}</p>
+            </div>
+            <div class="col-6">
+                <p>60 shots</p>    
+                <p class="fw-bold text-success">{{ total_pdf_60_shots }}</p>
+            </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <h6>Best Score</h6>
+            <div class="row">
+            <div class="col-6">
+                <p>40 shots</p>    
+                <p class="fw-bold text-success">{{ best_pdf_40_shots }}</p>
+            </div>
+            <div class="col-6">
+                <p>60 shots</p>    
+                <p class="fw-bold text-success">{{ best_pdf_60_shots }}</p>
+            </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <h6>30 Days Average</h6>
+            <div class="row">
+                <div class="col-6">
+                    <p>40 shots</p>    
+                    <p class="fw-bold text-success">{{ last_30_avg_40_est }}</p>
+                </div>
+                <div class="col-6">
+                    <p>60 shots</p>    
+                    <p class="fw-bold text-success">{{ last_30_avg_60_est }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card-body text-center">
+                <h5 class="card-title">Streaks</h5>
+                <p class="fw-bold">Current Streak:<span id="streakDays">{{ streak_count }}</span>Days</p>
+                <div class="progress" style="height: 5px;">
+                    <div id="streakProgress" class="progress-bar bg-warning" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="30"></div>
+                </div>
+                <small>Maintain your streaks to score more.</small>
+            </div>
+        </div>
+    </div>
+    <div>
+        <h6> to</h6>
+    </div>
 </div>
 
 <div class="score-container">
     <div class="row">
-        <div class="chart-container col-6">
-            <h2>Series Trends</h2>
-            <div id="seriesTrendChart"></div>
+        <div class="col-6">
+            <div class="row">
+                <h3 class="logo_txt">Series trends</h3>
+                <div class="chart-container col-6">
+                    <h4>40-Shots trends</h4>
+                    <div id="seriesTrendChart40"></div>
+                </div>
+                <div class="chart-container col-6">
+                    <h4>60-Shots trends</h4>
+                    <div id="seriesTrendChart60"></div>
+                </div>
+            </div>
         </div>
-        <div class="chart-container col-6">
-            <h2>Score Distribution</h2>
-            <div id="pieChart"></div>
+
+        <div class="col-6">
+            <div class="row">
+                <h3 class="logo_txt" >Score distribution</h3>
+                <div class="chart-container col-6">
+                    <h4>40-Shots trends</h4>
+                    <div id="pieChart40"></div>
+                </div>
+                <div class="chart-container col-6">
+                    <h4>60-Shots trends</h4>
+                    <div id="pieChart60"></div>
+                </div>
+            </div>
         </div>
     </div>
+    <hr style="border-top: 2px solid #00DDFF;">
     <div class="row">
-        <div class="chart-container col-6">
-            <h2>Training Duration vs. Performance</h2>
-            <div id="scatterChart"></div>
+        <div class="col-6">
+            <div class="row">
+                <h3 class="logo_txt">Performance vs Duration</h3>
+                <div class="chart-container col-6">
+                    <h4>40-Shots trends</h4>
+                    <div id="lineChart40"></div>
+                </div>
+                <div class="chart-container col-6">
+                    <h4>60-Shots trends</h4>
+                    <div id="lineChart60"></div>
+                </div>
+            </div>
         </div>
-        <div class="chart-container col-6">
-            <h2>Series Score Comparison</h2>
-            <div id="barChart"></div>
+        <div class="col-6">
+            <div class="row">
+                <h3 class="logo_txt">Series score Performance</h3>
+                <div class="chart-container col-6">
+                    <h4>40-Shots trends</h4>
+                    <div id=""></div>
+                </div>
+                <div class="chart-container col-6">
+                    <h4>60-Shots trends</h4>
+                    <div id="l"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         var referrer = document.referrer;
         var toggle = document.getElementById("scoreToggle");
         var manualScoreDiv = document.getElementById("manualScore");
         var pdfScoreDiv = document.getElementById("pdfScore");
-        
+    
+        // Toggle based on referrer
         if (referrer.includes("manual_upload")) {
             toggle.checked = false;
             manualScoreDiv.style.display = "block";
@@ -114,8 +243,9 @@
             manualScoreDiv.style.display = "none";
             pdfScoreDiv.style.display = "block";
         }
-
-        toggle.addEventListener("change", function() {
+    
+        // Handle Toggle Change
+        toggle.addEventListener("change", function () {
             if (this.checked) {
                 manualScoreDiv.style.display = "none";
                 pdfScoreDiv.style.display = "block";
@@ -123,10 +253,245 @@
                 manualScoreDiv.style.display = "block";
                 pdfScoreDiv.style.display = "none";
             }
+            updateStreakProgress(); // Update streak progress when toggling
         });
+    
+        function updateStreakProgress() {
+            let manualStreak = parseInt("{{ streak_count_man }}", 10);
+            let pdfStreak = parseInt("{{ streak_count_est }}", 10);
+            let streakCount = toggle.checked ? pdfStreak : manualStreak;
+            let maxStreak = 30; // Max streak limit
+            let progressPercentage = (streakCount / maxStreak) * 100;
+    
+            document.getElementById("streakProgress").style.width = progressPercentage + "%";
+            document.getElementById("streakProgress").setAttribute("aria-valuenow", streakCount);
+            document.getElementById("streakDays").textContent = streakCount;
+        }
+    
+        updateStreakProgress(); // Call once on page load
     });
 
+var options = {
+    chart: {
+        type: 'line',  // Base type, but supports mixed charts
+        height: 350,
+        background: '#202020',
+        foreColor: '#FFFFFF',
+        toolbar: {
+            show: false
+        }
+    },
+    colors: ["#00DDFF"],  // Matches your primary theme color
+    tooltip: {
+        theme: "dark"  // Ensures tooltip also matches dark theme
+    },
+    grid: {
+        borderColor: "#333333",  // Slightly lighter grid color for visibility
+        strokeDashArray: 5  // Dotted grid lines
+    },
+    series: [
+        {
+            name: "Score-Average" ,
+            type: "line",
+            data: [{{ avg_s1_40 }}, {{ avg_s2_40 }}, {{ avg_s3_40 }}, {{ avg_s4_40 }}]
+        }
+    ],
+    xaxis: {
+        categories: ["series-1", "series-2", "series-3", "series-4"]
+    }
+};
+
+var chart = new ApexCharts(document.querySelector("#seriesTrendChart40"), options);
+chart.render();
+
+var options = {
+    chart: {
+        type: 'line',  // Base type, but supports mixed charts
+        height: 350,
+        background: '#202020',
+        foreColor: '#FFFFFF',
+        toolbar: {
+            show: false
+        }
+    },
+    colors: ["#00DDFF"],  // Matches your primary theme color
+    tooltip: {
+        theme: "dark"  // Ensures tooltip also matches dark theme
+    },
+    grid: {
+        borderColor: "#333333",  // Slightly lighter grid color for visibility
+        strokeDashArray: 5  // Dotted grid lines
+    },
+    series: [
+        {
+            name: "Score-Average" ,
+            type: "line",
+            data: [{{ avg_s1_60 }}, {{ avg_s2_60 }}, {{ avg_s3_60 }}, {{ avg_s4_60 }}, {{ avg_s5_60 }}, {{ avg_s6_60 }}]
+        }
+    ],
+    xaxis: {
+        categories: ["series-1", "series-2", "series-3", "series-4", "serie-5", "series-6"]
+    }
+};
+
+var chart = new ApexCharts(document.querySelector("#seriesTrendChart60"), options);
+chart.render();
+    
+var options = {
+    chart: {
+        type: 'pie',
+        height: 350,
+        background: "#202020"  // Dark background
+    },
+    series: [{{ avg_s1_40 }}, {{ avg_s2_40 }}, {{ avg_s3_40 }}, {{ avg_s4_40 }}],
+    labels: ['Series-1', 'Series-2', 'Series-3', 'Series-4'],
+    colors: ["#00DDFF", "#FF5733", "#FFC300", "#28A745"],  // Vibrant colors
+    legend: {
+        show: false
+    },
+
+    tooltip: {
+        theme: "dark"  // Dark mode tooltip
+    },
+    dataLabels: {
+        enabled: true,
+        style: {
+            fontSize: '14px',
+            fontWeight: 'bold',
+            colors: ["#FFFFFF"],
+            textanchor: 'middle'
+        },
+        formatter: function (val, opts) {
+            let percentage = val.toFixed(1) + "%"; // Format percentage with 1 decimal
+            return opts.w.globals.labels[opts.seriesIndex] + "\n" + percentage;
+        }
+    }
+};
+
+var chart = new ApexCharts(document.querySelector("#pieChart40"), options);
+chart.render();
+
+var options = {
+    chart: {
+        type: 'pie',
+        height: 350,
+        background: "#202020"  // Dark background
+    },
+    series: [{{ avg_s1_60 }}, {{ avg_s2_60 }}, {{ avg_s3_60 }}, {{ avg_s4_60 }}, {{ avg_s5_60 }}, {{ avg_s6_60 }}],
+    labels: ['Series-1', 'Series-2', 'Series-3', 'Series-4', 'Series-5', 'Series-6'],
+    colors: ["#00DDFF", "#FF5733", "#FFC300", "#28A745", "#9C27B0", "#E91E63"],  // Vibrant colors
+    legend: {
+        show: false
+    },
+    tooltip: {
+        theme: "dark"  // Dark mode tooltip
+    },
+    dataLabels: {
+        enabled: true,
+        style: {
+            fontSize: '14px',
+            fontWeight: 'bold',
+            colors: ["#FFFFFF"],
+            textanchor: 'middle'
+        },
+        formatter: function (val, opts) {
+            let percentage = val.toFixed(1) + "%"; // Format percentage with 1 decimal
+            return opts.w.globals.labels[opts.seriesIndex] + "\n" + percentage;
+        }
+    }
+};
+
+var chart = new ApexCharts(document.querySelector("#pieChart60"), options);
+chart.render();
+
+var options = {
+    chart: {
+        type: 'scatter',  // Scatter plot
+        height: 350,
+        background: '#202020',
+        foreColor: '#FFFFFF',
+        toolbar: {
+            show: false
+        }
+    },
+    series: [
+        {
+            name: 'Score vs Duration',
+            data: JSON.parse('{{ duration_40_man|safe }}').map((d, i) => ({
+                x: d,  // Duration as X-axis
+                y: JSON.parse('{{ score_40_man|safe }}')[i]  // Score as Y-axis
+            }))
+        }
+    ],
+    xaxis: {
+        title: { text: 'Duration (Minutes)', style: { color: '#FFFFFF' } }, // White text for dark theme
+        labels: { style: { colors: '#FFFFFF' } } // X-axis labels in white
+    },
+    yaxis: {
+        title: { text: 'Score', style: { color: '#FFFFFF' } }, // White text
+        labels: { style: { colors: '#FFFFFF' } } // Y-axis labels in white
+    },
+    tooltip: {
+        theme: "dark"  // Dark mode tooltip
+    },
+    markers: {
+        size: 6,  // Increase dot size for visibility
+        colors: ['#00DDFF']  // Vivid sky blue color for points
+    },
+    grid: {
+        borderColor: '#444444'  // Slightly visible grid lines
+    }
+};
+
+var chart = new ApexCharts(document.querySelector("#lineChart40"), options);
+chart.render();
+
+var options = {
+    chart: {
+        type: 'scatter',  // Scatter plot
+        height: 350,
+        background: '#202020',
+        foreColor: '#FFFFFF',
+        toolbar: {
+            show: false
+        }
+    },
+    series: [
+        {
+            name: 'Score vs Duration',
+            data: JSON.parse('{{ duration_60_man|safe }}').map((d, i) => ({
+                x: d,  // Duration as X-axis
+                y: JSON.parse('{{ score_60_man|safe }}')[i]  // Score as Y-axis
+            }))
+        }
+    ],
+    xaxis: {
+        title: { text: 'Duration (Minutes)', style: { color: '#FFFFFF' } }, // White text for dark theme
+        labels: { style: { colors: '#FFFFFF' } } // X-axis labels in white
+    },
+    yaxis: {
+        title: { text: 'Score', style: { color: '#FFFFFF' } }, // White text
+        labels: { style: { colors: '#FFFFFF' } } // Y-axis labels in white
+    },
+    tooltip: {
+        theme: "dark"  // Dark mode tooltip
+    },
+    markers: {
+        size: 6,  // Increase dot size for visibility
+        colors: ['#00DDFF']  // Vivid sky blue color for points
+    },
+    grid: {
+        borderColor: '#444444'  // Slightly visible grid lines
+    }
+};
+
+var chart = new ApexCharts(document.querySelector("#lineChart60"), options);
+chart.render();
+
+    
 </script>
 
 {% include 'footer.html' %}
+
+
 {% endblock %}

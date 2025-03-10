@@ -6,199 +6,386 @@
 {% block extra_css %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <style>
-    #manualContainer, #pdfContainer {
-        display: none; /* Hide both containers initially */
+    .toogle-container {
+        display: flex;
+        align-items: center; /* Align items vertically */
+        justify-content: center; /* Center items horizontally */
+        gap: 10px; /* Adds spacing between elements */
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    /* Table cells styling */
+    td, th {
+        padding: 10px;
+        text-align: center;
+        white-space: nowrap; /* Prevents text wrapping */
     }
 
-        /* Toggle Switch Styles */
-        .switch {
-        position: relative;
-        display: inline-block;
-        width: 60px;
-        height: 34px;
-    }
-    .switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: .4s;
-        border-radius: 34px;
-    }
-    .slider:before {
-        position: absolute;
-        content: "";
-        height: 26px;
-        width: 26px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        transition: .4s;
-        border-radius: 50%;
-    }
-    input:checked + .slider {
-        background-color: #00DDFF;
-    }
-    input:checked + .slider:before {
-        transform: translateX(26px);
+    /* Fix for dark row issue */
+    tr:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.1); /* Light grey effect */
     }
 </style>
 {% endblock %}
 
 {% block content %}
 {% include 'navbar.html' %}
-
-<!-- Toggle Switch -->
-<label class="switch">
-    <input type="checkbox" id="toggleSwitch" onchange="toggleView()">
-    <span class="slider"></span>
-</label>
-
-<!-- Manual Upload Content -->
-<div class="text-light" id="manualContainer">
-    <h1>Manual Upload Analytics</h1>
-    {% if source == "manual" %}
-        <h3>Latest Manual Score Data</h3>
-        {% if latest_score %}
-            <div>
-                <p><strong>Date:</strong> {{ latest_score.date }}</p>
-                <p><strong>Match Type:</strong> {{ latest_score.match_type }}</p>
-                <p><strong>Total Score:</strong> {{ latest_score.total }}</p>
-                <p><strong>Average Score:</strong> {{ latest_score.average }}</p>
-                <p><strong>Duration:</strong> {{ latest_score.duration }} min</p>
-                <p><strong>Notes:</strong> {{ latest_score.notes|default:"N/A" }}</p>
-                <p><strong>Adjustment Made:</strong> {% if latest_score.adjustment_made %} Yes {% else %} No {% endif %}</p>
+<div class="container" style="background-color: #050505; margin-top:15px; margin-bottom:15px; border-radius: 10px">
+    <div class="container">
+    <div class="position-relative text-center" style="margin-top:10px" >
+        <h2 class="logo_txt">Todays performance</h2>
+        <button class="btn btn-info fw-bold text-dark position-absolute top-0 end-0" onclick="window.location.href='{% url 'shooter_home'%}'"><i class="bi bi-arrow-left"></i>Back</button>
+    </div>
+    <div class="text-light" id="manualContainer">
+        <h2 class="text-center">Manually uploaded data.</h2>
+        {% if request.session.analytics_source == "manual" %}
+            {% if latest_score %}
+                <div>
+                    <h3>Match Summary</h3>
+                    <hr>
+                    <table class="table table-dark table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Match Type</th>
+                                <th>Average Score</th>
+                                <th>Total Score</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ latest_score.date }}</td>
+                                <td>{{ latest_score.match_type }}</td>
+                                <td>{{ latest_score.average }}</td>
+                                <td>{{ latest_score.total }}</td>
+                                <td>{{ latest_score.duration }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- ApexCharts Container -->
+                 <hr>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-4">
+                            <div id="scoreChart1" style="height: 350px;"></div>
+                        </div>
+                        <div class="col-4">
+                            <div id="scoreChart2" style="height: 350px;"></div>
+                        </div>
+                        <div class="col-4">
+                            <div id="scoreChart3" style="height: 350px;"></div>
+                        </div>
+                    
+                    </div>
+                </div>
+                <hr>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-4">
+                            <p><strong>Notes:</strong><br> {{ latest_score.notes|default:"N/A" }}</p>
+                        </div>
+                        <div class="col-4">
+                            <p><strong>Adjustment Made:</strong><br> {% if latest_score.adjustment_made %} Yes {% else %} No {% endif %}</p>
+                        </div>
+                        <div class="col-4">
+                            <p><strong>Adjustment Comment:</strong><br> {{ latest_score.adjustment_comment|default:"N/A" }}<p>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p>No manual scores available.</p>
+            {% endif %}
+            <hr>
+            <div class="position-relative text-center" style="margin-top:10px; margin-bottom:10px;">
+                <button class="btn btn-info fw-bold text-dark " onclick="window.location.href='{% url 'shooter_home'%}'">Home</button>
             </div>
-
-            <!-- ApexCharts Container -->
-            <div id="scoreChart"></div>
-        {% else %}
-            <p>No manual scores available.</p>
         {% endif %}
+    </div>
     
-    {% elif source == "pdf" %}
-        <h3>PDF Uploaded Score Data</h3>
-        <p>PDF data visualization is not yet implemented.</p>
-    
-    {% endif %}
-
+    <div class="text-light" id="pdfContainer">
+        <h1 class="text-center">Pdf readed data.</h1>
+        {% if request.session.analytics_source == "pdf" %}
+            {% if latest_score %}
+                <div>
+                    <h3>Match Summary</h3>
+                    <table class="table table-dark table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Match Type</th>
+                                <th>Average (shot)</th>
+                                <th>Average (series)</th>
+                                <th>Total Score</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ latest_score.date }}</td>
+                                <td>{{ latest_score.match_type }}</td>
+                                <td>{{ latest_score.average_shot_score }}</td>
+                                <td>{{ latest_score.average_series_score }}</td>
+                                <td>{{ latest_score.total }}</td>
+                                <td>{{ latest_score.duration }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- ApexCharts Container -->
+                 <hr>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-4">
+                            <div id="scoreChart1" style="height: 350px;"></div>
+                        </div>
+                        <div class="col-4" style="padding=10px;">
+                            <div id="scoreChart2" style="height: 350px;"></div>
+                        </div>
+                        <div class="col-4">
+                            <div id="scoreChart3" style="height: 350px;"></div>
+                        </div>
+                    
+                    </div>
+                </div>
+                <hr>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-4">
+                            <p><strong>Notes:</strong><br> {{ latest_score.notes|default:"N/A" }}</p>
+                        </div>
+                        <div class="col-4">
+                            <p><strong>Adjustment Made:</strong><br> {% if latest_score.adjustment_made %} Yes {% else %} No {% endif %}</p>
+                        </div>
+                        <div class="col-4">
+                            <p><strong>Adjustment Comment:</strong><br> {{ latest_score.adjustment_comment|default:"N/A" }}<p>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p>No manual scores available.</p>
+            {% endif %}
+            <hr>
+            <div class="position-relative text-center" style="margin-top:10px; margin-bottom:10px;">
+                <button class="btn btn-info fw-bold text-dark " onclick="window.location.href='{% url 'shooter_home'%}'">Home</button>
+            </div>
+        {% endif %}
+    </div>
+</div>
 </div>
 
-<!-- PDF Upload Content -->
-<div class="text-light" id="pdfContainer">
-    <h1>PDF Upload Analytics</h1>
-</div>
 <script>
-
-// Check if the source is valid
-if (source !== "manual" && source !== "pdf") {
-    console.error("Invalid source:", source);
-    alert("An error occurred: Invalid source.");
-}
-document.addEventListener("DOMContentLoaded", function () {
-        let source = "{{ request.session.analytics_source|default:'manual' }}";
-
-        // Fetch latest score data from Django API
-        fetch(`/score/shooter/get_latest_score/?source=${source}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    console.error("Error fetching score data:", data.error);
-                    alert("Failed to retrieve score data.");
-                    return;
-                }
-
-                console.log("Score Data Received:", data);
-
-                var seriesData = data.series_scores.filter(score => score !== null);  // Remove null values
-                var categoriesData = data.categories;
-
-                var options = {
-                    series: [{
-                        name: "Series Scores",
-                        data: seriesData
-                    }],
-                    chart: {
-                        type: 'bar',
-                        height: 350
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            columnWidth: '55%',
-                            endingShape: 'rounded'
-                        }
-                    },
-                    dataLabels: {
-                        enabled: false
-                    },
-                    xaxis: {
-                        categories: categoriesData
-                    }
-                };
-
-                var chart = new ApexCharts(document.querySelector("#scoreChart"), options);
-                chart.render();
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("An error occurred while fetching score data.");
-            });
-    });
-
-
-    // Get the source from Django session (sent via template rendering)
-    let source = "{{ request.session.analytics_source|default:'' }}"; // Avoid undefined errors
+    let source = "{{ request.session.analytics_source|default:'' }}".trim(); // Trim to remove unwanted spaces
 
     console.log("Analytics Source:", source); // Debugging
+    // Error handling: Check if the source is valid
+    if (source !== "manual" && source !== "pdf") {
+        console.error("Invalid source:", source);
+        alert("An error occurred: Invalid source.");
+    } else {
+        // Function to display the correct section based on source
+        function showContainer() {
+            let manualDiv = document.getElementById("manualContainer");
+            let pdfDiv = document.getElementById("pdfContainer");
 
-    function showContainer() {
-        let manualDiv = document.getElementById("manualContainer");
-        let pdfDiv = document.getElementById("pdfContainer");
-        let toggleSwitch = document.getElementById("toggleSwitch");
-
-        // Hide both initially
-        manualDiv.style.display = "none";
-        pdfDiv.style.display = "none";
-
-        // Show based on source
-        if (source === "manual") {
-            manualDiv.style.display = "block";
-            toggleSwitch.checked = false; // Default switch position
-        } else if (source === "pdf") {
-            pdfDiv.style.display = "block";
-            toggleSwitch.checked = true; // Default switch position
-        } else {
-            // Default to manual if source is missing
-            manualDiv.style.display = "block";
-            toggleSwitch.checked = false;
-        }
-    }
-
-    // Toggle function for the button
-    function toggleView() {
-        let manualDiv = document.getElementById("manualContainer");
-        let pdfDiv = document.getElementById("pdfContainer");
-        let toggleSwitch = document.getElementById("toggleSwitch");
-
-        if (toggleSwitch.checked) {
+            // Hide both initially
             manualDiv.style.display = "none";
-            pdfDiv.style.display = "block";
-        } else {
-            manualDiv.style.display = "block";
             pdfDiv.style.display = "none";
+
+            // Show based on source
+            if (source === "manual") {
+                manualDiv.style.display = "block";
+            } else if (source === "pdf") {
+                pdfDiv.style.display = "block";
+            }
         }
+
+        // Show container on page load only if source is valid
+        showContainer();
     }
-    // Show container on page load
-    showContainer();
+// chart 1 series discussion
+document.addEventListener("DOMContentLoaded", function () {
+    var latestScore = {
+        s1t: {{ latest_score.s1t|default:0 }},
+        s2t: {{ latest_score.s2t|default:0 }},
+        s3t: {{ latest_score.s3t|default:0 }},
+        s4t: {{ latest_score.s4t|default:0 }},
+        matchType: "{{ latest_score.match_type }}"
+    };
+
+    var seriesData = [
+        { x: "Series 1", y: latestScore.s1t },
+        { x: "Series 2", y: latestScore.s2t },
+        { x: "Series 3", y: latestScore.s3t },
+        { x: "Series 4", y: latestScore.s4t }
+    ];
+
+    {% if latest_score.match_type == "60-Shots" %}
+        seriesData.push(
+            { x: "Series 5", y: {{ latest_score.s5t|default:0 }} },
+            { x: "Series 6", y: {{ latest_score.s6t|default:0 }} }
+        );
+    {% endif %}
+
+    var options = {
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                dataLabels: {
+                    position: "top" // Ensures labels are positioned properly
+                }
+            }
+        },
+        dataLabels: {
+            enabled: true,
+            style: {
+                colors: ["#FFFFFF"], // White labels
+                fontSize: "14px",
+                fontWeight: "bold"
+            },
+            background: {
+                enabled: false
+            }
+        },
+        xaxis: {
+            categories: seriesData.map(item => item.x), // Ensures categories are correctly mapped
+            labels: {
+                style: {
+                    colors: Array(seriesData.length).fill("#FFFFFF"), // Ensures all labels are white
+                    fontSize: "12px"
+                }
+            },
+            title: {
+                text: "Score",
+                style: {
+                    color: "#FFFFFF"
+                }
+            }
+        },
+        yaxis: {
+            labels: {
+                style: {
+                    colors: ["#FFFFFF"], // White Y-axis labels
+                    fontSize: "12px"
+                }
+            },
+            title: {
+                text: "Series",
+                style: {
+                    color: "#FFFFFF"
+                }
+            }
+        },
+        tooltip: {
+            theme: "dark"
+        },
+        series: [{
+            name: "Score",
+            data: seriesData
+        }],
+        colors: ["#00DDFF"] // Your theme color
+    };
+
+    var chart = new ApexCharts(document.querySelector("#scoreChart1"), options);
+    chart.render();
+
+    // 🥧 Pie Chart Configuration
+    var pieChartOptions = {
+        chart: { type: 'pie', height: 400 },
+        series: seriesData.map(item => item.y), // Extract Scores
+        labels: seriesData.map(item => item.x), // Extract Series Names
+        colors: ["#00DDFF", "#FF4560", "#FEB019", "#775DD0", "#008FFB", "#00E396"],
+        tooltip: { theme: "dark" },
+        dataLabels: {
+            enabled: true,
+            style: {
+                fontSize: "14px",
+                fontWeight: "bold",
+                colors: ["#FFFFFF"] // 🔥 White Label Text
+            }
+        },
+        legend: {
+            labels: {
+                colors: "#FFFFFF", // 🔥 White text for legend labels
+                useSeriesColors: false
+            }
+        }
+    };
+    var pieChart = new ApexCharts(document.querySelector("#scoreChart2"), pieChartOptions);
+    pieChart.render();
+
+//  Radar Chart Configuration (Uses Same Data as Pie & Column Chart)
+
+var radarChartOptions = {
+    chart: { 
+        type: "radar", 
+        height: 350 
+    },
+    series: [
+        {
+            name: "Shooter Scores",
+            data: seriesData.map(item => item.y) //  Uses same score data
+        }
+    ],
+    labels: seriesData.map(item => item.x), //  Uses same labels
+    colors: ["#00DDFF"], // Your theme color
+    tooltip: { theme: "dark" },
+    dataLabels: {
+        enabled: true,
+        style: {
+            fontSize: "14px",
+            fontWeight: "bold",
+            colors: ["#202020"] // White text inside chart
+        }
+    },
+    xaxis: {
+        labels: {
+            style: {
+                colors: ["#FFFFFF"], // White axis labels
+                fontSize: "12px"
+            }
+        }
+    },
+    yaxis: {
+        labels: {
+            show: true, //  Force visibility
+            style: {
+                colors: ["#FFFFFF"], //  White text for Y-axis
+                fontSize: "12px"
+            }
+        },
+        min: 80, //  Set minimum to avoid overlapping
+        max: 110, //  Adjust based on max possible score
+        tickAmount: 5 //  Ensure clear separation
+    },
+    legend: {
+        labels: {
+            colors: "#202020", // White legend text
+            useSeriesColors: false
+        }
+    },
+    stroke: {
+        width: 2
+    }
+};
+
+// Render the chart
+var radarChart = new ApexCharts(document.querySelector("#scoreChart3"), radarChartOptions);
+radarChart.render();
+
+});
+
+
+    
+
 </script>
 
 {% include 'footer.html' %}

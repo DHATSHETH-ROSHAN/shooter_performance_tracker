@@ -1,13 +1,16 @@
+import fitz
+import re
+import json
+import statistics
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import manualscore
-from .models import pdfScore
+from .models import pdfScore, activities
 from users.models import UserProfiles
+from django.http import JsonResponse
 from django.utils.dateparse import parse_date
-import fitz
-import re
-from datetime import datetime
+from datetime import datetime,timedelta
 from django.http import JsonResponse
 
 
@@ -92,7 +95,16 @@ def manual_upload(request):
             adjustment_made=adjustment_made,
             adjustment_comment=adjustment_comment
         )
-
+        request.session["last_manual_upload"] = {
+            "match_type": match_type,
+            "date": training_date.strftime("%Y-%m-%d"),
+            "day": training_day,
+            "series_scores": series_scores,
+            "duration": duration,
+            "notes": notes,
+            "adjustment_made": adjustment_made,
+            "adjustment_comment": adjustment_comment
+        }
         messages.success(request, "Training data saved successfully!")
         return redirect("/score/shooter/home/analytics/?source=manual")  # Redirect to dashboard or another page
 
@@ -129,7 +141,6 @@ def pdf_uploading(request):
             return redirect("upload_pdf")
         
         full_text = "\n".join(extracted_data)
-        print(full_text)
         structured_data = pdf_extractor(full_text)
         # Ensure valid match type
         match_type = "60-Shots" if structured_data["match_type"] == "Air Rifle 60" else "40-Shots"
@@ -330,28 +341,240 @@ def pdf_extractor(text):
     return data
 
 @login_required(login_url='/login/')
-def dashboard(request):
-    if not request.user.is_authenticated:
-        messages.warning(request,"You need to login to access this page!!")
-        return redirect(request,'/login/')
-    return render(request, 'dashboard.html')
+def history(request):
+    user = request.user
+
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            toggle_state = data.get("toggle_state")  # Get the sent toggle value
+
+            # Fetch the appropriate scores based on toggle state
+            if toggle_state == "manual":
+                scores = list(manualscore.objects.all().values())  # Fetch manual scores
+            elif toggle_state == "est":
+                scores = list(pdfScore.objects.all().values())  # Fetch EST scores
+            else:
+                return JsonResponse({"error": "Invalid toggle state"}, status=400)
+
+            return JsonResponse({"toggle_state": toggle_state, "scores": scores})
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+
+    # 🔹 Handle GET requests correctly by rendering the HTML template
+    manual_scores = manualscore.objects.all()  # Fetch manual scores
+    est_scores = pdfScore.objects.all()  # Fetch EST scores
+    return render(request, 'shooter_history.html', {"manual_scores": manual_scores, "est_scores": est_scores})
 
 @login_required(login_url='/login/')
 def analytics(request):
     source = request.GET.get("source", "manual")  # Get source from query params
     request.session["analytics_source"] = source  # Save in session
     user = request.user
+    last_manual_upload = request.session.get("last_manual_upload", None)
     # Get the latest score entry
     if source == "manual":
-        latest_score = manualscore.objects.filter(user_profile=user).order_by("-current_time").first()
-        print(latest_score)    
+        latest_score = manualscore.objects.filter(user_profile=user).order_by("-current_time").first()   
     elif source == "pdf":
         latest_score = pdfScore.objects.filter(user_profile=user).order_by("-date").first()
     else:
         latest_score = None
-    if not latest_score:
-        return JsonResponse({"error": "No scores found"}, status=404)
+    return render(request, 'current_analytics.html', {"latest_score": latest_score, "uploaded_data": last_manual_upload})
 
-    return render(request, 'current_analytics.html')
+def user_activities(request):
+    if not request.user.is_authenticated:
+        messages.warning(request, "You need to login to access this page!!")
+        return redirect('login')
+    
+    recent_activities = activities.objects.filter(user=request.user).order_by("-date")
+    
+    if request.method == 'POST':
+        activity_category = request.POST.get('category')
+        activity_name = request.POST.get('name')
+        duration = request.POST.get('duration')
+        notes = request.POST.get('notes')
+        
+        if all([activity_category, activity_name, duration]):
+            new_activity = activities(
+                user=request.user,
+                activity_category=activity_category,
+                activity_name=activity_name,
+                duration=duration,
+                notes=notes
+            )
+            new_activity.save()
+            messages.success(request, 'Activity added successfully!')
+        else:
+            messages.error(request, 'All fields are required!')
+    
+    context = {
+        'recent_activities': recent_activities
+    }
+    
+    return render(request, 'activities.html', context)
+
+@login_required(login_url='/login/')
+def dashboard(request):
+    user = request.user
+    user_profile = UserProfiles.objects.get(username=user.username)
+    # fetch all scores for the logged-in user
+    manual_scores = manualscore.objects.filter(user_profile=user_profile)
+    pdf_scores = pdfScore.objects.filter(user_profile=user_profile)
+
+    practice_dates_man = manual_scores.values_list('date', flat=True).distinct()
+    streak_count_man = 0
+    current_streak_man = 0
+    previous_date_man = None
+ 
+    for date in sorted(practice_dates_man, reverse=True):
+        if previous_date_man is None or previous_date_man - date == timedelta(days=1):
+            current_streak_man += 1
+        else:
+            break
+        previous_date_man = date
+    streak_count_man = current_streak_man
+
+    # calculate the total number of scores
+    duration_40_man = list(manual_scores.filter(match_type="40-Shots").values_list('duration', flat=True))
+    duration_60_man = list(manual_scores.filter(match_type="60-Shots").values_list('duration', flat=True))
+    score_40_man = list(manual_scores.filter(match_type="40-Shots").values_list('total', flat=True))
+    score_60_man = list(manual_scores.filter(match_type="60-Shots").values_list('total', flat=True))
+    # manual calculations    
+    total_manual_scores = manual_scores.count()
+    # calculate tht total 40 shots matches in manual scores
+    total_man_40_shots = manual_scores.filter(match_type="40-Shots").count()
+    # calculate the total 60 shots matches in manual scores
+    total_man_60_shots = manual_scores.filter(match_type="60-Shots").count()
+    best_man_40_shots = max([score.total for score in manual_scores.filter(match_type="40-Shots") if score.total is not None],default=0)
+    best_man_60_shots = max([score.total for score in manual_scores.filter(match_type="60-Shots") if score.total is not None],default=0)
+    last_30_avg_40_man= round(sum([score.total for score in manual_scores.filter(match_type ="40-Shots").order_by('-date')[:30]])/manual_scores.filter(match_type = "40-Shots").order_by('-date')[:30].count(),2)
+    last_30_avg_60_man = round(sum([score.total for score in manual_scores.filter(match_type = "60-Shots").order_by('-date')[:30]])/manual_scores.filter(match_type = "60-Shots").order_by('-date')[:30].count(),2)
+    # 40 shots series average
+    avg_s1_40 = round(sum([score.s1t for score in manual_scores.filter(match_type = "40-Shots")])/ total_man_40_shots,1)
+    avg_s2_40 = round(sum([score.s2t for score in manual_scores.filter(match_type = "40-Shots")])/ total_man_40_shots,1)
+    avg_s3_40 = round(sum([score.s3t for score in manual_scores.filter(match_type = "40-Shots")])/ total_man_40_shots,1)
+    avg_s4_40 = round(sum([score.s4t for score in manual_scores.filter(match_type = "40-Shots")])/ total_man_40_shots,1)
+    # 60 shots series average
+    avg_s1_60 = round(sum([score.s1t for score in manual_scores.filter(match_type = "60-Shots")])/ total_man_60_shots,1)
+    avg_s2_60 = round(sum([score.s2t for score in manual_scores.filter(match_type = "60-Shots")])/ total_man_60_shots,1)
+    avg_s3_60 = round(sum([score.s3t for score in manual_scores.filter(match_type = "60-Shots")])/ total_man_60_shots,1)
+    avg_s4_60 = round(sum([score.s4t for score in manual_scores.filter(match_type = "60-Shots")])/ total_man_60_shots,1)
+    avg_s5_60 = round(sum([score.s5t for score in manual_scores.filter(match_type = "60-Shots")])/ total_man_60_shots,1)
+    avg_s6_60 = round(sum([score.s6t for score in manual_scores.filter(match_type = "60-Shots")])/ total_man_60_shots,1)
+    # other things 
+    shot_avg_man_40 = round(statistics.mean([score.average for score in manual_scores.filter(match_type = "40-Shots")]),1)
+    shot_avg_man_60 = round(statistics.mean([score.average for score in manual_scores.filter(match_type = "60-Shots")]),1)
+    shot_avg_man = round(statistics.mean([score.average for score in manual_scores]),1)
+    avg_man_duration = round(statistics.mean([score.duration for score in manual_scores]),1)
+
+    # pdf calculations
+    practice_dates_est = manual_scores.values_list('date', flat=True).distinct()
+    streak_count_est = 0
+    current_streak_est = 0
+    previous_date_est = None
+
+    for date in sorted(practice_dates_est, reverse=True):
+        if previous_date_est is None or previous_date_est - date == timedelta(days=1):
+            current_streak_est += 1
+        else:
+            break
+        previous_date_est = date
+    streak_count_est = current_streak_est
+    total_pdf_scores = pdf_scores.count()
+    # calculate the total 40 shots matches in pdf scores
+    total_pdf_40_shots = pdf_scores.filter(match_type="40-Shots").count()
+    last_30_avg_40_est = sum([score.total for score in pdf_scores.filter(match_type="40-Shots").order_by('-date')[:30] if score.total is not None]) / min(30, pdf_scores.filter(match_type="40-Shots").count()) if pdf_scores.filter(match_type="40-Shots").count() > 0 else 0
+    best_pdf_40_shots = max([score.total for score in pdf_scores.filter(match_type="40-Shots") if score.total is not None],default=0)
+    # 40 shots series average
+    avg_s1_40_est = round(sum([score.s1t for score in pdf_scores.filter(match_type = "40-Shots")]) / max(1, pdf_scores.filter(match_type = "40-Shots").count()), 1)
+    avg_s2_40_est = round(sum([score.s2t for score in pdf_scores.filter(match_type = "40-Shots")]) / max(1, pdf_scores.filter(match_type = "40-Shots").count()), 1)
+    avg_s3_40_est = round(sum([score.s3t for score in pdf_scores.filter(match_type = "40-Shots")]) / max(1, pdf_scores.filter(match_type = "40-Shots").count()), 1)
+    avg_s4_40_est = round(sum([score.s4t for score in pdf_scores.filter(match_type = "40-Shots")]) / max(1, pdf_scores.filter(match_type = "40-Shots").count()), 1)
+    # other things
+    est_tot_40_avg = round(statistics.mean(scores), 1) if (scores := [s.total for s in pdf_scores.filter(match_type="40-Shots") if s.total is not None]) else 0
+    est_ser_40_avg = round(statistics.mean(scores), 1) if (scores := [s.average_series_score for s in pdf_scores.filter(match_type="40-Shots") if s.average_series_score is not None]) else 0
+    est_shot_40_avg = round(statistics.mean(scores), 1) if (scores := [s.average_shot_score for s in pdf_scores.filter(match_type="40-Shots") if s.average_shot_score is not None]) else 0
+    # calculate the total 60 shots matches in pdf scores
+    total_pdf_60_shots = pdf_scores.filter(match_type="60-Shots").count()
+    best_pdf_60_shots = max([score.total for score in pdf_scores.filter(match_type="60-Shots") if score.total is not None],default=0)
+    last_30_avg_60_est = sum([score.total for score in pdf_scores.filter(match_type="60-Shots").order_by('-date')[:30] if score.total is not None]) / min(30, pdf_scores.filter(match_type="60-Shots").count()) if pdf_scores.filter(match_type="60-Shots").count() > 0 else 0
+    # 60 shots series average
+    avg_s1_60_est = round(statistics.mean([score.s1t for score in pdf_scores.filter(match_type = "60-Shots") if score.s1t is not None]), 1) if pdf_scores.filter(match_type = "60-Shots").exists() else None
+    avg_s2_60_est = round(statistics.mean([score.s2t for score in pdf_scores.filter(match_type = "60-Shots") if score.s2t is not None]),1) if pdf_scores.filter(match_type = "60-Shots").exists() else None
+    avg_s3_60_est = round(statistics.mean([score.s3t for score in pdf_scores.filter(match_type = "60-Shots") if score.s3t is not None]),1) if pdf_scores.filter(match_type = "60-Shots").exists() else None
+    avg_s4_60_est = round(statistics.mean([score.s4t for score in pdf_scores.filter(match_type = "60-Shots") if score.s4t is not None]),1) if pdf_scores.filter(match_type = "60-Shots").exists() else None
+    avg_s5_60_est = round(statistics.mean([score.s5t for score in pdf_scores.filter(match_type = "60-Shots") if score.s5t is not None]),1) if pdf_scores.filter(match_type = "60-Shots").exists() else None
+    avg_s6_60_est = round(statistics.mean([score.s6t for score in pdf_scores.filter(match_type = "60-Shots") if score.s6t is not None]),1) if pdf_scores.filter(match_type = "60-Shots").exists() else None
+    # other things
+    est_tot_60_avg = round(statistics.mean([score.total for score in pdf_scores.filter(match_type = "60-Shots")]),1)
+    est_ser_60_avg = round(statistics.mean([score.average_series_score for score in pdf_scores.filter(match_type="60-Shots")]),1)
+    est_shot_60_avg = round(statistics.mean([score.average_shot_score for score in pdf_scores.filter(match_type="60-Shots")]),1)
+    # total calculations
+    total_scores = total_manual_scores + total_pdf_scores
+    # calculate total 40 shots matches
+    total_40_shots = total_man_40_shots + total_pdf_40_shots
+    # calculate total 60 shots matches
+    total_60_shots = total_man_60_shots + total_pdf_60_shots
+    context = {
+        'streak_count_man': streak_count_man,
+        'total_manual_scores': total_manual_scores,
+        'total_man_40_shots': total_man_40_shots,
+        'total_man_60_shots': total_man_60_shots,
+        'best_man_40_shots': best_man_40_shots,
+        'best_man_60_shots': best_man_60_shots,
+        'last_30_avg_40_man': last_30_avg_40_man,
+        'last_30_avg_60_man': last_30_avg_60_man,
+        'duration_40_man': json.dumps(duration_40_man),
+        'duration_60_man': json.dumps(duration_60_man),
+    # 40 shots series average
+        'avg_s1_40': avg_s1_40,
+        'avg_s2_40': avg_s2_40,
+        'avg_s3_40': avg_s3_40,
+        'avg_s4_40': avg_s4_40,
+        'score_40_man': json.dumps(score_40_man),
+    # 60 shots series average
+        'avg_s1_60': avg_s1_60,
+        'avg_s2_60': avg_s2_60,
+        'avg_s3_60': avg_s3_60,
+        'avg_s4_60': avg_s4_60,
+        'avg_s5_60': avg_s5_60,
+        'avg_s6_60': avg_s6_60,
+        'score_60_man': json.dumps(score_60_man),
+        'shot_avg_man_40': shot_avg_man_40,
+        'shot_avg_man_60': shot_avg_man_60,
+        'shot_avg_man': shot_avg_man,
+        'avg_man_duration': avg_man_duration,
+        'streak_count_est': streak_count_est,
+
+        'total_pdf_scores': total_pdf_scores,
+        'total_pdf_40_shots': total_pdf_40_shots,
+        'total_pdf_60_shots': total_pdf_60_shots,
+        'best_pdf_40_shots': best_pdf_40_shots,
+        'best_pdf_60_shots': best_pdf_60_shots,
+        'last_30_avg_40_est': last_30_avg_40_est,
+        'last_30_avg_60_est': last_30_avg_60_est,
+        'est_tot_40_avg': est_tot_40_avg,
+        'est_ser_40_avg': est_ser_40_avg,
+        'est_shot_40_avg': est_shot_40_avg,
+        'avg_s1_40_est': avg_s1_40_est,
+        'avg_s2_40_est': avg_s2_40_est,
+        'avg_s3_40_est': avg_s3_40_est,
+        'avg_s4_40_est': avg_s4_40_est,
+        'est_tot_60_avg': est_tot_60_avg,
+        'est_ser_60_avg': est_ser_60_avg,
+        'est_shot_60_avg': est_shot_60_avg,
+        'avg_s1_60_est': avg_s1_60_est,
+        'avg_s2_60_est': avg_s2_60_est,
+        'avg_s3_60_est': avg_s3_60_est,
+        'avg_s4_60_est': avg_s4_60_est,
+        'avg_s5_60_est': avg_s5_60_est,
+        'avg_s6_60_est': avg_s6_60_est,
+
+
+        'total_scores': total_scores,
+        'total_40_shots': total_40_shots,
+        'total_60_shots': total_60_shots,
+    }
+    return render(request, 'dashboard.html', context)
 
 # Create your views here.

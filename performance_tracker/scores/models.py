@@ -174,4 +174,16 @@ class manualscore(models.Model):
         return f"{self.user_profile.username} - {self.match_type} ({self.current_time.strftime('%Y-%m-%d')})"
 
 
+class activities(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(UserProfiles, on_delete=models.CASCADE)
+    activity_category = models.CharField(max_length=150)
+    activity_name = models.CharField(max_length=150)
+    duration = models.CharField(max_length=150)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return self.activity
 # Create your models here.

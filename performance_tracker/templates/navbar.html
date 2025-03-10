@@ -57,10 +57,10 @@
                                             {% endif %}">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a id="activities-link" class="nav-link {% if request.path == '/activities/' %}active{% endif %} text-light" href="{% url 'activities'%}">Activities</a>
+                    <a id="activities-link" class="nav-link {% if request.path == '/score/shooter/home/activities/' %}active{% endif %} text-light" href="{% url 'activities'%}">Activities</a>
                 </li>
                 <li class="nav-item">
-                    <a id ="dashboard-link" class="nav-link text-light" href="{% url 'dashboard' %}">Dashboard</a>
+                    <a id ="dashboard-link" class="nav-link {% if request.path == '/score/shooter/home/dashboard/' %}active{% endif %} text-light" href="{% url 'dashboard' %}">Dashboard</a>
                 </li>
             </ul>
             <!-- Right Side: Login Button (ms-auto pushes it to the right) -->

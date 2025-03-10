@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from .models import UserProfiles
-from scores.models import manualscore
+from scores.models import manualscore, activities
 from datetime import timedelta
 
 def home(request):
@@ -87,23 +87,16 @@ def user_logout(request):
         return redirect('/admin/logout/')    
     logout(request)
     request.session.flush()
-    messages.success(request,'Logged out successfully')  # Fixed spacing
+    messages.success(request,'Logged out successfully')  
     return redirect('home')
 
 def forgot_password(request):
-    return render(request, 'pass/forgotpassword.html')
-
-def user_activities(request):
-    if not request.user.is_authenticated:
-        messages.warning(request, "You need to login to access this page!!")  # Fixed typo
-        return redirect('login')
-    return render(request, 'activities.html')   
+    return render(request, 'pass/forgotpassword.html') 
 
 @login_required(login_url='/login/')
 def shooter_home(request):
     user = request.user
     scores_queryset = manualscore.objects.filter(user_profile=user).order_by('-date', '-current_time')
-
     total_session_40 = scores_queryset.filter(match_type='40-Shots').count()
     total_session_60 = scores_queryset.filter(match_type='60-Shots').count()
 
@@ -162,8 +155,9 @@ def shooter_home(request):
         'session_timing': session_timing,
         'streak_count': streak_count
     }
-
     return render(request, 'shooter_home.html', context)
+
+
 
 @login_required  # Added login_url parameter for consistency
 def coach_home(request):

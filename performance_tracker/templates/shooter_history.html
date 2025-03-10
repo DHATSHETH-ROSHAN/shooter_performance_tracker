@@ -1,0 +1,338 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} History {% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/activities.css'%}">
+<script src="{% static 'js/activities.js'%}"></script>
+<style>
+    .toogle-container {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    justify-content: center; /* Center items horizontally */
+    gap: 10px; /* Adds spacing between elements */
+}
+/* Ensure container fits the content properly */
+.container {
+    width: 90%;  /* Adjust as needed */
+    max-width: 1300px; /* Prevent it from becoming too wide */
+    margin: auto; /* Center it */
+    overflow-x: auto; /* Enable horizontal scroll if needed */
+}
+
+/* Ensure table fits within the container */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Table cells styling */
+td,th {
+    padding: 10px;
+    text-align: center;
+    white-space: nowrap; /* Prevents text wrapping */
+}
+/* Fix for dark row issue */
+tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.1); /* Light grey effect */
+}
+</style>
+
+{% endblock %}
+{% block content %}
+{% include 'navbar.html' %}
+<div class="container" style="background-color: #050505;padding-top: 10px; padding-bottom: 10px;">
+    <div class="position-relative text-center">
+        <h2 class="logo_txt">Shooter History</h2>
+        <button class="btn btn-info fw-bold text-dark position-absolute top-0 end-0" onclick="window.history.back();"><i class="bi bi-arrow-left"></i>Back</button>
+    </div>
+    <div class="toogle-container">
+        <span style="font-size: larger;"> Manual Scores</span>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="toggleSwitch">
+        </div>        
+        <span style="font-size: larger;"> EST Scores</span>
+    </div>
+    <div id="manual-history" class="history-container">
+        <h3 class="text-center">Manual Score History</h3>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <!-- this is the second toogle switch to change between the 40 and 60 shots -->
+        <div class="btn-group" role="group" aria-label="Match type selection">
+            <button type="button" class="btn active fw-bold btn-info text-dark" id="btn40manual">40 Shots Match</button>
+            <button type="button" class="btn btn-info fw-bold text-dark" id="btn60manual">60 Shots Match</button>
+        </div>
+        <!-- this is the first part 40shots to be displayed initially -->
+         <div id="40shotsmanual">
+            <table>
+                <thead>
+                    <tr>
+                        <th> Date </th>
+                        <th> Match-type</th>
+                        <th> series 1 </th>
+                        <th> series 2 </th>
+                        <th> series 3 </th>
+                        <th> series 4 </th>
+                        <th> Total score </th>
+                        <th> Average Score </th>
+                        <th> Session Duration </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for score in manual_scores %}
+                        {% if score.match_type == "40-Shots" %}
+                            <tr>
+                                <td>{{ score.date }}</td>
+                                <td>{{ score.match_type }}</td>
+                                <td>{{ score.s1t }}</td>
+                                <td>{{ score.s2t }}</td>
+                                <td>{{ score.s3t }}</td>
+                                <td>{{ score.s4t }}</td>
+                                <td>{{ score.total }}</td>
+                                <td>{{ score.average }}</td>
+                                <td>{{ score.duration }}</td>
+                            </tr>
+                        {% endif %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center">No records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+         </div>
+         <!-- this is the second div tag which displays the contents of 60 shots if manual -->
+        <div id="60shotsmanual" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th> Date </th>
+                        <th> Match-type</th>
+                        <th> series 1 </th>
+                        <th> series 2 </th>
+                        <th> series 3 </th>
+                        <th> series 4 </th>
+                        <th> series 5 </th>
+                        <th> series 6 </th>
+                        <th> Total score </th>
+                        <th> Average Score </th>
+                        <th> Session Duration </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for score in manual_scores %}
+                        {% if score.match_type == "60-Shots" %}
+                            <tr>
+                                <td>{{ score.date }}</td>
+                                <td>{{ score.match_type }}</td>
+                                <td>{{ score.s1t }}</td>
+                                <td>{{ score.s2t }}</td>
+                                <td>{{ score.s3t }}</td>
+                                <td>{{ score.s4t }}</td>
+                                <td>{{ score.s5t }}</td>
+                                <td>{{ score.s6t }}</td>
+                                <td>{{ score.total }}</td>
+                                <td>{{ score.average }}</td>
+                                <td>{{ score.duration }}</td>
+                            </tr>
+                        {% endif %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="11" class="text-center">No records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+        <!-- EST Score History -->
+        <div id="est-history" class="history-container" style="display: none;">
+            <h3 class="text-center">EST Score History</h3>
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <!-- this is the second toogle switch to change between the 40 and 60 shots -->
+            <div class="btn-group" role="group" aria-label="Match type selection">
+                <button type="button" class="btn btn-info fw-bold" id="btn40est">40 Shots Match</button>
+                <button type="button" class="btn btn-info fw-bold active" id="btn60est">60 Shots Match</button>
+            </div>
+            <div id="40shotsest" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th> Date </th>
+                            <th> Match-type</th>
+                            <th> series 1 </th>
+                            <th> series 2 </th>
+                            <th> series 3 </th>
+                            <th> series 4 </th>
+                            <th> Total score </th>
+                            <th> Average Score (shot) </th>
+                            <th> Average score (series) </th>
+                            <th> Session Duration </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% with has_40_shots=False %}
+                            {% for score in est_scores %}
+                                {% if score.match_type == "40-Shots" %}
+                                    {% with has_40_shots=True %}
+                                    <tr>
+                                        <td>{{ score.date }}</td>
+                                        <td>{{ score.match_type }}</td>
+                                        <td>{{ score.s1t }}</td>
+                                        <td>{{ score.s2t }}</td>
+                                        <td>{{ score.s3t }}</td>
+                                        <td>{{ score.s4t }}</td>
+                                        <td>{{ score.total }}</td>
+                                        <td>{{ score.average_shot_score }}</td>
+                                        <td>{{ score.average_series_score}}</td>
+                                        <td>{{ score.duration }}</td>
+                                    </tr>
+                                    {% endwith %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if not has_40_shots %}
+                                <tr>
+                                    <td colspan="10" class="text-center">No records found</td>
+                                </tr>
+                            {% endif %}
+                        {% endwith %}
+                    </tbody>
+                </table>
+            </div>
+            <div id="60shotsest">
+                <table>
+                    <thead>
+                        <tr>
+                            <th> Date </th>
+                            <th> Match-type</th>
+                            <th> series 1 </th>
+                            <th> series 2 </th>
+                            <th> series 3 </th>
+                            <th> series 4 </th>
+                            <th> series 5 </th>
+                            <th> series 6 </th>
+                            <th> Total score </th>
+                            <th> Average Score (shot) </th>
+                            <th> Average score (series) </th>
+                            <th> Session Duration </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for score in est_scores %}
+                            {% if score.match_type == "60-Shots" %}
+                                <tr>
+                                    <td>{{ score.date }}</td>
+                                    <td>{{ score.match_type }}</td>
+                                    <td>{{ score.s1t }}</td>
+                                    <td>{{ score.s2t }}</td>
+                                    <td>{{ score.s3t }}</td>
+                                    <td>{{ score.s4t }}</td>
+                                    <td>{{ score.s5t }}</td>
+                                    <td>{{ score.s6t }}</td>
+                                    <td>{{ score.total }}</td>
+                                    <td>{{ score.average_shot_score }}</td>
+                                    <td>{{ score.average_series_score}}</td>
+                                    <td>{{ score.duration }}</td>
+                                </tr>
+                            {% endif %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="11" class="text-center">No records found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+</div>
+
+<script>
+document.getElementById("toggleSwitch").addEventListener("change", function() {
+    let manualContainer = document.getElementById("manual-history");
+    let estContainer = document.getElementById("est-history");
+    let toggleValue = this.checked ? "est" : "manual"; // Send "est" if checked, else "manual"
+    if (this.checked) {
+        manualContainer.style.display = "none";
+        estContainer.style.display = "block";
+    } else {
+        manualContainer.style.display = "block";
+        estContainer.style.display = "none";
+    }
+    // Get URL from data attribute
+    let url = this.getAttribute("data-url");
+    fetch(url, {  
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken":  document.querySelector('[name=csrfmiddlewaretoken]').value  // Ensure CSRF token is included
+        },
+        body: JSON.stringify({ toggle_state: toggleValue })
+    })
+    .then(response => response.json())
+    .then(data => console.log("Response:", data))
+    .catch(error => console.error("Error:", error));
+});
+// this is for the manual
+document.addEventListener("DOMContentLoaded", function() {
+    let toogleMatchType = document.getElementById("toggleMatchTypemanual")
+    let fourtyshots = document.getElementById("40shotsmanual");
+    let sixtyshots = document.getElementById("60shotsmanual");
+
+    toogleMatchType.addEventListener("change", function () {
+        if (this.checked) {
+            fourtyshots.style.display = "none";
+            sixtyshots.style.display = "block";
+        } else {
+            fourtyshots.style.display = "block";
+            sixtyshots.style.display = "none";
+        }
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    let btn40Manual = document.getElementById("btn40manual");
+    let btn60Manual = document.getElementById("btn60manual");
+    let fortyShotsManual = document.getElementById("40shotsmanual");
+    let sixtyShotsManual = document.getElementById("60shotsmanual");
+
+    let btn40EST = document.getElementById("btn40est");
+    let btn60EST = document.getElementById("btn60est");
+    let fortyShotsEST = document.getElementById("40shotsest");
+    let sixtyShotsEST = document.getElementById("60shotsest");
+
+    // Manual Scores Toggle
+    btn40Manual.addEventListener("click", function() {
+        fortyShotsManual.style.display = "block";
+        sixtyShotsManual.style.display = "none";
+        btn40Manual.classList.add("active");
+        btn60Manual.classList.remove("active");
+    });
+
+    btn60Manual.addEventListener("click", function() {
+        fortyShotsManual.style.display = "none";
+        sixtyShotsManual.style.display = "block";
+        btn60Manual.classList.add("active");
+        btn40Manual.classList.remove("active");
+    });
+
+    // EST Scores Toggle
+    btn40EST.addEventListener("click", function() {
+        fortyShotsEST.style.display = "block";
+        sixtyShotsEST.style.display = "none";
+        btn40EST.classList.add("active");
+        btn60EST.classList.remove("active");
+    });
+
+    btn60EST.addEventListener("click", function() {
+        fortyShotsEST.style.display = "none";
+        sixtyShotsEST.style.display = "block";
+        btn60EST.classList.add("active");
+        btn40EST.classList.remove("active");
+    });
+});
+
+
+
+</script>
+
+{% include 'footer.html'%}
+{% endblock %}

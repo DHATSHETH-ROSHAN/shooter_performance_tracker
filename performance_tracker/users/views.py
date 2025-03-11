@@ -4,8 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from .models import UserProfiles
-from scores.models import manualscore, activities
+from scores.models import manualscore, pdfScore, activities
 from datetime import timedelta
+from django.utils.timezone import now
+import json
 
 def home(request):
     print("User Authenticated:",request.user.is_authenticated)
@@ -97,16 +99,30 @@ def forgot_password(request):
 def shooter_home(request):
     user = request.user
     scores_queryset = manualscore.objects.filter(user_profile=user).order_by('-date', '-current_time')
+    scores_Est = pdfScore.objects.filter(user_profile=user).order_by('-date', '-current_time')
     total_session_40 = scores_queryset.filter(match_type='40-Shots').count()
     total_session_60 = scores_queryset.filter(match_type='60-Shots').count()
-
     # Streak Calculation
-    practice_dates = scores_queryset.values_list('date', flat=True).distinct()
+    practice_dates_man = scores_queryset.values_list('date', flat=True).distinct()
+    practice_dates_est = scores_Est.values_list('date', flat=True).distinct()
+    practice_dates = sorted(set(practice_dates_man) | set(practice_dates_est), reverse=True)  
+    practice_days = [date.strftime("%Y-%m-%d") for date in practice_dates]
+    
+    activities_lst = activities.objects.filter(user = user).order_by('-date')
+    workoutdays = activities_lst.filter(activity_category = "physical").values_list('date', flat=True)
+    workoutdays = [date.strftime("%Y-%m-%d") for date in workoutdays]
+    meditdays = activities_lst.filter(activity_category = "mental").values_list('date', flat=True)
+    meditdays = [date.strftime("%Y-%m-%d") for date in meditdays]
+    equipmaindays = activities_lst.filter(activity_category = "equipment").values_list('date', flat=True)
+    equipmaindays = [date.strftime("%Y-%m-%d") for date in equipmaindays]
     streak_count = 0
     current_streak = 0
     previous_date = None
+    today = now().date()
+    current_year = today.year
+    current_month = today.month
 
-    for date in sorted(practice_dates, reverse=True):
+    for date in sorted(practice_dates_man, reverse=True):
         if previous_date is None or previous_date - date == timedelta(days=1):
             current_streak += 1
         else:
@@ -124,7 +140,13 @@ def shooter_home(request):
     avg_score_60 = round(sum(score_60) / len(score_60), 2) if score_60 else 0
     current_score_40 = score_40[-1] if score_40 else 0
     current_score_60 = score_60[-1] if score_60 else 0
-
+    avg_dur_sun = round(sum(d := [s.duration for s in scores_queryset if s.day == "Sunday"]) / len(d), 1) if (d := [s.duration for s in scores_queryset if s.day == "Sunday"]) else 0
+    avg_dur_mon = round(sum(d := [s.duration for s in scores_queryset if s.day == "Monday"]) / len(d), 1) if (d := [s.duration for s in scores_queryset if s.day == "Monday"]) else 0
+    avg_dur_tue = round(sum(d := [s.duration for s in scores_queryset if s.day == "Tuesday"]) / len(d), 1) if (d := [s.duration for s in scores_queryset if s.day == "Tuesday"]) else 0
+    avg_dur_wed = round(sum(d := [s.duration for s in scores_queryset if s.day == "Wednesday"]) / len(d), 1) if (d := [s.duration for s in scores_queryset if s.day == "Wednesday"]) else 0
+    avg_dur_thu = round(sum(d := [s.duration for s in scores_queryset if s.day == "Thursday"]) / len(d), 1) if (d := [s.duration for s in scores_queryset if s.day == "Thursday"]) else 0
+    avg_dur_fri = round(sum(d := [s.duration for s in scores_queryset if s.day == "Friday"]) / len(d), 1) if (d := [s.duration for s in scores_queryset if s.day == "Friday"]) else 0
+    avg_dur_sat = round(sum(d := [s.duration for s in scores_queryset if s.day == "Saturday"]) / len(d), 1) if (d := [s.duration for s in scores_queryset if s.day == "Saturday"]) else 0
     # Last Session Info
     last_session_entry = scores_queryset.first()
     last_match_type = last_session_entry.match_type if last_session_entry else "40-Shots"
@@ -150,11 +172,26 @@ def shooter_home(request):
         'target_score_60': target_score_60,
         'avg_score_40': avg_score_40,
         'avg_score_60': avg_score_60,
+        'avg_dur_sun': avg_dur_sun,
+        'avg_dur_mon': avg_dur_mon,
+        'avg_dur_tue': avg_dur_tue,
+        'avg_dur_wed': avg_dur_wed,
+        'avg_dur_thu': avg_dur_thu,
+        'avg_dur_fri': avg_dur_fri,
+        'avg_dur_sat': avg_dur_sat,
         'last_session': last_session,
         'last_match_type': last_match_type,
         'session_timing': session_timing,
-        'streak_count': streak_count
+        'streak_count': streak_count,
+        'current_year': current_year,
+        'current_month': current_month,
+        'practice_dates': practice_dates_man,
+        'practice_days': json.dumps(practice_days),
+        'workoutdates': json.dumps(workoutdays),
+        'medidates': json.dumps(meditdays),
+        'equipmaindays': json.dumps(equipmaindays),
     }
+    
     return render(request, 'shooter_home.html', context)
 
 

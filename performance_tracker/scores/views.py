@@ -464,10 +464,14 @@ def dashboard(request):
     # other things 
     shot_avg_man_40 = round(statistics.mean([score.average for score in manual_scores.filter(match_type = "40-Shots")]),1)
     shot_avg_man_60 = round(statistics.mean([score.average for score in manual_scores.filter(match_type = "60-Shots")]),1)
+    shot_avg_man_40_lst = list(manual_scores.filter(match_type="40-Shots").values_list("average", flat=True))
+    shot_avg_man_60_lst = list(manual_scores.filter(match_type="60-Shots").values_list("average", flat=True))
     shot_avg_man = round(statistics.mean([score.average for score in manual_scores]),1)
     avg_man_duration = round(statistics.mean([score.duration for score in manual_scores]),1)
-
-    # pdf calculations
+    date_man_40 = list(manual_scores.filter(match_type="40-Shots").values_list("date", flat=True))
+    date_man_40 = [date.strftime("%Y-%m-%d") for date in date_man_40]  # Convert to string
+    date_man_60 = list(manual_scores.filter(match_type="60-Shots").values_list("date", flat=True))
+    date_man_60 = [date.strftime("%Y-%m-%d") for date in date_man_60] # pdf calculations
     practice_dates_est = manual_scores.values_list('date', flat=True).distinct()
     streak_count_est = 0
     current_streak_est = 0
@@ -498,6 +502,20 @@ def dashboard(request):
     total_pdf_60_shots = pdf_scores.filter(match_type="60-Shots").count()
     best_pdf_60_shots = max([score.total for score in pdf_scores.filter(match_type="60-Shots") if score.total is not None],default=0)
     last_30_avg_60_est = sum([score.total for score in pdf_scores.filter(match_type="60-Shots").order_by('-date')[:30] if score.total is not None]) / min(30, pdf_scores.filter(match_type="60-Shots").count()) if pdf_scores.filter(match_type="60-Shots").count() > 0 else 0
+    duration_40_est = list(pdf_scores.filter(match_type="40-Shots").values_list('duration', flat=True))
+    duration_60_est = list(pdf_scores.filter(match_type="60-Shots").values_list('duration', flat=True))
+    score_40_est = json.dumps([float(score) for score in pdf_scores.filter(match_type="40-Shots").values_list('total', flat=True)])
+    score_60_est = json.dumps([float(score) for score in pdf_scores.filter(match_type="60-Shots").values_list('total', flat=True)])
+    date_est_40 = list(pdf_scores.filter(match_type="40-Shots").values_list("date", flat=True))
+    date_est_40 = [date.strftime("%Y-%m-%d") for date in date_est_40]  # Convert to string
+    date_est_60 = list(pdf_scores.filter(match_type="60-Shots").values_list("date", flat=True))
+    date_est_60 = [date.strftime("%Y-%m-%d") for date in date_est_60] # pdf calculations
+    avg_group_size_40 = round(statistics.mean([score.gps for score in pdf_scores.filter(match_type="40-Shots")]), 1) if pdf_scores.filter(match_type="40-Shots").exists() else 0
+    avg_group_size_60 = round(statistics.mean([score.gps for score in pdf_scores.filter(match_type="60-Shots")]), 1) if pdf_scores.filter(match_type="60-Shots").exists() else 0
+    avg_in10_40_est = round(statistics.mean([score.inner_tens for score in pdf_scores.filter(match_type="40-Shots")]), 1) if pdf_scores.filter(match_type="40-Shots").exists() else 0
+    avg_in10_60_est = round(statistics.mean([score.inner_tens for score in pdf_scores.filter(match_type="60-Shots")]), 1) if pdf_scores.filter(match_type="60-Shots").exists() else 0
+    in10_40_est_lst = list(pdf_scores.filter(match_type="40-Shots").values_list("inner_tens", flat=True))
+    in10_60_est_lst = list(pdf_scores.filter(match_type="60-Shots").values_list("inner_tens", flat=True))
     # 60 shots series average
     avg_s1_60_est = round(statistics.mean([score.s1t for score in pdf_scores.filter(match_type = "60-Shots") if score.s1t is not None]), 1) if pdf_scores.filter(match_type = "60-Shots").exists() else None
     avg_s2_60_est = round(statistics.mean([score.s2t for score in pdf_scores.filter(match_type = "60-Shots") if score.s2t is not None]),1) if pdf_scores.filter(match_type = "60-Shots").exists() else None
@@ -505,10 +523,28 @@ def dashboard(request):
     avg_s4_60_est = round(statistics.mean([score.s4t for score in pdf_scores.filter(match_type = "60-Shots") if score.s4t is not None]),1) if pdf_scores.filter(match_type = "60-Shots").exists() else None
     avg_s5_60_est = round(statistics.mean([score.s5t for score in pdf_scores.filter(match_type = "60-Shots") if score.s5t is not None]),1) if pdf_scores.filter(match_type = "60-Shots").exists() else None
     avg_s6_60_est = round(statistics.mean([score.s6t for score in pdf_scores.filter(match_type = "60-Shots") if score.s6t is not None]),1) if pdf_scores.filter(match_type = "60-Shots").exists() else None
-    # other things
+    # group sizes to list
+    # for 60 shots
+    filt_est_40 = pdf_scores.filter(match_type="40-Shots")
+    filt_est_60 = pdf_scores.filter(match_type="60-Shots")
+    avg_gps1_40 = round(sum([score.gps1 for score in filt_est_40 ])/ max(1, filt_est_40.count()), 1) if len(filt_est_40) > 0 else 0
+    avg_gps2_40 = round(sum([score.gps2 for score in filt_est_40 ])/ max(1, filt_est_40.count()), 1) if len(filt_est_40) > 0 else 0
+    avg_gps3_40 = round(sum([score.gps3 for score in filt_est_40 ])/ max(1, filt_est_40.count()), 1) if len(filt_est_40) > 0 else 0
+    avg_gps4_40 = round(sum([score.gps4 for score in filt_est_40 ])/ max(1, filt_est_40.count()), 1) if len(filt_est_40) > 0 else 0
+    avg_gps1_60 = round(sum([score.gps1 for score in filt_est_60 ])/ max(1, filt_est_60.count()), 1) if len(filt_est_60) > 0 else 0
+    avg_gps2_60 = round(sum([score.gps2 for score in filt_est_60 ])/ max(1, filt_est_60.count()), 1) if len(filt_est_60) > 0 else 0
+    avg_gps3_60 = round(sum([score.gps3 for score in filt_est_60 ])/ max(1, filt_est_60.count()), 1) if len(filt_est_60) > 0 else 0
+    avg_gps4_60 = round(sum([score.gps4 for score in filt_est_60 ])/ max(1, filt_est_60.count()), 1) if len(filt_est_60) > 0 else 0
+    avg_gps5_60 = round(sum([score.gps5 for score in filt_est_60 ])/ max(1, filt_est_60.count()), 1) if len(filt_est_60) > 0 else 0
+    avg_gps6_60 = round(sum([score.gps6 for score in filt_est_60 ])/ max(1, filt_est_60.count()), 1) if len(filt_est_60) > 0 else 0
+
+# other things
     est_tot_60_avg = round(statistics.mean([score.total for score in pdf_scores.filter(match_type = "60-Shots")]),1)
     est_ser_60_avg = round(statistics.mean([score.average_series_score for score in pdf_scores.filter(match_type="60-Shots")]),1)
     est_shot_60_avg = round(statistics.mean([score.average_shot_score for score in pdf_scores.filter(match_type="60-Shots")]),1)
+    shot_avg_est_40_lst = list(pdf_scores.filter(match_type="40-Shots").values_list("average_shot_score", flat=True))
+    shot_avg_est_60_lst = list(pdf_scores.filter(match_type="60-Shots").values_list("average_shot_score", flat=True))
+    
     # total calculations
     total_scores = total_manual_scores + total_pdf_scores
     # calculate total 40 shots matches
@@ -524,14 +560,14 @@ def dashboard(request):
         'best_man_60_shots': best_man_60_shots,
         'last_30_avg_40_man': last_30_avg_40_man,
         'last_30_avg_60_man': last_30_avg_60_man,
-        'duration_40_man': json.dumps(duration_40_man),
-        'duration_60_man': json.dumps(duration_60_man),
+        'duration_40_man': json.dumps([float(d) for d in duration_40_man]),
+        'duration_60_man': json.dumps([float(d) for d in duration_60_man]),
     # 40 shots series average
         'avg_s1_40': avg_s1_40,
         'avg_s2_40': avg_s2_40,
         'avg_s3_40': avg_s3_40,
         'avg_s4_40': avg_s4_40,
-        'score_40_man': json.dumps(score_40_man),
+        'score_40_man': json.dumps([float(s) for s in score_40_man]),
     # 60 shots series average
         'avg_s1_60': avg_s1_60,
         'avg_s2_60': avg_s2_60,
@@ -539,14 +575,19 @@ def dashboard(request):
         'avg_s4_60': avg_s4_60,
         'avg_s5_60': avg_s5_60,
         'avg_s6_60': avg_s6_60,
-        'score_60_man': json.dumps(score_60_man),
+        'score_60_man': json.dumps([float(s) for s in score_60_man]),
         'shot_avg_man_40': shot_avg_man_40,
         'shot_avg_man_60': shot_avg_man_60,
+        'shot_avg_man_40_lst': json.dumps([float(s) for s in shot_avg_man_40_lst]),
+        'shot_avg_man_60_lst': json.dumps([float(s) for s in shot_avg_man_60_lst]),
+        'date_man_40': json.dumps(date_man_40),
+        'date_man_60': json.dumps(date_man_60),
         'shot_avg_man': shot_avg_man,
         'avg_man_duration': avg_man_duration,
         'streak_count_est': streak_count_est,
 
         'total_pdf_scores': total_pdf_scores,
+
         'total_pdf_40_shots': total_pdf_40_shots,
         'total_pdf_60_shots': total_pdf_60_shots,
         'best_pdf_40_shots': best_pdf_40_shots,
@@ -556,6 +597,16 @@ def dashboard(request):
         'est_tot_40_avg': est_tot_40_avg,
         'est_ser_40_avg': est_ser_40_avg,
         'est_shot_40_avg': est_shot_40_avg,
+        'avg_group_size_40': avg_group_size_40,
+        'avg_group_size_60': avg_group_size_60,
+        'avg_in10_40_est': avg_in10_40_est,
+        'avg_in10_60_est': avg_in10_60_est,
+        'in10_40_est_lst': json.dumps([float(i) for i in in10_40_est_lst]),
+        'in10_60_est_lst': json.dumps([float(i) for i in in10_60_est_lst]),
+        'duration_40_est': json.dumps([float(d) for d in duration_40_est]),
+        'duration_60_est': json.dumps([float(d) for d in duration_60_est]),
+        'shot_avg_est_40_lst': json.dumps([float(s) for s in shot_avg_est_40_lst]),
+        'shot_avg_est_60_lst': json.dumps([float(s) for s in shot_avg_est_60_lst]),
         'avg_s1_40_est': avg_s1_40_est,
         'avg_s2_40_est': avg_s2_40_est,
         'avg_s3_40_est': avg_s3_40_est,
@@ -569,12 +620,25 @@ def dashboard(request):
         'avg_s4_60_est': avg_s4_60_est,
         'avg_s5_60_est': avg_s5_60_est,
         'avg_s6_60_est': avg_s6_60_est,
-
-
+        'avg_gps1_40': avg_gps1_40,
+        'avg_gps2_40': avg_gps2_40,
+        'avg_gps3_40': avg_gps3_40,
+        'avg_gps4_40': avg_gps4_40,
+        'avg_gps1_60': avg_gps1_60,
+        'avg_gps2_60': avg_gps2_60,
+        'avg_gps3_60': avg_gps3_60,
+        'avg_gps4_60': avg_gps4_60,
+        'avg_gps5_60': avg_gps5_60,
+        'avg_gps6_60': avg_gps6_60,
+        'score_40_est': score_40_est,
+        'score_60_est': score_60_est,
+        'date_est_40': json.dumps(date_est_40),
+        'date_est_60': json.dumps(date_est_60),
         'total_scores': total_scores,
         'total_40_shots': total_40_shots,
         'total_60_shots': total_60_shots,
     }
+    print(avg_gps1_40)
     return render(request, 'dashboard.html', context)
 
 # Create your views here.

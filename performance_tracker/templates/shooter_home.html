@@ -6,7 +6,54 @@ Shooter's Home
 {% endblock %}
 {% block extra_css %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
+<style>
+    .calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        max-width: 350px;
+        margin: auto;
+    }
+    .day {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: center;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+    }
+    .practice-day {
+        background-color: #00ddff; /* Highlighted color */
+        color: white;
+        
+    }
+    .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #202020;
+        padding: 15px;
+        border-radius: 10px;
+        z-index: 1000;
+        width: 300px;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    
+    .popup-content {
+        text-align: center;
+        color: white;
+    }
+    
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+</style>
 {% endblock %}
 {% block content %}
 {% include 'navbar.html' %}
@@ -49,20 +96,26 @@ Shooter's Home
                 </div>
                 <div class="card-body text-white">
                     <div id="shooting" class="training-content">
-                        <h6>Shooting session</h6>
+                        <h5>Shooting session</h5>
                         <p>Track your shooting practice and analyze your performance</p>
+                        <h4 class="text-center">Monthly Practice Tracker <br> {{ current_month }}/{{ current_year }}</h4>
+                        <div class="calendar" id="calendar_shooting"></div>
                     </div>
                     <div id="workout" class="training-content" style="display: none;" >
-                        <h6>Workout session</h6>
+                        <h5>Workout session</h5>
                         <p>Monitor your fitness and strength training for better stability.</p>
+                        <h4 class="text-center">Workouts sessions</h4>
+                        <div class="calendar" id="calendar_workout"></div>
                     </div>
                     <div id="meditation" class="training-content" style="display: none;">
-                        <h6>Meditation & Focus</h6>
+                        <h5>Meditation & Focus</h5>
                         <p>Improve your concentration and mental clarity for shooting.</p>
+                        <div class="calendar" id="calendar_meditation"></div>
                     </div>
                     <div id="equipment" class="training-content" style="display: none;">
-                        <h6>Equipment Maintenance</h6>
+                        <h5>Equipment Maintenance</h5>
                         <p>Keep track of your rifle maintenance and adjustments.</p>
+                        <div class="calendar" id="equipment_calendar"></div>
                     </div>
                 </div>
             </div>
@@ -158,7 +211,7 @@ Shooter's Home
                         <br>
                         <div class="row">
                             <a href="{% url 'manual_upload' %}" class="btn btn-danger btn-sm mb-2">Manually Upload Score</a>
-                            <a href="{% url 'pdf_upload' %}" class="btn btn-success btn-sm mb-2">Upload Pdf</a>
+                            <a href="{% url 'pdf_upload' %}" class="btn btn-success btn-sm mb-2">Upload Pdf (EST Score)</a>
                         </div>
                         <br>
                         <a href="{% url 'activities' %}" class="btn btn-primary btn-sm">Activities</a>
@@ -213,70 +266,80 @@ Shooter's Home
 <script>
     // charts dipalayed inn the center of the page
     
-    var options = {
-      chart: {
-        type: 'bar'
-      },
-      title: {
-        text: "Average Practice Time Per Day", // Updated Title
-        align: 'center',
-        style: {
-          fontSize: '16px',
-          fontWeight: 'bold',
-          color: '#ffffff'
-        }
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false, // Vertical chart
-          columnWidth: '50%'    
-        }
-      },
-      xaxis: {
-        title: {
-          text: 'Days of the Week',
-          style: {
-            fontSize: '14px',
-            fontWeight: 'bold',
-            color: '#ffffff'
-          }
-        },
-        categories: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], 
-        labels: {
-          style: {
-            colors: '#ffffff' // X-axis label color
-          }
-        }
-      },
-      yaxis: {
-        title: {
-          text: 'Avg. Practice Time (minutes)', // Updated Y-axis label
-          style: {
-            fontSize: '14px',
-            fontWeight: 'bold',
-            color: '#ffffff'
-          }
-        },
-        labels: {
-          style: {
-            colors: '#ffffff'
-          }
-        }
-      },
-      series: [
-        {
-          name: 'Average Time', // Updated legend name
-          data: [75, 60, 50, 65, 55, 80, 70] // Replace with actual average practice time values
-        }
-      ],
-      colors: ['#00ddff'], // Bar color
-      grid: {
-        borderColor: '#444'
-      }
-    };
+    var dataSeries = [{{ avg_dur_sun }}, {{ avg_dur_mon }}, {{ avg_dur_tue }}, {{ avg_dur_wed }}, {{ avg_dur_thu }}, {{ avg_dur_fri }}, {{ avg_dur_sat }}];
+
+    // Check if all values are 0
+    if (dataSeries.every(value => value === 0)) {
+        document.querySelector("#weeklyChart").innerHTML = `<div style="color: #ffffff; text-align: center; font-size: 16px; font-weight: bold; padding: 20px;">
+            No practice data available for this week.
+        </div>`;
+    } else {
+        var options = {
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: "Average Practice Time Per Day",
+                align: 'center',
+                style: {
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    color: '#ffffff'
+                }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '50%'    
+                }
+            },
+            xaxis: {
+                title: {
+                    text: 'Days of the Week',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        color: '#ffffff'
+                    }
+                },
+                categories: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], 
+                labels: {
+                    style: {
+                        colors: '#ffffff'
+                    }
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Avg. Practice Time (minutes)',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        color: '#ffffff'
+                    }
+                },
+                labels: {
+                    style: {
+                        colors: '#ffffff'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Average Time',
+                    data: dataSeries
+                }
+            ],
+            colors: ['#00ddff'],
+            grid: {
+                borderColor: '#444'
+            }
+        };
     
-    var chart = new ApexCharts(document.querySelector("#weeklyChart"), options);
-    chart.render();
+        var chart = new ApexCharts(document.querySelector("#weeklyChart"), options);
+        chart.render();
+    }
+    
 
 // streak progress
 document.addEventListener("DOMContentLoaded", function () {
@@ -422,38 +485,55 @@ function closePopup(id) {
     document.getElementById(id).style.display = "none";
 }
 
+const practiceDays = JSON.parse('{{ practice_days|safe }}'); 
+const workoutdates = JSON.parse('{{ workoutdates|safe }}');
+const meddays = JSON.parse('{{ medidates|safe }}');
+const equidays = JSON.parse('{{ equipmaindays|safe }}');
+const currentYear = {{ current_year }};
+const currentMonth = {{ current_month }};
 
+function generateCalendar(containerId, year, month, practiceDays = []) {
+    const calendar = document.getElementById(containerId);
+    if (!calendar) {
+        console.error(`Element with ID '${containerId}' not found.`);
+        return;
+    }
+    
+    calendar.innerHTML = ""; // Clear previous content
+
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0).getDate();
+    const startDay = firstDay.getDay(); // 0 = Sunday, 1 = Monday...
+
+    // Add empty cells for first week
+    for (let i = 0; i < startDay; i++) {
+        const emptyCell = document.createElement("div");
+        emptyCell.classList.add("day");
+        calendar.appendChild(emptyCell);
+    }
+
+    // Fill in the dates
+    for (let date = 1; date <= lastDay; date++) {
+        const dayCell = document.createElement("div");
+        dayCell.classList.add("day");
+        dayCell.innerText = date;
+
+        const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+        if (practiceDays.includes(formattedDate)) {
+            dayCell.classList.add("practice-day"); // Highlight practiced days
+        }
+
+        calendar.appendChild(dayCell);
+    }
+}
+
+generateCalendar("calendar_shooting", currentYear, currentMonth, practiceDays);
+generateCalendar("calendar_workout", currentYear, currentMonth, workoutdates);
+generateCalendar("calendar_meditation", currentYear, currentMonth, meddays);
+generateCalendar("equipment_calendar", currentYear, currentMonth, equidays);
 </script>
 
-<style>
-    .popup {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #202020;
-    padding: 15px;
-    border-radius: 10px;
-    z-index: 1000;
-    width: 300px;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-}
 
-.popup-content {
-    text-align: center;
-    color: white;
-}
-
-.close {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-</style>
     
 {% include 'footer.html' %}
 {% endblock %}

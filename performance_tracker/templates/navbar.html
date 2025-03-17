@@ -72,7 +72,7 @@
                         <span class="nav-link text-light fw-bold">Welcome, {{ user.first_name }}</span>
                     </li>
                 {% elif user.role == "Coach" %}
-                    <li class="nav-item d-flex align-items-center">
+                    <li class="nav-item d-flex align-items-center me-3">
                         <div class="coach-icon d-flex align-items-center justify-content-center text-dark fw-bold" style="width: 40px; height: 40px; background-color: #00ddff; border-radius: 50%;">
                             {% if user.first_name and user.last_name %}
                                 {{ user.first_name.0}}{{ user.last_name.0}}
@@ -82,7 +82,7 @@
                     </li>
                 {% endif %}
                 
-                <li class="nav-item">
+                <li class="nav-item ms-3">
                     <a href="{% url 'logout' %}" class="btn fw-bold text-dark" style="background-color: #00ddff;">Logout</a>
                 </li>
             {% else %}

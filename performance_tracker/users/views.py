@@ -1,13 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
-from .models import UserProfiles
+from .models import UserProfiles, CoachShooterRelation, DayPlanner, Event
 from scores.models import manualscore, pdfScore, activities
 from datetime import timedelta
 from django.utils.timezone import now
 import json
+from .forms import DayPlannerForm, EventForm
 
 def home(request):
     print("User Authenticated:",request.user.is_authenticated)
@@ -61,6 +62,19 @@ def user_register(request):
         password2 = request.POST.get('password2')
         role = request.POST.get('role', 'Shooter')
 
+        if role == "Coach":
+            is_staff = True
+            is_superuser = False
+            is_active = False  # Coach requires admin approval
+        elif role == "Admin":
+            is_staff = True
+            is_superuser = True
+            is_active = True
+        else:
+            is_staff = False
+            is_superuser = False
+            is_active = True  # Shooter is active immediately
+
         if not all([first_name, last_name, username, email, password1, password2]):  # Added validation for required fields
             messages.error(request, 'All fields are required!')
             return render(request, 'register.html')
@@ -75,9 +89,13 @@ def user_register(request):
             return render(request, 'register.html')
         else:
             hashed_pwd = make_password(password1)
-            user = UserProfiles.objects.create(first_name=first_name, last_name=last_name, username=username, email=email, password=hashed_pwd, role=role)
+            user = UserProfiles.objects.create(first_name=first_name, last_name=last_name, username=username, email=email, password=hashed_pwd, role=role, is_staff=is_staff, is_active=is_active,is_superuser=is_superuser)
             user.save()
-            messages.success(request, 'Registration successful!, Please login to continue')  # Fixed typo
+        if role == "Coach":
+            messages.success(request, 'Registration successful! Your account is pending approval.')
+            return redirect('coach_home')
+        else:
+            messages.success(request, 'Registration successful! Please login to continue.')
             return redirect('login')
     else:
         return render(request, 'register.html')
@@ -160,6 +178,9 @@ def shooter_home(request):
 
     target_score_40 = 400
     target_score_60 = 600
+    # coahes
+    available_coaches = UserProfiles.objects.filter(role="Coach")
+    coach_relation = CoachShooterRelation.objects.filter(shooter=request.user, status="Accepted").first()
 
     context = {
         'total_session_40': total_session_40,
@@ -190,15 +211,135 @@ def shooter_home(request):
         'workoutdates': json.dumps(workoutdays),
         'medidates': json.dumps(meditdays),
         'equipmaindays': json.dumps(equipmaindays),
+        'coaches': available_coaches,
+        'coach_relation':coach_relation,
     }
     
     return render(request, 'shooter_home.html', context)
 
+def select_coach_or_shooter(request):
+    user_profile = request.user
 
+    if user_profile.role == "Shooter":
+        available_coaches = UserProfiles.objects.filter(role="Coach")
+        if request.method == "POST":
+            coach_id = request.POST.get("coach_id")
+            coach_profile = UserProfiles.objects.get(id=coach_id)
+            # check if requestsent and rejected
+            existing_request = CoachShooterRelation.objects.filter(coach=coach_profile, shooter=user_profile).first()
+            if existing_request:
+                if existing_request.status == "Rejected":
+                    existing_request.status = "Pending"
+                    existing_request.save()
+                    messages.success(request, "Coaching request sent again!")
+                else:
+                    messages.warning(request, "request already sent!")
+            else:
+                CoachShooterRelation.objects.create(coach=coach_profile, shooter=user_profile, status="Pending")
+                messages.success(request, "Coaching request sent!")
+            return redirect("shooter_home")
+        
+        return render(request, "shooter_home.html", {"coaches": available_coaches})
+    
+    elif user_profile.role == "Coach":
+        available_shooters = UserProfiles.objects.filter(role="Shooter")  # Fixed typo
+        if request.method == "POST":
+            shooter_id = request.POST.get("shooter_id")
+            shooter_profile = UserProfiles.objects.get(id=shooter_id)
+            # Check if a request exists
+            existing_request = CoachShooterRelation.objects.filter(coach=user_profile, shooter=shooter_profile).first()
+            if existing_request:
+                if existing_request.status == "Rejected":
+                    existing_request.status = "Pending"  # Reset status for re-request
+                    existing_request.save()
+                    messages.success(request, "Shooter request sent again!")
+                else:
+                    messages.warning(request, "Request already sent or accepted!")
+            else:
+                CoachShooterRelation.objects.create(coach=user_profile, shooter=shooter_profile, status="Pending")
+                messages.success(request, "Shooter request sent!")
+            return redirect("coach_home")
+        return render(request, "select_shooter.html", {"shooters": available_shooters})
+def accept_request(request, request_id):
+    coach_profile = request.user  # Get the coach's UserProfiles object
+    coach_request = get_object_or_404(CoachShooterRelation, id=request_id, coach=coach_profile)
+    coach_request.status = 'Accepted'
+    coach_request.save()
+    # Assign the shooter to the coach
+    shooter_profile = UserProfiles.objects.get(username=coach_request.shooter)
+    shooter_profile.coach = coach_profile  # Assign coach properly
+    shooter_profile.save()
+    messages.success(request, "You have accepted the coaching request.")
+    return redirect('coach_home')
 
-@login_required  # Added login_url parameter for consistency
+def reject_request(request, request_id):
+    coach_request = get_object_or_404(CoachShooterRelation, id=request_id, coach=request.user)
+    coach_request.status = 'Rejected'
+    coach_request.save()
+    messages.warning(request, "You have rejected the coaching request.")
+    return redirect('coach_home')
+
+def remove_coach(request):
+    if request.method == "POST":
+        shooter = UserProfiles.objects.get(username=request.user)  
+        if shooter.coach:  # Check if a coach is assigned
+            coach_name = shooter.coach.username  # Store coach's name before unassigning
+            print(coach_name)
+            shooter.coach = None  # Unassign coach
+            shooter.save()
+            # Delete the coach-shooter relationship
+            CoachShooterRelation.objects.filter(shooter_id=shooter.id).delete()
+            # Show success message
+            messages.warning(request, f"You removed {coach_name} as your coach.")
+
+    return redirect('shooter_home')
+
+@login_required(login_url='/login/')  # Added login_url parameter for consistency
 def coach_home(request):
-    return render(request, 'coach_home.html')
+    coach_profile = UserProfiles.objects.get(username=request.user)
+    fullprofile = UserProfiles.objects.filter(username=coach_profile).values()
+    coach_email = fullprofile[0]['email'] if fullprofile else None
+    current_shooters_count = CoachShooterRelation.objects.filter(coach=coach_profile, status="Accepted").count()
+    #print(current_shooters_count)
+    pending_requests = CoachShooterRelation.objects.filter(coach=coach_profile, status="Pending")
+# day planner handling
+    day_plans = DayPlanner.objects.filter(coach=request.user)
+    if request.method == "POST":
+        form1 = DayPlannerForm(request.POST, coach=request.user)
+        if form1.is_valid():
+            plan = form1.save(commit=False)
+            plan.coach = request.user  # Assign coach
+            plan.save()
+            return redirect("coach_home")  # Reload the page
+
+    else:
+        form1 = DayPlannerForm(coach=request.user)
+# events registration and retival handling
+    events = Event.objects.filter(visibility__in=['coach', 'both']).order_by('date')
+
+    if request.method == "POST":
+        form2 = EventForm(request.POST)
+        if form2.is_valid():
+            event = form2.save(commit=False)
+            event.created_by = request.user
+            event.save()
+            form2.save_m2m()  # Save assigned shooters
+            return redirect('coach_home')
+    else:
+        form2 = EventForm()
+
+    context = {
+        'coach_name': coach_profile,
+        'coach_email': coach_email,
+        'shooters_count':current_shooters_count,
+        'pending_requests': pending_requests,
+        'day_plans': day_plans,
+        'events': events, 
+        'form1': form1,
+        'form2': form2,
+    }
+    return render(request, 'coach_home.html', context)
+
 
 @login_required  # Added login_url parameter for consistency
 def user_admin(request):

@@ -180,7 +180,7 @@ class activities(models.Model):
     activity_category = models.CharField(max_length=150)
     activity_name = models.CharField(max_length=150)
     duration = models.CharField(max_length=150)
-    notes = models.TextField(blank=True, null=True)
+    notes = models.TextField( null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     date = models.DateField(auto_now_add=True)
 

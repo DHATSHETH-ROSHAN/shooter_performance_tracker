@@ -22,7 +22,11 @@ urlpatterns = [
     ), name='password_reset_complete'),
 
     path('register/', views.user_register, name = 'register'),
-    
+
+    path('selection/', views.select_coach_or_shooter, name='select_coach_or_shooter'),
+    path('accept-request/<int:request_id>/', views.accept_request, name='accept_request'),
+    path('reject-request/<int:request_id>/', views.reject_request, name='reject_request'),
+    path('remove-coach/', views.remove_coach, name='remove_coach'), 
     path('shooter/home/', views.shooter_home, name = 'shooter_home'),
 
     path('coach/home/',views.coach_home, name= 'coach_home'),

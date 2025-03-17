@@ -53,6 +53,15 @@ Shooter's Home
         font-size: 20px;
         cursor: pointer;
     }
+    #coachSelectInput {
+        background-color: #fff;
+        color: #000;
+        border: 2px solid #00DDFF;
+        padding: 8px;
+        border-radius: 5px;
+        width: 100%;
+    }
+    
 </style>
 {% endblock %}
 {% block content %}
@@ -201,10 +210,82 @@ Shooter's Home
                         <small>Maintain your streaks to score more.</small>
                     </div>
                     <hr>
+                    <div>
+                        <div class="align-center">
+                            <h4>My Coach</h4>
+                            {% if coach_relation %}
+                            <p> coach: <strong> {{ coach_relation.coach.username }} </strong></p>
+                            <button class="btn btn-info btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#coachProfileModal">
+                                View Profile
+                            </button>
+                            {% else %}
+                            <p>You dont have a coach assigned yet !.</p>
+                            {% comment %} select coach button {% endcomment %}
+                            <button class="btn btn-info btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#selectcoachModal">
+                                Select coach
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <hr>
                     <div class="d-flex justify-content-around">
                         <button class="btn btn-info btn-sm" onclick="openPopup('notificationsPopup')">🔔 Notifications</button>
                         <button class="btn btn-info btn-sm" onclick="openPopup('messagessPopup')">💬 Messages</button>
                     </div>
+                    <!-- Coach Profile Modal -->
+                    <div class="modal fade" id="coachProfileModal" tabindex="-1" aria-labelledby="coachProfileModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content" style="background-color:#050505; border-radius:12px; width: 75%;">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="coachProfileModalLabel">Coach Profile</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Name:</strong> {{ coach_relation.coach.username }}</p>
+                                    <p><strong>Total Shooters Trained:</strong> {{ coach_relation.coach.total_shooters }}</p>
+                                    <p><strong>Highest Student Score:</strong> {{ coach_relation.coach.highest_score }}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <!-- Remove Coach Button -->
+                                    <form method="POST" action="{% url 'remove_coach' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Remove Coach</button>
+                                    </form>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% comment %} needs to hidden intially and it can open when needed {% endcomment %}
+                    {% if not coach_relation %}
+                    <div class="modal fade" id="selectcoachModal" tabindex="-1" aria-labelledby="selectcoachModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content" style="background-color:#050505; border-radius:12px; width: 75%;">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="selectcoachModalLabel">Available Coaches</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="POST" action="{% url 'select_coach_or_shooter' %}">
+                                        {% csrf_token %}
+                                        <label for="coach_id">Choose your Coach:</label>
+                                        <select name="coach_id" class="form-control text-light" style="background-color: #202020;">
+                                            {% for coach in coaches %}
+                                                <option value="{{ coach.id }}">{{ coach.username }}</option>
+                                            {% empty %}
+                                                <option disabled>No coaches available</option>
+                                            {% endfor %}
+                                        </select>
+                                        <br>
+                                        <button type="submit" class="btn btn-success">Send Request</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
                     <hr>
                     <div class="card-body text-center">
                         <h5 class="card-title">Training & Activities</h5>

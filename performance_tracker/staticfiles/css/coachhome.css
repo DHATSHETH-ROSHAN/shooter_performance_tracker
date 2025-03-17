@@ -1,0 +1,123 @@
+.navbar-message {
+    background-color: #050505;
+    padding: 10px 0;
+    transition: background-color 0.2s ease-in-out, padding 0.2s ease-in-out;
+}
+
+.custom-btn, #shrink-btn {
+    background-color: #050505;
+    color: #00DDFF;
+    border: none;
+    padding: 12px;
+    margin: 5px 0;
+    border-radius: 10px;
+    width: 100%;
+    text-align: left; /* Default: left-aligned text */
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background 0.3s, width 0.3s, padding 0.3s, justify-content 0.3s;
+}
+#shrink-btn{
+    transition: transform 0.3s;
+    transform: rotate(360deg);
+}
+.custom-btn i, #shrink-btn i {
+    font-size: 20px;
+    margin-right: 10px; /* Space between icon and text */
+}
+
+.custom-btn:hover, #shrink-btn:hover {
+    background-color: #202020;
+}
+
+/* Sidebar */
+#sidebar {
+    width: 200px; /* Default expanded width */
+    height: 84vh;
+    margin-left:10px;
+    margin-right: 10px; 
+    border-radius:15px;
+    transition: width 0.3s ease-in-out;
+    overflow: hidden;
+    border-right: 1.5px solid #00DDFF;
+    border-bottom:1.5px solid #00DDFF;
+}
+
+/* Sidebar Collapsed */
+#sidebar.collapsed {
+    width: 60px;
+}
+/* Adjust button styles in collapsed state */
+#sidebar.collapsed .custom-btn {
+    text-align: center;
+    justify-content: center; /* Center content when collapsed */
+    padding: 12px;
+}
+#sidebar.collapsed #shrink-btn {
+    text-align: center;
+    justify-content: center; /* Center content when collapsed */
+    padding: 12px;
+    transition: transform 0.3s;
+    transform: rotate(180deg);
+}
+/* Hide button text when collapsed */
+#sidebar.collapsed #shrink-btn span {
+    display: none;
+}
+/* Hide button text when collapsed */
+#sidebar.collapsed .custom-btn span {
+    display: none;
+}
+/* Ensure icon stays visible */
+#sidebar.collapsed .custom-btn i {
+    margin-right: 0; /* Remove spacing */
+}    
+
+/* Main Content */
+#main-content {
+    width: calc(100% - 230px);
+    height: 84vh;
+    transition: width 0.3s ease-in-out;
+    border-radius:12px;
+    overflow: auto;
+}
+
+/* Adjust Main Content when Sidebar Collapses */
+#sidebar.collapsed + #main-content {
+    width: calc(100% - 90px);
+    transition: width 0.3s ease-in-out;
+}
+
+#main-content .home-cont {
+    background-color: #050505;
+    border-right: #00DDFF;
+    border-bottom: #00DDFF;
+}
+/* Style input fields */
+.form-control {
+    background-color: #202020 !important;
+    color: white !important;
+    border: 1px solid #00DDFF !important;
+}
+
+/* Style dropdown */
+select.form-control {
+    background-color: #202020 !important;
+    color: white !important;
+}
+
+/* Placeholder color */
+.form-control::placeholder {
+    color: #aaaaaa !important;
+}
+
+/* Style checkbox */
+.form-check-input {
+    background-color: #202020 !important;
+    border: 1px solid #00DDFF !important;
+}
+#dayPlannerForm {
+    transition: opacity 0.3s ease-in-out;
+}

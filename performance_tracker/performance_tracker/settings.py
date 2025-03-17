@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-leyx08ecx#%cgp^@%06db&u_v^g-h$&k9+6d#97()lpads!0%2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.10.10.81', '0.0.0.0','*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.10.10.81', '192.168.0.183']
 
 
 # Application definition
@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'performance_tracker.wsgi.application'
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'performance_tracker',
+       'NAME': 'shooter_performance_tracker',
        'USER': 'postgres',
        'PASSWORD': '1234',
        'HOST': 'localhost',
@@ -141,6 +141,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.UserProfiles'
+
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'

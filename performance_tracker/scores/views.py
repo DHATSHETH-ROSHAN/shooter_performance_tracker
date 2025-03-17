@@ -447,23 +447,23 @@ def dashboard(request):
     total_man_60_shots = manual_scores.filter(match_type="60-Shots").count()
     best_man_40_shots = max([score.total for score in manual_scores.filter(match_type="40-Shots") if score.total is not None],default=0)
     best_man_60_shots = max([score.total for score in manual_scores.filter(match_type="60-Shots") if score.total is not None],default=0)
-    last_30_avg_40_man= round(sum([score.total for score in manual_scores.filter(match_type ="40-Shots").order_by('-date')[:30]])/manual_scores.filter(match_type = "40-Shots").order_by('-date')[:30].count(),2)
-    last_30_avg_60_man = round(sum([score.total for score in manual_scores.filter(match_type = "60-Shots").order_by('-date')[:30]])/manual_scores.filter(match_type = "60-Shots").order_by('-date')[:30].count(),2)
+    last_30_avg_40_man = round(sum(score.total for score in manual_scores.filter(match_type="40-Shots").order_by('-date')[:30]) / count_40, 2) if (count_40 := manual_scores.filter(match_type="40-Shots").order_by('-date')[:30].count()) > 0 else 0   
+    last_30_avg_60_man = round(sum(score.total for score in manual_scores.filter(match_type="60-Shots").order_by('-date')[:30]) / count_60, 2) if (count_60 := manual_scores.filter(match_type="60-Shots").order_by('-date')[:30].count()) > 0 else 0
     # 40 shots series average
-    avg_s1_40 = round(sum([score.s1t for score in manual_scores.filter(match_type = "40-Shots")])/ total_man_40_shots,1)
-    avg_s2_40 = round(sum([score.s2t for score in manual_scores.filter(match_type = "40-Shots")])/ total_man_40_shots,1)
-    avg_s3_40 = round(sum([score.s3t for score in manual_scores.filter(match_type = "40-Shots")])/ total_man_40_shots,1)
-    avg_s4_40 = round(sum([score.s4t for score in manual_scores.filter(match_type = "40-Shots")])/ total_man_40_shots,1)
-    # 60 shots series average
-    avg_s1_60 = round(sum([score.s1t for score in manual_scores.filter(match_type = "60-Shots")])/ total_man_60_shots,1)
-    avg_s2_60 = round(sum([score.s2t for score in manual_scores.filter(match_type = "60-Shots")])/ total_man_60_shots,1)
-    avg_s3_60 = round(sum([score.s3t for score in manual_scores.filter(match_type = "60-Shots")])/ total_man_60_shots,1)
-    avg_s4_60 = round(sum([score.s4t for score in manual_scores.filter(match_type = "60-Shots")])/ total_man_60_shots,1)
-    avg_s5_60 = round(sum([score.s5t for score in manual_scores.filter(match_type = "60-Shots")])/ total_man_60_shots,1)
-    avg_s6_60 = round(sum([score.s6t for score in manual_scores.filter(match_type = "60-Shots")])/ total_man_60_shots,1)
+    avg_s1_40 = round(sum(score.s1t for score in manual_scores.filter(match_type="40-Shots")) / total_man_40_shots, 1) if (total_man_40_shots := manual_scores.filter(match_type="40-Shots").count()) > 0 else 0
+    avg_s2_40 = round(sum(score.s2t for score in manual_scores.filter(match_type="40-Shots")) / total_man_40_shots, 1) if total_man_40_shots > 0 else 0
+    avg_s3_40 = round(sum(score.s3t for score in manual_scores.filter(match_type="40-Shots")) / total_man_40_shots, 1) if total_man_40_shots > 0 else 0
+    avg_s4_40 = round(sum(score.s4t for score in manual_scores.filter(match_type="40-Shots")) / total_man_40_shots, 1) if total_man_40_shots > 0 else 0
+    # 60-Shots series average
+    avg_s1_60 = round(sum(score.s1t for score in manual_scores.filter(match_type="60-Shots")) / total_man_60_shots, 1) if (total_man_60_shots := manual_scores.filter(match_type="60-Shots").count()) > 0 else 0
+    avg_s2_60 = round(sum(score.s2t for score in manual_scores.filter(match_type="60-Shots")) / total_man_60_shots, 1) if total_man_60_shots > 0 else 0
+    avg_s3_60 = round(sum(score.s3t for score in manual_scores.filter(match_type="60-Shots")) / total_man_60_shots, 1) if total_man_60_shots > 0 else 0
+    avg_s4_60 = round(sum(score.s4t for score in manual_scores.filter(match_type="60-Shots")) / total_man_60_shots, 1) if total_man_60_shots > 0 else 0
+    avg_s5_60 = round(sum(score.s5t for score in manual_scores.filter(match_type="60-Shots")) / total_man_60_shots, 1) if total_man_60_shots > 0 else 0
+    avg_s6_60 = round(sum(score.s6t for score in manual_scores.filter(match_type="60-Shots")) / total_man_60_shots, 1) if total_man_60_shots > 0 else 0
     # other things 
-    shot_avg_man_40 = round(statistics.mean([score.average for score in manual_scores.filter(match_type = "40-Shots")]),1)
-    shot_avg_man_60 = round(statistics.mean([score.average for score in manual_scores.filter(match_type = "60-Shots")]),1)
+    shot_avg_man_40 = round(statistics.mean([score.average for score in manual_scores.filter(match_type="40-Shots")]) ,1) if manual_scores.filter(match_type="40-Shots").exists() else 0
+    shot_avg_man_60 = round(statistics.mean([score.average for score in manual_scores.filter(match_type="60-Shots")]) ,1) if manual_scores.filter(match_type="60-Shots").exists() else 0
     shot_avg_man_40_lst = list(manual_scores.filter(match_type="40-Shots").values_list("average", flat=True))
     shot_avg_man_60_lst = list(manual_scores.filter(match_type="60-Shots").values_list("average", flat=True))
     shot_avg_man = round(statistics.mean([score.average for score in manual_scores]),1)
@@ -487,7 +487,7 @@ def dashboard(request):
     total_pdf_scores = pdf_scores.count()
     # calculate the total 40 shots matches in pdf scores
     total_pdf_40_shots = pdf_scores.filter(match_type="40-Shots").count()
-    last_30_avg_40_est = sum([score.total for score in pdf_scores.filter(match_type="40-Shots").order_by('-date')[:30] if score.total is not None]) / min(30, pdf_scores.filter(match_type="40-Shots").count()) if pdf_scores.filter(match_type="40-Shots").count() > 0 else 0
+    last_30_avg_40_est = round(sum([score.total for score in pdf_scores.filter(match_type="40-Shots").order_by('-date')[:30] if score.total is not None]) / min(30, pdf_scores.filter(match_type="40-Shots").count()), 1) if pdf_scores.filter(match_type="40-Shots").count() > 0 else 0
     best_pdf_40_shots = max([score.total for score in pdf_scores.filter(match_type="40-Shots") if score.total is not None],default=0)
     # 40 shots series average
     avg_s1_40_est = round(sum([score.s1t for score in pdf_scores.filter(match_type = "40-Shots")]) / max(1, pdf_scores.filter(match_type = "40-Shots").count()), 1)
@@ -501,7 +501,7 @@ def dashboard(request):
     # calculate the total 60 shots matches in pdf scores
     total_pdf_60_shots = pdf_scores.filter(match_type="60-Shots").count()
     best_pdf_60_shots = max([score.total for score in pdf_scores.filter(match_type="60-Shots") if score.total is not None],default=0)
-    last_30_avg_60_est = sum([score.total for score in pdf_scores.filter(match_type="60-Shots").order_by('-date')[:30] if score.total is not None]) / min(30, pdf_scores.filter(match_type="60-Shots").count()) if pdf_scores.filter(match_type="60-Shots").count() > 0 else 0
+    last_30_avg_60_est = round(sum([score.total for score in pdf_scores.filter(match_type="60-Shots").order_by('-date')[:30] if score.total is not None]) / min(30, pdf_scores.filter(match_type="60-Shots").count()), 1) if pdf_scores.filter(match_type="60-Shots").count() > 0 else 0
     duration_40_est = list(pdf_scores.filter(match_type="40-Shots").values_list('duration', flat=True))
     duration_60_est = list(pdf_scores.filter(match_type="60-Shots").values_list('duration', flat=True))
     score_40_est = json.dumps([float(score) for score in pdf_scores.filter(match_type="40-Shots").values_list('total', flat=True)])

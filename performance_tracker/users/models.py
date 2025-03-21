@@ -33,49 +33,52 @@ class UserProfiles(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=150, unique=True)
     password = models.CharField(max_length=128)
     email = models.EmailField(max_length=150, unique=True)
+    mobile_number = models.CharField(max_length=15, unique=True, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')], null=True, blank=True)
     role = models.CharField(max_length=150, choices = ROLE_CHOICES, default = 'Shooter')
     created_at = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    coach = models.ForeignKey(
-        'self',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='trained_shooters',
-        default=None)
+    coaching_specialization = models.CharField(max_length=255, null=True, blank=True)
+    years_of_experience = models.PositiveIntegerField(null=True, blank=True)
+    coach = models.ForeignKey('self',on_delete=models.SET_NULL,null=True,blank=True,related_name='trained_shooters',default=None)
+    affiliated_club = models.CharField(max_length=255, null=True, blank=True)
     
 
     def clean(self):
-        """Ensures that only Shooters can have a coach assigned."""
+        """Ensures role-based constraints."""
         super().clean()
-        if self.role == "Admin" and self.coach is not None:
-            raise ValidationError("Admins cannot have a coach assigned.")
-        
-        if self.coach and self.coach == self:
-            raise ValidationError("A user cannot be their own coach.")
-        
-        if self.coach and self.coach.role != "Coach":
-            raise ValidationError("Assigned coach must have the role 'Coach'.")
-    def save(self, *args, **kwargs):
-        self.clean()
+
         if self.role == "Admin":
+            if self.coach is not None:
+                raise ValidationError("Admins cannot have a coach assigned.")
             self.is_staff = True
             self.is_superuser = True
-            self.is_active = True  # Admins are active by default
-            self.coach = None
+            self.is_active = True  # Admins are always active
+
         elif self.role == "Coach":
+            if self.coach is not None:
+                raise ValidationError("Coaches cannot have a coach assigned.")
             self.is_staff = True
             self.is_superuser = False
-            self.is_active = True  # Coach requires admin approval
-            self.coach = None
+            self.is_active = True  # Coaches require admin approval
+
         else:  # Shooter
+            if self.coach and self.coach.role != "Coach":
+                raise ValidationError("Assigned coach must have the role 'Coach'.")
             self.is_staff = False
             self.is_superuser = False
             self.is_active = True
 
+        # Ensure coaching fields are only filled for coaches
+        if self.role != "Coach":
+            self.coaching_specialization = None
+            self.years_of_experience = None
+    def save(self, *args, **kwargs):
+        self.clean()
         super(UserProfiles, self).save(*args, **kwargs)
 
     objects = UserProfilesManager()

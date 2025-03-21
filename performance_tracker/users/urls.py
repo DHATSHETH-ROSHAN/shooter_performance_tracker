@@ -1,5 +1,6 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
+
 from . import views
 
 urlpatterns = [
@@ -22,15 +23,17 @@ urlpatterns = [
     ), name='password_reset_complete'),
 
     path('register/', views.user_register, name = 'register'),
-
     path('selection/', views.select_coach_or_shooter, name='select_coach_or_shooter'),
     path('accept-request/<int:request_id>/', views.accept_request, name='accept_request'),
     path('reject-request/<int:request_id>/', views.reject_request, name='reject_request'),
+    path('remove_shooter/<int:shooter_id>/', views.remove_shooter, name='remove_shooter'),
+    path('update-profile/', views.update_profile, name='update_profile'),
+    path('update_max_shooters/', views.update_max_shooters, name='update_max_shooters'),
+    path("delete_account/", views.delete_account, name="delete_account"),
     path('remove-coach/', views.remove_coach, name='remove_coach'), 
-    path('shooter/home/', views.shooter_home, name = 'shooter_home'),
-
-    path('coach/home/',views.coach_home, name= 'coach_home'),
     
+    path('shooter/home/', views.shooter_home, name = 'shooter_home'),
+    path('coach/home/',views.coach_home, name= 'coach_home'),
     path('login/home/', views.user_admin, name = 'admin_home'),
    
 ]

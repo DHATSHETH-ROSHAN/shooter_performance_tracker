@@ -6,10 +6,11 @@ class DayPlannerForm(forms.ModelForm):
         model = DayPlanner
         fields = ['shooter', 'date', 'time', 'activity', 'shared_with_shooter']
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
-            'activity': forms.TextInput(attrs={'class': 'form-control'}),
-            'shared_with_shooter': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'shooter': forms.Select(attrs={'id': 'id_shooter', 'class': 'form-control'}),
+            'date': forms.DateInput(attrs={'id': 'id_date', 'type': 'date', 'class': 'form-control'}),
+            'time': forms.TimeInput(attrs={'id': 'id_time', 'type': 'time', 'class': 'form-control'}),
+            'activity': forms.TextInput(attrs={'id': 'id_activity', 'class': 'form-control'}),
+            'shared_with_shooter': forms.CheckboxInput(attrs={'id': 'id_shared_with_shooter', 'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -19,6 +20,7 @@ class DayPlannerForm(forms.ModelForm):
         # If a coach is provided, filter the shooter queryset
         if self.coach:
             self.fields['shooter'].queryset = UserProfiles.objects.filter(coach=self.coach)
+
 
 class EventForm(forms.ModelForm):
     class Meta:

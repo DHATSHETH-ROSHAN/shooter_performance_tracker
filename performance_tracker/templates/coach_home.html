@@ -6,12 +6,16 @@ Coach Home
 {% endblock %}
 {% block extra_css %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link rel="stylesheet" type="text/css" href="{% static 'css/coachhome.css' %}">
 
 {% endblock %}
 {% block content %}
+
 <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #050505; padding: 20px;">
     <div class="container-fluid">
         <!-- Left Side: Logo and App Name -->
@@ -67,7 +71,7 @@ Coach Home
             <button id="dashboard-btn" class="custom-btn"><i class="bi bi-speedometer"></i><span> Dashboard</span></button>
             <button id="shooters-btn" class="custom-btn"><i class="bi bi-bullseye"></i><span> Shooters</span></button>
             <button id="notifications-btn" class="custom-btn"><i class="bi bi-bell"></i><span> Notifications</span></button>
-            <button id="programs-btn" class="custom-btn"><i class="bi bi-collection"></i><span> Program Library</span></button>
+            <button id="profile-btn" class="custom-btn"><i class="bi bi-person-circle"></i><span> Profile</span></button>
             <button id="settings-btn" class="custom-btn"><i class="bi bi-gear"></i><span> Settings</span></button>
         </div>
         <div id="main-content" class="col-10" style="background-color:#202020; ">
@@ -76,7 +80,7 @@ Coach Home
                 <div class="row d-flex justify-content-between align-items-start gap-3" style="padding-top:15px" >
                     <div class="col-md-8">
                         <div class="row text-center align-items-center gx-3" style="background-color:#050505; border-radius:15px; padding-top:15px; ">
-                            <div class="col-3">
+                            <div class="col-2">
                                 <h4 class="logo_txt">Total shooters</h4>
                                 <p> {{ shooters_count }} </p>
                             </div>
@@ -86,11 +90,15 @@ Coach Home
                             </div>
                             <div class="col-3">
                                 <h4 class="logo_txt">High scorer</h4>
-                                <p> {{ shooters_count }} </p>
+                                <p>
+                                    <strong>EST (60):</strong> {{ best_sh_60_est }} 
+                                </p>
                             </div>
-                            <div class="col-3">
-                                <h4 class="logo_txt">Highest Average</h4>
-                                <p> {{ shooters_count }} </p>
+                            <div class="col-4">
+                                <h4 class="logo_txt">Best Average </h4>
+                                <p>
+                                    <strong>EST (60):</strong> {{ best_sh_60_est_avg }} 
+                                </p>
                             </div>
                         </div>
                         <div class="row mt-4 p-3"style="background-color: #050505; border-radius: 15px;">
@@ -107,37 +115,39 @@ Coach Home
                                         Create
                                     </button>
                                 </div>
-                                <div class="p-3 rounded">
+                                <div class="py-3 rounded" >
                                     <!-- Form for Adding New Activities -->
                                     <div id="dayPlannerForm" style="display: none;">
                                         <form method="POST" class="mb-3 p-3 rounded" style="background-color: #050505; border: 1px solid #00DDFF;">
                                             {% csrf_token %}
+                                            <input type="hidden" name="form_name" value="day_planner_form">
                                             <h5 style="color: #00DDFF;">Add a New Activity</h5>
+                                    
                                             <div class="mb-2">
-                                                <label for="shooter" style="color: white;">Select Shooter</label>
+                                                <label for="id_shooter" style="color: white;">Select Shooter</label>
                                                 {{ form1.shooter }}
                                             </div>
-                                        
+                                    
                                             <div class="mb-2">
-                                                <label for="date" style="color: white;">Date</label>
+                                                <label for="id_date" style="color: white;">Date</label>
                                                 {{ form1.date }}
                                             </div>
-                                        
+                                    
                                             <div class="mb-2">
-                                                <label for="time" style="color: white;">Time</label>
+                                                <label for="id_time" style="color: white;">Time</label>
                                                 {{ form1.time }}
                                             </div>
-                                        
+                                    
                                             <div class="mb-2">
-                                                <label for="activity" style="color: white;">Activity</label>
+                                                <label for="id_activity" style="color: white;">Activity</label>
                                                 {{ form1.activity }}
                                             </div>
-                                        
+                                    
                                             <div class="form-check mb-3">
                                                 {{ form1.shared_with_shooter }}
-                                                <label class="form-check-label" for="shared_with_shooter" style="color: white;">Share with Shooter</label>
+                                                <label class="form-check-label" for="id_shared_with_shooter" style="color: white;">Share with Shooter</label>
                                             </div>
-                                        
+                                    
                                             <button type="submit" class="btn btn-info" style="background-color: #00DDFF; color: black; border: none;">Save</button>
                                         </form>
                                     </div>
@@ -202,7 +212,6 @@ Coach Home
                             </div>
                         </div>
                     </div>
-                
 
                     <div class="col p-3 text-center align-items-center" style="width: 8%; min-width: 150px; background-color:#050505; border-radius:15px; padding-top:15px;">
                         <img src="{% static 'images/coach.png' %}" alt="Profile Pic" class="rounded-circle" width="80" height="80">
@@ -211,124 +220,359 @@ Coach Home
                         <hr>    
                         <h4 class="logo_txt"> </h4>
                         <p> {{ shooters_count }} </p>
-                        
                     </div>
                 </div>
             </div>
             {% comment %} dashboard container {% endcomment %}
-            <div id="dashboard-container" class="container text-light" style="background-color:#202020; border-radius:15px; display:none;">
-                <h3 class="text-center">Dashboard</h3>
-
+            <div id="dashboard-container" class="container-fluid text-light" style="background-color:#202020; border-radius:15px; display:none;">
+                <h3 class="text-center logo_txt py-3">Dashboard</h3>
                 <!-- Row for Stats Cards -->
                 <div class="row text-center">
                     <div class="col-md-4">
-                        <div class="card p-3">
-                            <h5 style="color:#00ddff">Total Shooters</h5>
-                            <h2 id="total-shooters">0</h2>
+                        <div class="card p-3" style="background-color: #050505; border-radius:12px;">
+                            <h5 class="logo_txt">Total Shooters</h5>
+                            <h2 id="total-shooters" class="text-light">{{ shooters_count }}</h2>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card bg-dark text-light p-3">
-                            <h5>Best Score</h5>
-                            <h2 id="best-score">0</h2>
+                        <div class="card p-3" style="background-color: #050505; border-radius:12px;">
+                            <h5 class="logo_txt"><a class="text-decoration-none text-info" data-bs-toggle="collapse" href="#bestScoreDropdown" role="button"> Best Score <i class="bi bi-arrow-down-up"></i></a></h5>
+                                <div class="collapse" id="bestScoreDropdown">
+                                <p class="text-light">
+                                    <b>40-Shots (Manual):</b> {{ best_sh_40_man }} ({{ hg_40_man }}) <br>
+                                    <b>60-Shots (Manual):</b> {{ best_sh_60_man }} ({{ hg_60_man }}) <br>
+                                    <b>40-Shots (EST):</b> {{ best_sh_40_est }} ({{ hg_40_est }}) <br>
+                                    <b>60-Shots (EST):</b> {{ best_sh_60_est }} ({{ hg_60_est }})
+                                </p>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card bg-dark text-light p-3">
-                            <h5>Average Score</h5>
-                            <h2 id="average-score">0</h2>
+                        <div class="card p-3" style="background-color: #050505; border-radius:12px;">
+                            <h5 class="logo_txt"><a class="text-decoration-none text-info" data-bs-toggle="collapse" href="#avgScoreDropdown" role="button"> Average Score <i class="bi bi-arrow-down-up"></i></a></h5>
+                            <div class="collapse" id="avgScoreDropdown">
+                                <p class="text-light">
+                                <b> 40-Shots (Manual):</b> {{ best_sh_40_man_avg }} ({{ hg_40_man_avg }}) <br>
+                                <b> 60-Shots (Manual):</b> {{ best_sh_60_man_avg }} ({{ hg_60_man_avg }}) <br>
+                                <b> 40-Shots (EST):</b> {{ best_sh_40_est_avg }} ({{ hg_40_est_avg }}) <br>
+                                <b> 60-Shots (EST):</b> {{ best_sh_60_est_avg }} ({{ hg_60_est_avg }})
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            
+                
                 <!-- Row for Charts -->
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <div id="bar-chart" class="bg-dark p-3 rounded"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <div id="line-chart" class="bg-dark p-3 rounded"></div>
+                <div class="row mt-4 text-center py-4 mx-0" style="background-color: #050505; border-radius:15px;">
+                    <h4 class= "text-info"> Shooters Performance trends over time </h4>
+                    <div class="row mt-2" >
+                        <div class="col-md-3">
+                            <div id="shootersPerformmanceTrendman" class="p-3 rounded" style="background-color: #050505;"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id="shootersPerformmanceTrendest" class="p-3 rounded" style="background-color: #050505;"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id="shootersPerformmanceTrend60man" class="p-3 rounded" style="background-color: #050505;"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id="shootersPerformmanceTrend60est" class="p-3 rounded" style="background-color: #050505;"></div>
+                        </div>
                     </div>
                 </div>
             
                 <!-- Recent Activity -->
-                <div class="mt-4">
-                    <h4>Recent Shooter Activity</h4>
-                    <ul class="list-group bg-dark text-light" id="recent-activity">
-                        <li class="list-group-item bg-dark text-light">Loading...</li>
-                    </ul>
+                <div class="mt-4 p-3" style="background-color: #050505; border-radius:12px;" >
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="logo_txt">Recent Shooter Activity</h4>                      
+                        <select id="scoreFilter" class="form-select w-auto" style="background-color: #202020; color: #00ddff; border:none;">
+                            <option value="all">Show all</option>
+                            <option value="40-manual">40-Shots Manual</option>
+                            <option value="60-manual">60-Shots Manual</option>
+                            <option value="40-est">40-Shots EST</option>
+                            <option value="60-est">60-Shots EST</option>
+                        </select>
+                    </div>
+                    <table class="table table-dark table-striped table-bordered mt-3 rounded border border-info">
+                        <thead class="text-center" style="font-size: 20px;">
+                            <tr>
+                                <th style="color: #00ddff;">Shooter</th>
+                                <th style="color: #00ddff;">Last Score</th>
+                                <th style="color: #00ddff;">Date</th>
+                                <th style="color: #00ddff;">Match Type</th>
+                                <th style="color: #00ddff;">Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoreTableBody">
+                                    {% for score in recent_scores %}
+                                        <tr data-category="{% if score.type == 'Manual' %} 
+                                            {% if score.match_type == '40-Shots' %} 40-manual 
+                                            {% elif score.match_type == '60-Shots' %} 60-manual 
+                                            {% endif %}
+                                    {% elif score.type == 'EST' %} 
+                                            {% if score.match_type == '40-Shots' %} 40-est 
+                                            {% elif score.match_type == '60-Shots' %} 60-est 
+                                            {% endif %}
+                                    {% else %} other {% endif %}">
+                                <td>{{ score.user_profile__username }}</td>
+                                <td>{{ score.total }}</td>
+                                <td>{{ score.date }}</td>
+                                <td>{{ score.match_type }}</td>
+                                <td>{{ score.type }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>                    
                 </div>
             </div>
+            
             {% comment %} shooters list {% endcomment %}
-            <div id="shooters-container" class="container text-light" style="background-color:#202020; border-radius:15px; display:none;">
-                <p> shooters </p>
+            <div id="shooters-container" class="container-fluid text-light" style="background-color:#202020; border-radius:15px; display:none;">
+                <h4 class="mb-3 logo_txt py-3">Shooters List</h4>
+                <div class="table-responsive">
+                    <table class="table custom-table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">S.No</th>
+                                <th>Name</th>
+                                <th class="text-center">Average (40) Manual</th>
+                                <th class="text-center">Average (60) Manual</th>
+                                <th class="text-center">Average (40) EST</th>
+                                <th class="text-center">Average (60) EST</th>
+                                <th class="text-center">View</th>
+                                <th class="text-center">Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for shooter in shooters %}
+                            <tr>
+                                <td class="text-center">{{ forloop.counter }}</td>
+                                <td>{{ shooter.name }}</td>
+                                <td class="text-center">{{ shooter.man_40_avg }}</td>
+                                <td class="text-center">{{ shooter.man_60_avg }}</td>
+                                <td class="text-center">{{ shooter.est_40_avg }}</td>
+                                <td class="text-center">{{ shooter.est_60_avg }}</td>
+                                <td class="text-center">
+                                    <a href="{% url 'inspect' shooter.id %}" class="btn view-btn btn-sm">
+                                        <i class="fa-solid fa-eye"></i> 
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-danger btn-sm" onclick="openRemoveModal({{ shooter.id }})">Remove</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {% comment %} Notification container {% endcomment %}
-            <div id="notifications-container" class="container text-light" style="background-color:#202020; border-radius:15px; display:none;">
+            <div id="notifications-container" class="container-fluid text-light" style="background-color:#202020; border-radius:15px; display:none;">
+                <h2 class="logo_txt py-3" > Notifications</h2>
                 {% if pending_requests %}
-                <h2 class="text-center my-2">Coaching Requests</h2>
-                    <div class="card p-3">
-                        <ul class="list-group">
-                            {% for request in pending_requests %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>{{ request.shooter.username }} wants you as a coach.</span>
-                                    <div>
-                                        <form method="post" action="{% url 'accept_request' request.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-success btn-sm">Accept</button>
-                                        </form>
-                                        <form method="post" action="{% url 'reject_request' request.id %}" style="display:inline;">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                                        </form>
-                                    </div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+                <h4 class="text-center my-2 logo_txt">Coaching Requests</h4>
+                <div class="py-3">
+                    {% for request in pending_requests %}
+                        <div class="card p-3 mb-3" style="background-color: #0A0A0A; border-radius: 12px; border: 1px solid #303030; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-light"><b>{{ request.shooter.username }} wants you as a coach.</b></span>
+                                <div class="d-flex gap-2">
+                                    <form method="post" action="{% url 'accept_request' request.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                    </form>
+                                    <form method="post" action="{% url 'reject_request' request.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
                 {% else %}
                     <p class="text-center">No new requests.</p>
                 {% endif %}
             </div>
-            {% comment %} program-library {% endcomment %}
-            <div id="programs-container" class="container text-light" style="background-color:#202020; border-radius:15px; display:none;">
-                <p> programs </p>
+            {% comment %} profile container{% endcomment %}
+            <div id="profile-container" class="container-fluid text-light" style="background-color:#202020; border-radius:15px; display:none;">
+                <div class=" container-fluid py-5">
+                    <div style="width: 80%; margin: auto; padding: 20px; background-color: #050505; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 221, 255, 0.3);">
+                        <h2 style="color: #00DDFF; text-align: left; margin-bottom: 20px;">Profile Settings</h2>
+                            <div class="row">
+                                <!-- Profile Image & Name -->
+                                <div class="col-4" style="text-align: center;">
+                                    <i class="fas fa-user-circle" style="font-size: 120px; color: #00DDFF;"></i>
+                                    <h3 style="color: #00DDFF; margin-top: 10px;"><i class="bi bi-credit-card-2-front"></i>  {{ user.username }}</h3>
+                                    <p style="color: grey;"><i class="bi bi-bullseye"></i> {{ specialization }}</p>
+                                    <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="background-color: #00DDFF; border: none; padding: 8px 15px; border-radius: 5px; color: black; font-weight: bold; cursor: pointer; margin-top: 10px;">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-info" onclick="document.getElementById('shooters-btn').click();" style="background-color: #00DDFF; border: none; padding: 8px 15px; border-radius: 5px; color: black; font-weight: bold; cursor: pointer; margin-top: 10px;">
+                                        <b>Students</b>
+                                    </button>
+                                </div>
+                                <!-- Profile Info - Left Column -->
+                                <div class="col-4 py-5" >
+                                    <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-envelope-paper" style="margin-right: 8px;"></i> Email:</strong> <span style="color: white;">{{ coach_email}}</span></p>
+                                    <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-telephone" style="margin-right: 8px;"></i> Phone:</strong> <span style="color: white;">{{ coach_phone }}</span></p>
+                                    <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-calendar-event" style="margin-right: 8px;"></i> DOB:</strong> <span style="color: white;">{{ date_of_birth }}</span></p>
+                                </div>
+                        
+                                <!-- Profile Info - Right Column -->
+                                <div class="col-4 py-5">
+                                    <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-people" style="margin-right: 8px;"></i> Shooters:</strong> <span style="color: white;">{{ shooters_count }}</span></p>
+                                    <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-graph-up-arrow" style="margin-right: 8px;"></i> Experience:</strong> <span style="color: white;">{{ experience }}</span></p>
+                                    <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-cup-hot" style="margin-right: 8px;"></i> Club:</strong> <span style="color: white;">{{ club }}</span></p>
+                                </div>
+                            </div>
+                        
+                    </div>
+                </div>
             </div>
             {% comment %} settings {% endcomment %}
-            <div id="settings-container" class="container text-light" style="background-color:#202020; border-radius:15px; display:none; height: 82vh; overflow-y: auto;scrollbar-width: none; -ms-overflow-style: none;">
-                <h3 class="text-center">Settings</h3>
-                <!-- Profile Settings -->
-                <div class="mt-4">
-                    <h4>Profile Settings</h4>
-                    <div class="form-group">
-                        <label for="coach-name">Name</label>
-                        <input type="text" id="coach-name" class="form-control bg-dark text-light" value="{{ coach_name }}" readonly>
-                    </div>
-                    <div class="form-group mt-2">
-                        <label for="coach-email">Email</label>
-                        <input type="email" id="coach-email" class="form-control bg-dark text-light" value="{{ coach_email }}" readonly>
-                    </div>
-                    <button class="btn btn-primary mt-3">Save Changes</button>
-                </div>
+            <div id="settings-container" class="container-fluid text-light" style="background-color:#202020; border-radius:15px; display:none; height: 82vh; overflow-y: auto;scrollbar-width: none; -ms-overflow-style: none;">
+                <h3 class="text-center py-3 logo_txt">Settings</h3>
+
                 <!-- Shooter Management -->
-                <div class="mt-4">
-                    <h4>Shooter Management</h4>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="allow-requests" checked>
-                        <label class="form-check-label" for="allow-requests">Allow new shooter requests</label>
-                    </div>
+                <div class="mt-4 p-3" style="background-color:#050505; border-radius:12px;">
+                    <h4 class="d-flex justify-content-between align-items-center">
+                        Shooter Management
+                        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#editMaxShootersModal">
+                            <i class="fa-solid fa-pen"></i> Edit
+                        </button>
+                    </h4>
                     <div class="form-group mt-2">
                         <label for="max-shooters">Max Shooters</label>
-                        <input type="number" id="max-shooters" class="form-control bg-dark text-light" value="10">
+                        <input type="number" id="max-shooters" class="form-control bg-dark text-light" value="{{ max_shooters }}" readonly>
                     </div>
-                    <button class="btn btn-success mt-3">Update Shooter Preferences</button>
                 </div>
                 <!-- Data & Privacy -->
-                <div class="mt-4">
+                <div class="mt-4 p-3" style="background-color:#050505; border-radius:12px;">
                     <h4>Data & Privacy</h4>
                     <button class="btn btn-warning">Download Shooter Data</button>
-                    <button class="btn btn-danger">Delete Account</button>
+                    <!-- Delete Account Button -->
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">Delete Account</button>
                 </div>  
+            </div>
+        </div>
+    </div>
+    {% comment %} remove shooter modal {% endcomment %}
+    <div class="modal fade" id="removeShooterModal" tabindex="-1" aria-labelledby="removeShooterModalLabel" aria-hidden="true">
+        <div class="modal-dialog text-light">
+            <div class="modal-content" style="background-color: #050505; border: 2px solid #00ddff;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeShooterModalLabel">Confirm Removal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to remove this shooter?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="removeShooterForm" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content text-light" style="background-color: #050505;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'update_profile' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="edit-coach-name">Name</label>
+                            <input type="text" id="edit-coach-name" name="name" class="form-control" value="{{ coach_name|default:'' }}" required>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="edit-coach-email">Email</label>
+                            <input type="email" id="edit-coach-email" name="email" class="form-control" value="{{ coach_email|default:'' }}" required>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="edit-coach-mobile_number">Mobile No.</label>
+                            <input type="phone" id="edit-coach-mobile_number" name="mobile_number" class="form-control" value="{{ coach_phone|default:'' }}" required>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="edit-coach-dob">Date of Birth</label>
+                            <input type="date" id="edit-coach-dob" name="dob" class="form-control" value="{{ dob|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="edit-coach-specialization">Specialization</label>
+                            <select id="edit-coach-specialization" name="specialization" class="form-control" multiple required>
+                                <option value="10M Air Rifle" {% if "10M Air Rifle" in specialization %}selected{% endif %}>10M Air Rifle</option>
+                                <option value="10M Air Pistol" {% if "10M Air Pistol" in specialization %}selected{% endif %}>10M Air Pistol</option>
+                                <option value="25M Pistol" {% if "25M Pistol" in specialization %}selected{% endif %}>25M Pistol</option>
+                                <option value="50M Pistol" {% if "50M Pistol" in specialization %}selected{% endif %}>50M Pistol</option>
+                                <option value="50M Rifle" {% if "50M Rifle" in specialization %}selected{% endif %}>50M Rifle</option>
+                            </select>
+                            <small class="form-text text-muted">Hold Ctrl (Windows) or Command (Mac) to select multiple options.</small>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="edit-coach-experience">Experience (Years)</label>
+                            <input type="number" id="edit-coach-experience" name="experience" class="form-control" value="{{ experience|default:'' }}" required>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="edit-coach-club">Affiliated Club/Academy</label>
+                            <input type="text" id="edit-coach-club" name="club" class="form-control" value="{{ club|default:'' }}" required>
+                        </div>
+                        <button type="submit" class="btn btn-info mt-3">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Edit Max Shooters Modal -->
+    <div class="modal fade" id="editMaxShootersModal" tabindex="-1" aria-labelledby="editMaxShootersLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content text-light" style="background-color: #050505;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editMaxShootersLabel">Edit Max Shooters</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="maxShootersForm" method="post" action="{% url 'update_max_shooters' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="modal-max-shooters">Enter New Max Shooters</label>
+                            <input type="number" id="modal-max-shooters" name="max_shooters" class="form-control" value="{{ max_shooters }}">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-info">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Delete Account Modal -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content text-light" style="background-color: #050505;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAccountModalLabel">Confirm Account Deletion</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete your account? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="POST" action="{% url 'delete_account' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -358,7 +602,7 @@ Coach Home
                 'dashboard-container',
                 'shooters-container',
                 'notifications-container',
-                'programs-container',
+                'profile-container',
                 'settings-container'
             ];
             
@@ -390,8 +634,8 @@ Coach Home
             showOnly('notifications-container');
         });
     
-        document.getElementById('programs-btn').addEventListener('click', function() {
-            showOnly('programs-container');
+        document.getElementById('profile-btn').addEventListener('click', function() {
+            showOnly('profile-container');
         });
     
         document.getElementById('settings-btn').addEventListener('click', function() {
@@ -425,6 +669,164 @@ Coach Home
             formdiv.style.display = "none";
         } 
     });
+
+function openRemoveModal(shooterId) {
+    let form = document.getElementById("removeShooterForm");
+    form.action = `/remove_shooter/${shooterId}/`;  // Update action with shooter's ID
+    let modal = new bootstrap.Modal(document.getElementById("removeShooterModal"));
+    modal.show();
+};
+
+function generateCalendar(containerId, year, month, practiceDays = []) {
+    const calendar = document.getElementById(containerId);
+    if (!calendar) {
+        console.error(`Element with ID '${containerId}' not found.`);
+        return;
+    }
+    
+    calendar.innerHTML = ""; // Clear previous content
+
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0).getDate();
+    const startDay = firstDay.getDay(); // 0 = Sunday, 1 = Monday...
+
+    // Add empty cells for first week
+    for (let i = 0; i < startDay; i++) {
+        const emptyCell = document.createElement("div");
+        emptyCell.classList.add("day");
+        calendar.appendChild(emptyCell);
+    }
+
+    // Fill in the dates
+    for (let date = 1; date <= lastDay; date++) {
+        const dayCell = document.createElement("div");
+        dayCell.classList.add("day");
+        dayCell.innerText = date;
+
+        const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+        if (practiceDays.includes(formattedDate)) {
+            dayCell.classList.add("practice-day"); // Highlight practiced days
+        }
+
+        calendar.appendChild(dayCell);
+    }
+};
+
+function showActivityModal(activityId) {
+    const contentElement = document.getElementById(`activityContent${activityId}`);
+    const modalElement = document.getElementById(`activityModal${activityId}`);
+    
+    if (!contentElement || !modalElement) {
+        console.error("One or more elements not found for activityId:", activityId);
+        return;
+    }
+
+    contentElement.style.display = "block";
+    new bootstrap.Modal(modalElement).show();
+};
+var manual_40_data = JSON.parse('{{ manual_40_shot_trends|escapejs }}');
+var manual_60_data = JSON.parse('{{ manual_60_shot_trends|escapejs }}');
+var est_40_data = JSON.parse('{{ est_40_shot_trends|escapejs }}');
+var est_60_data = JSON.parse('{{ est_60_shot_trends|escapejs }}');
+// Process each dataset and render charts
+var manual_40 = processData(manual_40_data);
+var manual_60 = processData(manual_60_data);
+var est_40 = processData(est_40_data);
+var est_60 = processData(est_60_data);
+
+// Function to parse JSON and process data for ApexCharts
+function processData(jsonData) {
+    var uniqueDates = new Set();
+    Object.values(jsonData).forEach(shooterData => {
+        shooterData.forEach(entry => uniqueDates.add(entry.date));
+    });
+
+    var categories = Array.from(uniqueDates).sort(); // Convert Set to sorted Array
+
+    var seriesData = Object.keys(jsonData).map(shooter => ({
+        name: shooter,
+        data: categories.map(date => {
+            let record = jsonData[shooter].find(entry => entry.date === date);
+            return record ? record.score : null; // Insert null if data is missing
+        })
+    }));
+
+    return { categories, seriesData };
+};
+
+{% comment %} Charts {% endcomment %}
+function renderLineChart(elementId, categories, seriesData, heading) {
+    var options = {
+        chart: {
+            type: 'line',
+            height: 350,
+            background: '#020202',
+            toolbar: {
+                show: false
+            }
+        },
+        tooltip: {
+            theme: 'dark'
+        },
+        title: {
+            text: heading, // Set your title here
+            align: 'center', // Align to center
+            style: {
+                fontSize: '16px',
+                color: '#00DDFF' // Adjust color if needed
+            }
+        },
+        yaxis: {
+            labels: {
+                style: {
+                    colors: '#ffffff'
+                }
+            }
+        },
+        legend: {
+            labels: {
+                colors: '#ffffff',
+            }
+        },
+        series: seriesData,
+        xaxis: {
+            categories: categories,
+            labels: {
+                rotate: -40, // Adjust rotation
+                rotateAlways: true,
+                show: true,
+                style: {
+                    fontSize: '12px',
+                    colors: '#FFFFFF'
+                },
+                trim: false
+            },
+            tickPlacement: 'on',
+        }
+    };
+
+    var chart = new ApexCharts(document.querySelector(`#${elementId}`), options);
+    chart.render();
+};
+
+renderLineChart("shootersPerformmanceTrendman", manual_40.categories, manual_40.seriesData, "Manual-40");
+renderLineChart("shootersPerformmanceTrend60man", manual_60.categories, manual_60.seriesData, "Manual-60");
+renderLineChart("shootersPerformmanceTrendest", est_40.categories, est_40.seriesData, "EST-40");
+renderLineChart("shootersPerformmanceTrend60est", est_60.categories, est_60.seriesData, "EST-60");
+
+document.getElementById("scoreFilter").addEventListener("change", function() {
+    let selectedFilter = this.value; // Get selected value
+    let rows = document.querySelectorAll("#scoreTableBody tr"); // Get all table rows
+
+    rows.forEach(row => {
+        if (selectedFilter === "all" || row.dataset.category.includes(selectedFilter)) {
+            row.style.display = "";  // Show matching rows
+        } else {
+            row.style.display = "none";  // Hide non-matching rows
+        }
+    });
+});
+
 </script>
     
 

@@ -8,4 +8,5 @@ urlpatterns = [
     path('shooter/home/dashboard/', views.dashboard, name='dashboard'),
     path('shooter/home/history', views.history, name='history'),
     path('shooter/home/activities/', views.user_activities, name='activities'),
+    path('coach/home/inspect/dashboard/<int:id>/', views.inspect, name='inspect'),
 ]

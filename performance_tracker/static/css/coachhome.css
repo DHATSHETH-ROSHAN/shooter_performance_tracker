@@ -118,4 +118,67 @@ select.form-control {
     background-color: #202020 !important;
     border: 1px solid #00DDFF !important;
 }
+/* Table Styling */
+.custom-table {
+    background-color: #050505; /* Table Background */
+    color: #ffffff; /* Light Text */
+    
+    overflow: hidden; /* Ensures corners apply to inner elements */
+    border: 2px solid #00DDFF; /* Table Border */
+}
 
+/* Table Header Styling */
+.custom-table thead th {
+    background-color: #050505; /* Header Background */
+    color: #00DDFF; /* Header Text Color */
+    text-align: center;
+    border: 2px solid #00DDFF;
+
+}
+
+/* Table Borders */
+.custom-table th, 
+.custom-table td {
+    border-color: #00DDFF; /* Border Color */
+}
+
+/* Table Row Styling */
+.custom-table tbody tr td {
+    background-color: #050505;
+    color: #ffffff; /* Light Text */
+}
+
+/* Button Customization */
+.view-btn {
+    border: none;
+    color: #00ddff;
+}
+
+.remove-btn {
+    background-color: #dc3545;
+    border: none;
+    color: white;
+}
+
+
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    max-width: 350px;
+    margin: auto;
+}
+.day {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: center;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+}
+.practice-day {
+    background-color: #00ddff; /* Highlighted color */
+    color: white;
+    
+}

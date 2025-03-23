@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'scores',
     'users',
+    'channels',
+    'message'
+    
 
 
 ]
@@ -75,6 +78,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'performance_tracker.wsgi.application'
+ASGI_APPLICATION = 'performance_tracker.asgi.application' # added this for the realtime data transfer afteer getting one single connection
 
 
 # Database
@@ -164,3 +168,10 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
 
 AUTHENTICATION_BACKENDS = ['users.auth_backend.EmailAuthBackend', 'django.contrib.auth.backends.ModelBackend']
+
+# channel layers for the message app
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}

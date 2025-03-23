@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.core.exceptions import ValidationError
+from datetime import date, datetime
 
 
 class UserProfilesManager(BaseUserManager):
@@ -18,7 +19,6 @@ class UserProfilesManager(BaseUserManager):
         """Create and return a superuser with an email and password."""
         return self.create_user(first_name, last_name, email, username, password, role='Admin')
 
-
 class UserProfiles(AbstractBaseUser, PermissionsMixin):
 
     ROLE_CHOICES = [
@@ -26,7 +26,6 @@ class UserProfiles(AbstractBaseUser, PermissionsMixin):
         ('Coach', 'Coach'),
         ('Admin', 'Admin'),
     ]
-
     id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
@@ -46,11 +45,26 @@ class UserProfiles(AbstractBaseUser, PermissionsMixin):
     years_of_experience = models.PositiveIntegerField(null=True, blank=True)
     coach = models.ForeignKey('self',on_delete=models.SET_NULL,null=True,blank=True,related_name='trained_shooters',default=None)
     affiliated_club = models.CharField(max_length=255, null=True, blank=True)
-    
+    category = models.CharField(max_length=50, editable=False, null=True, blank=True)
 
     def clean(self):
         """Ensures role-based constraints."""
         super().clean()
+        if self.date_of_birth:
+            if isinstance(self.date_of_birth, str):
+                self.date_of_birth = datetime.strptime(self.date_of_birth, "%Y-%m-%d").date()
+            today = date.today()
+            age = today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+            if age <= 16:
+                self.category = 'Sub Youth Men' if self.gender == 'Male' else 'Sub Youth Women'
+            elif age <= 19:
+                self.category = 'Youth Men' if self.gender == 'Male' else 'Youth Women'
+            elif age <= 21:
+                self.category = 'Junior Men' if self.gender == 'Male' else 'Junior Women'
+            else:
+                self.category = 'Men' if self.gender == 'Male' else 'Women'
+        else:
+            self.category = None
 
         if self.role == "Admin":
             if self.coach is not None:

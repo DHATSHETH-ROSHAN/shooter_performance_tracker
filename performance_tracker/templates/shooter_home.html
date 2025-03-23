@@ -61,7 +61,39 @@ Shooter's Home
         border-radius: 5px;
         width: 100%;
     }
+    #profileContainer {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    }
     
+    #profileContainer.show-profile {
+        opacity: 1;
+        visibility: visible;
+    }
+    /* Style input fields */
+.form-control {
+    background-color: #202020 !important;
+    color: white !important;
+    border: 1px solid #00DDFF !important;
+}
+
+/* Style dropdown */
+select.form-control {
+    background-color: #202020 !important;
+    color: white !important;
+}
+
+/* Placeholder color */
+.form-control::placeholder {
+    color: #aaaaaa !important;
+}
+
+/* Style checkbox */
+.form-check-input {
+    background-color: #202020 !important;
+    border: 1px solid #00DDFF !important;
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -77,6 +109,7 @@ Shooter's Home
                     <img src="{% static 'images/shooter.jpg' %}" alt="Profile Pic" class="rounded-circle" width="80" height="80">
                     <h4 class="mt-2">Welcome, {{ user.first_name }}🎯</h4>
                     <p class="logo_txt">{{ user.role }}</p>
+                    <button class="btn btn-sm btn-info mt-2" onclick="toggleProfile()">View Profile</button>
                     <hr>
                     <p>{{ user.description }}</p>
                     <div class="col">
@@ -181,22 +214,85 @@ Shooter's Home
                                 <p>60 shots</p>    
                                 <p class="fw-bold text-success">{{ avg_score_60 }}</p>
                             </div>
-                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <hr style="color: aliceblue;" >
+        <hr style="color:white;">
+        <!--profile container -->
+        <div id="profileContainer" class="container-fluid text-white shadow-sm" style="background-color: #050505; display: none;">
+            <div class="container-fluid py-5">
+                <div style="width: 100%; margin: auto; padding:2px; background-color: #050505; border-radius: 10px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 style="color: #00DDFF; text-align: left; margin-bottom: 20px;">Shooter Profile</h2>
+                        <button onclick="document.getElementById('profileContainer').style.display='none';" class="btn-close btn-close-white"></button>
+                    </div>
+                    <div class="row">
+                        <!-- Profile Image & Name -->
+                        <div class="col-4 py-4 text-center">
+                            <i class="fas fa-user-circle" style="font-size: 120px; color: #00DDFF;"></i>
+                            <h4 style="color: #00DDFF; margin-top: 10px;"><i class="bi bi-person"></i> {{ user.username }}</h4>
+                            <p style="color: grey;"><i class="bi bi-calendar3"></i> Age: {{ age }} / {{ user.category }} </p>
+                            <p style="color: grey;"><i class="bi bi-gender-ambiguous"></i> Gender: {{ user.gender }}</p>
+                            <div class="py-3">
+                                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="background-color: #00DDFF; border: none; padding: 8px 15px; border-radius: 5px; color: black; font-weight: bold; cursor: pointer; margin-top: 10px;">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Contact Info -->
+                        <div class="col-4 py-5">
+                            <p style="margin-bottom: 15px; font-size: 16px;">
+                                <strong style="color: #00DDFF; font-size:18px; margin-right: 2px;">
+                                    <i class="bi bi-envelope-paper" style="margin-right: 2px;"></i>Email:
+                                </strong> <span style="color: white;">{{ user.email }}</span>
+                            </p>
+                            <p style="margin-bottom: 15px; font-size: 16px;">
+                                <strong style="color: #00DDFF; font-size:18px; margin-right: 4px;">
+                                    <i class="bi bi-telephone" style="margin-right: 4px;"></i> Phone:
+                                </strong> <span style="color: white;">{{ user.mobile_number }}</span>
+                            </p>
+                            <p style="margin-bottom: 15px; font-size: 16px;">
+                                <strong style="color: #00DDFF; font-size:18px; margin-right: 4px;">
+                                    <i class="bi bi-calendar-event" style="margin-right: 4px;"></i> DOB:
+                                </strong> <span style="color: white;">{{ user.date_of_birth }}</span>
+                            </p>
+                        </div>
+        
+                        <!-- Shooting Stats -->
+                        <div class="col-4 py-5">
+                            <p style="margin-bottom: 15px; font-size: 16px;">
+                                <strong style="color: #00DDFF; font-size:18px; margin-right: 4px;">
+                                    <i class="bi bi-bullseye" style="margin-right: 4px;"></i> Total Matches:
+                                </strong> <span style="color: white;">{{ overallsessions }}</span>
+                            </p>
+                            <p style="margin-bottom: 15px; font-size: 16px;">
+                                <strong style="color: #00DDFF; font-size:18px; margin-right: 4px;">
+                                    <i class="bi bi-graph-up-arrow" style="margin-right: 4px;"></i> Best(40/60) :
+                                </strong> <span style="color: white;">{{ best_score_40 }}/{{ best_pdf_60_shots }} </span>
+                            </p>
+                            <p style="margin-bottom: 15px; font-size: 16px;">
+                                <strong style="color: #00DDFF; font-size:18px; margin-right: 4px;">
+                                    <i class="bi bi-bar-chart" style="margin-right: 4px;"></i> Affiliated club:
+                                </strong> <span style="color: white;">{{ user.affiliated_club }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+        </div>
+        
         <!-- chart -->
-        <div class="card mt-4" style="background-color: #050505;">
+        <div id="middleChartContainer" class="card mt-4" style="background-color: #050505;">
             <div class="card-body">
                 <div id="weeklyChart">
                 </div>
             </div>
         </div>
     </div>
-
-        <!-- Riglt colum(traing activities) -->
+    <!-- Riglt colum(traing activities) -->
 
          <div class="col-lg-3 col-md-4 col-sm-12 mb-4">
             <div style="background-color: #050505; padding: 10px; height: 100%; border-radius: 10px;">
@@ -212,13 +308,17 @@ Shooter's Home
                     <hr>
                     <div>
                         <div class="align-center">
-                            <h4>My Coach</h4>
-                            {% if coach_relation %}
-                            <p> coach: <strong> {{ coach_relation.coach.username }} </strong></p>
-                            <button class="btn btn-info btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#coachProfileModal">
-                                View Profile
-                            </button>
-                            {% else %}
+                            <h5 class= "text-info">My Coach</h5>
+                            <div class="d-flex justify-content-around">
+                                {% if coach_relation %}
+                                <p style="font-size:20px;"><strong> Coach:</strong> {{ coach_relation.coach.username }} </p>
+                                <div> 
+                                <button class="btn btn-info btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#coachProfileModal">
+                                    View Profile
+                                </button>
+                            </div>
+                                {% else %}
+                            </div>
                             <p>You dont have a coach assigned yet !.</p>
                             {% comment %} select coach button {% endcomment %}
                             <button class="btn btn-info btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#selectcoachModal">
@@ -340,13 +440,65 @@ Shooter's Home
          </div>
      </div>
     </div>
+    <!-- modal edit profile-->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content text-light" style="background-color: #050505;border: 2px solid #00ddff;">
+                <div class="modal-header">
+                    <h5 class="modal-title text-info" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'update_profile' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="edit-coach-name">Name</label>
+                            <input type="text" id="edit-coach-name" name="name" class="form-control" value="{{ user.username|default:'' }}" required>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="edit-coach-email">Email</label>
+                            <input type="email" id="edit-coach-email" name="email" class="form-control" value="{{ user.email|default:'' }}" required>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="edit-coach-mobile_number">Mobile No.</label>
+                            <input type="phone" id="edit-coach-mobile_number" name="mobile_number" class="form-control" value="{{ user.mobile_number|default:'' }}" required>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="edit-coach-dob">Date of Birth</label>
+                            <input type="date" id="edit-coach-dob" name="dob" class="form-control" value="{{ user.date_of_birth|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="edit-coach-gender">Gender</label>
+                            <select id="edit-coach-gender" name="gender" class="form-control" required>
+                                <option value="Male" {% if gender == "Male" %}selected{% endif %}>Male</option>
+                                <option value="Female" {% if gender == "Female" %}selected{% endif %}>Female</option>
+                                <option value="Other" {% if gender == "Other" %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        {% comment %} <div class="form-group mt-2">
+                            <label for="edit-coach-experience">Experience (Years)</label>
+                            <input type="number" id="edit-coach-experience" name="experience" class="form-control" value="{{ experience|default:'' }}" required>
+                        </div> {% endcomment %}
+                        {% comment %} <div class="form-group mt-2">
+                            <label for="edit-shooter-category">category</label>
+                            <input type="text" id="edit-shooter-category" name="category" class="form-control" value="{{ user.category|default:'' }}" required>
+                        </div> {% endcomment %}
+                        <div class="form-group mt-2">
+                            <label for="edit-coach-club">Affiliated Club/Academy</label>
+                            <input type="text" id="edit-coach-club" name="club" class="form-control" value="{{ user.affiliated_club|default:'' }}" required>
+                        </div>
+                        <button type="submit" class="btn btn-info mt-3">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
     // charts dipalayed inn the center of the page
-    
     var dataSeries = [{{ avg_dur_sun }}, {{ avg_dur_mon }}, {{ avg_dur_tue }}, {{ avg_dur_wed }}, {{ avg_dur_thu }}, {{ avg_dur_fri }}, {{ avg_dur_sat }}];
 
     // Check if all values are 0
@@ -439,6 +591,22 @@ function showContent(section) {
     let content = document.getElementById(section.toLowerCase());
     if (content) {
         content.style.display = 'block';
+    }
+};
+
+function toggleProfile() {
+    var profileContainer = document.getElementById("profileContainer");
+
+    if (profileContainer.classList.contains("show-profile")) {
+        profileContainer.classList.remove("show-profile");
+        setTimeout(() => {
+            profileContainer.style.display = "none";
+        }, 300); // Matches the CSS transition duration
+    } else {
+        profileContainer.style.display = "block";
+        setTimeout(() => {
+            profileContainer.classList.add("show-profile");
+        }, 10); // Small delay to trigger transition
     }
 };
 

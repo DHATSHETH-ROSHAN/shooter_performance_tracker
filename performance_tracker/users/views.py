@@ -5,7 +5,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from .models import UserProfiles, CoachShooterRelation, DayPlanner, Event
 from scores.models import manualscore, pdfScore, activities
-from datetime import timedelta
+from datetime import timedelta, date
 from django.utils.timezone import now
 import json 
 from django.views.decorators.csrf import csrf_exempt
@@ -145,12 +145,16 @@ def shooter_home(request):
     scores_Est = pdfScore.objects.filter(user_profile=user).order_by('-date', '-current_time')
     total_session_40 = scores_queryset.filter(match_type='40-Shots').count()
     total_session_60 = scores_queryset.filter(match_type='60-Shots').count()
+    tot_ses_40_est = scores_Est.filter(match_type = '40-Shots').count()
+    tot_ses_60_est = scores_Est.filter(match_type = "60-Shots").count()
+    today = now().date()  # Define 'today' using django.utils.timezone
+    age = today.year - user.date_of_birth.year - ((today.month, today.day) < (user.date_of_birth.month, user.date_of_birth.day))
+    overall_sessions = total_session_40 + total_session_60 + tot_ses_40_est + tot_ses_60_est
     # Streak Calculation
     practice_dates_man = scores_queryset.values_list('date', flat=True).distinct()
     practice_dates_est = scores_Est.values_list('date', flat=True).distinct()
     practice_dates = sorted(set(practice_dates_man) | set(practice_dates_est), reverse=True)  
     practice_days = [date.strftime("%Y-%m-%d") for date in practice_dates]
-    
     activities_lst = activities.objects.filter(user = user).order_by('-date')
     workoutdays = activities_lst.filter(activity_category = "physical").values_list('date', flat=True)
     workoutdays = [date.strftime("%Y-%m-%d") for date in workoutdays]
@@ -181,6 +185,8 @@ def shooter_home(request):
     avg_score_40 = round(sum(score_40) / len(score_40), 2) if score_40 else 0
     score_60 = [score.total for score in scores_queryset if score.match_type == '60-Shots' and score.total is not None]
     avg_score_60 = round(sum(score_60) / len(score_60), 2) if score_60 else 0
+    best_pdf_60_shots = max([score.total for score in scores_Est.filter(match_type="60-Shots") if score.total is not None],default=0)
+    
     current_score_40 = score_40[-1] if score_40 else 0
     current_score_60 = score_60[-1] if score_60 else 0
     avg_dur_sun = round(sum(d := [s.duration for s in scores_queryset if s.day == "Sunday"]) / len(d), 1) if (d := [s.duration for s in scores_queryset if s.day == "Sunday"]) else 0
@@ -210,8 +216,11 @@ def shooter_home(request):
     context = {
         'total_session_40': total_session_40,
         'total_session_60': total_session_60,
+        'overallsessions': overall_sessions,
         'best_score_40': best_score_40,
         'best_score_60': best_score_60,
+        'best_pdf_60_shots' : best_pdf_60_shots,
+        'age':age,
         'current_score_40': current_score_40,
         'target_score_40': target_score_40,
         'current_score_60': current_score_60,
@@ -294,15 +303,19 @@ def update_profile(request):
         dob = request.POST.get("dob")
         specialization = request.POST.get("specialization")
         experience = request.POST.get("experience")
+        gender = request.POST.get("gender")
         affilated = request.POST.get("club")
+        category = request.POST.get("category")
         user_profile = UserProfiles.objects.get(username=request.user)
         user_profile.username = name
         user_profile.email = email
         user_profile.date_of_birth = dob
         user_profile.mobile_number = mobile_number
+        user_profile.gender = gender
         user_profile.coaching_specialization = specialization
         user_profile.years_of_experience = experience
         user_profile.affiliated_club = affilated
+        user_profile.category = category
         user_profile.save()
         messages.success(request, "Profile updated successfully!")
         # Get the previous page URL (where the request came from)
@@ -401,16 +414,18 @@ def coach_home(request):
     coach_profile = UserProfiles.objects.get(username=request.user)
     fullprofile = UserProfiles.objects.filter(username=coach_profile).values()
     profile_n = UserProfiles.objects.get(username = coach_profile)
-    print(profile_n)
     coach_email = fullprofile[0]['email'] if fullprofile else None
     coach_phone = fullprofile[0]['mobile_number'] if fullprofile else None
     undob = profile_n.date_of_birth
     dob = profile_n.date_of_birth.strftime('%d-%m-%Y') if profile_n.date_of_birth else "NOt Provided"
-    print(dob, undob)
+    gender = fullprofile[0]['gender'] if fullprofile else "Not provided"
     specialization = fullprofile[0]['coaching_specialization'] if fullprofile else None
     experience = fullprofile[0]['years_of_experience'] if fullprofile else None
     club = fullprofile[0]['affiliated_club'] if fullprofile else None
     current_shooters_count = CoachShooterRelation.objects.filter(coach=coach_profile, status="Accepted").count()
+    male_shooters_count = CoachShooterRelation.objects.filter(coach=coach_profile, status="Accepted", shooter__gender="Male").count() 
+    female_shooters_count = CoachShooterRelation.objects.filter(coach=coach_profile, status="Accepted", shooter__gender="Female").count()
+    
     # Retrieve shooters assigned to the coach
     shooters = CoachShooterRelation.objects.filter(coach=coach_profile, status="Accepted").select_related('shooter')
     # Prepare shooter data for the frontend
@@ -514,8 +529,10 @@ def coach_home(request):
             # "average_score": shooter.average,  # Ensure this field exists in the model
         })
     pending_requests = CoachShooterRelation.objects.filter(coach=coach_profile, status="Pending")
-    max_shooters = coach_profile.assigned_shooters.first().max_shooters if coach_profile.assigned_shooters.exists() else "N/A"
-    # Day planner handling
+    count_pending_req = pending_requests.count()
+    max_shooters = CoachShooterRelation.objects.filter(coach=coach_profile).first().max_shooters if CoachShooterRelation.objects.filter(coach=coach_profile).exists() else "N/A"
+
+        # Day planner handling
     # Filter out expired day plans (only keep today's and future plans)
     day_plans = DayPlanner.objects.filter(coach=request.user, date__gte=now().date())
     form1 = DayPlannerForm(coach=request.user)
@@ -556,11 +573,16 @@ def coach_home(request):
         'specialization': specialization,
         'experience': experience,
         'club': club,
+        'gender': gender,
         'max_shooters': max_shooters,
         'shooters_count':current_shooters_count,
+        'male_shooters_count': male_shooters_count,
+        'female_shooters_count': female_shooters_count,
         'pending_requests': pending_requests,
+        "pending_requests_count": count_pending_req,
         'shooters': shooter_list,
         'day_plans': day_plans,
+
         'events': events, 
         'form1': form1,
         'form2': form2,

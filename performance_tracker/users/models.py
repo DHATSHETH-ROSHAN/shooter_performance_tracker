@@ -24,6 +24,7 @@ class UserProfiles(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = [
         ('Shooter', 'Shooter'),
         ('Coach', 'Coach'),
+        ('Staff', 'Staff'),
         ('Admin', 'Admin'),
     ]
     id = models.AutoField(primary_key=True)
@@ -38,9 +39,10 @@ class UserProfiles(AbstractBaseUser, PermissionsMixin):
     role = models.CharField(max_length=150, choices = ROLE_CHOICES, default = 'Shooter')
     created_at = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    permitted = models.CharField(max_length=10, choices=[('Yes','Yes'),('No','No')], default= 'No', null= True, blank=True)
     coaching_specialization = models.CharField(max_length=255, null=True, blank=True)
     years_of_experience = models.PositiveIntegerField(null=True, blank=True)
     coach = models.ForeignKey('self',on_delete=models.SET_NULL,null=True,blank=True,related_name='trained_shooters',default=None)
@@ -66,27 +68,27 @@ class UserProfiles(AbstractBaseUser, PermissionsMixin):
         else:
             self.category = None
 
-        if self.role == "Admin":
+        if self.role == "Staff":
             if self.coach is not None:
-                raise ValidationError("Admins cannot have a coach assigned.")
+                raise ValidationError("Staff cannot have a coach assigned.")
             self.is_staff = True
-            self.is_superuser = True
-            self.is_active = True  # Admins are always active
+            self.is_superuser = False #active and permitted to be editable to this user
 
         elif self.role == "Coach":
             if self.coach is not None:
                 raise ValidationError("Coaches cannot have a coach assigned.")
             self.is_staff = True
             self.is_superuser = False
-            self.is_active = True  # Coaches require admin approval
+            self.permitted = 'No' # active can be editable to this user
 
         else:  # Shooter
             if self.coach and self.coach.role != "Coach":
                 raise ValidationError("Assigned coach must have the role 'Coach'.")
             self.is_staff = False
             self.is_superuser = False
+            self.permitted = 'No'
             self.is_active = True
-
+            
         # Ensure coaching fields are only filled for coaches
         if self.role != "Coach":
             self.coaching_specialization = None

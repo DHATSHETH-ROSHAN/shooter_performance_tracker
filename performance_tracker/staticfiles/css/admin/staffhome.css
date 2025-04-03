@@ -1,0 +1,215 @@
+.page-container{
+    background-color: #050505;
+    margin: 5px;
+    border-radius: 12px;
+    padding: 20px;
+    height: 100vh;   
+}
+
+.navbar-message {
+    background-color: #050505;
+    padding: 10px 0;
+    transition: background-color 0.2s ease-in-out, padding 0.2s ease-in-out;
+}
+
+.custom-btn, #shrink-btn {
+    background-color: #050505;
+    color: #00DDFF;
+    border: none;
+    padding: 12px;
+    margin: 5px 0;
+    border-radius: 10px;
+    width: 100%;
+    text-align: left; /* Default: left-aligned text */
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background 0.3s, width 0.3s, padding 0.3s, justify-content 0.3s;
+}
+#shrink-btn{
+    transition: transform 0.3s;
+    transform: rotate(360deg);
+}
+.custom-btn i, #shrink-btn i {
+    font-size: 20px;
+    margin-right: 10px; /* Space between icon and text */
+}
+
+.custom-btn:hover, #shrink-btn:hover {
+    background-color: #202020;
+}
+
+.custom-btn.active {
+    border-bottom: 2px solid #00DDFF; /* Vivid Sky Blue */
+    border-right: 2px solid #00DDFF;
+    background-color: #202020;
+
+}
+
+.table-headings {
+    color: #00DDFF;
+    font-size: x-large;
+    font-weight: bold;
+    margin-left: 20px;
+}
+
+.stud-coach-table {
+    max-height: 400px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    
+}
+.stud-coach-table {
+    -ms-overflow-style: none;
+}
+.stud-coach-table::-webkit-scrollbar {
+    display: none;
+}
+.tb-head {
+    color: #00DDFF;
+    font-size: larger;
+    font-weight: bold;
+}
+
+.table-bordered {
+    border: #00DDFF;
+    border-radius: 12px;
+}
+
+.table-contents {
+    font-size: larger;
+}
+
+/* Sidebar */
+#sidebar {
+    width: 200px; /* Default expanded width */
+    height: 84vh;
+    margin-left:10px;
+    margin-right: 10px; 
+    border-radius:15px;
+    transition: width 0.3s ease-in-out;
+    overflow: hidden;
+    border-right: 1.5px solid #00DDFF;
+    border-bottom:1.5px solid #00DDFF;
+}
+
+/* Sidebar Collapsed */
+#sidebar.collapsed {
+    width: 60px;
+}
+/* Adjust button styles in collapsed state */
+#sidebar.collapsed .custom-btn {
+    text-align: center;
+    justify-content: center; /* Center content when collapsed */
+    padding: 12px;
+}
+#sidebar.collapsed #shrink-btn {
+    text-align: center;
+    justify-content: center; /* Center content when collapsed */
+    padding: 12px;
+    transition: transform 0.3s;
+    transform: rotate(180deg);
+}
+/* Hide button text when collapsed */
+#sidebar.collapsed #shrink-btn span {
+    display: none;
+}
+/* Hide button text when collapsed */
+#sidebar.collapsed .custom-btn span {
+    display: none;
+}
+/* Ensure icon stays visible */
+#sidebar.collapsed .custom-btn i {
+    margin-right: 0; /* Remove spacing */
+}    
+
+/* Main Content */
+#main-content {
+    background-color: #050505;
+    height: 84vh;
+    transition: width 0.3s ease-in-out;
+    border-radius:12px;
+    overflow: auto;
+    -ms-overflow-style: none; 
+    scrollbar-width:none;
+}
+
+/* Adjust Main Content when Sidebar Collapses */
+#sidebar.collapsed + #main-content {
+    width: calc(100% - 90px);
+    transition: width 0.3s ease-in-out;
+}
+
+#main-content .home-cont {
+    background-color: #050505;
+    border-right: #00DDFF;
+    border-bottom: #00DDFF;
+}
+
+/* this is for messages only  */
+/*  this is for the messaging thing only */
+.message-card:hover {
+    background-color: #202020 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 221, 255, 0.2);
+    border-right: solid 1px #00DDFF;
+    border-bottom: solid 1px #00DDFF;
+}
+
+.message-card {
+    background-color: #151515 !important;
+    border: 1px solid #303030;
+    transition: all 0.3s ease;
+}
+
+
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #00DDFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-text {
+    color: black;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.username {
+    font-size: 16px;
+}
+
+.message-preview {
+    font-size: 14px;
+    color: #CCCCCC;
+    max-width: 80%;
+}
+
+.unread-badge {
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 10px;
+}
+
+.btn-custom {
+    background-color: #00DDFF;
+    color: black;
+    font-weight: bold;
+    border-radius: 8px;
+    width: 100%;
+    padding: 8px 0;
+    text-align: center;
+    transition: background 0.3s;
+}
+
+.btn-custom:hover {
+    background-color: #00B8D9;
+    color: white;
+}
+/* end of messages */

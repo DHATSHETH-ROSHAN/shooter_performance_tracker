@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="{% static 'css/chat_room.css' %}">
+{% endblock %}
+
+{% block content %}
+<h2>Chat with {{ receiver.user.username }}</h2>
+
+<div id="chat-box">
+    {% for message in messages %}
+        <p><strong>{{ message.sender.user.username }}:</strong> {{ message.content }}</p>
+    {% endfor %}
+</div>
+
+<input type="text" id="message-input" placeholder="Type a message..." />
+<button id="send-button">Send</button>
+
+<script>
+    // Fetch receiver's username from Django
+    const receiverUsername = "{{ receiver.user.username }}";
+    // Dynamically get the conversation ID from a hidden HTML element
+    const conversationId = "{{ conversation_id }}";
+    // Determine WebSocket protocol (ws or wss)
+    let wsProtocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+    // WebSocket connection
+    let socket = null;
+    function connectWebSocket() {
+        socket = new WebSocket(wsProtocol + window.location.host + "/ws/chat/" + conversationId + "/");
+        socket.onopen = function () {
+            console.log("WebSocket Connected!");
+        };
+        socket.onmessage = function (event) {
+            let data = JSON.parse(event.data);
+            let chatBox = document.getElementById("chat-box");
+            // Append message to chat box
+            chatBox.innerHTML += `<p><strong>${data.sender}:</strong> ${data.message}</p>`;
+            // Auto-scroll to the latest message
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+        socket.onclose = function (event) {
+            console.error("WebSocket Disconnected! Reconnecting in 3 seconds...", event);
+            setTimeout(connectWebSocket, 3000); // Reconnect after 3 seconds
+        };
+        socket.onerror = function (error) {
+            console.error("WebSocket Error:", error);
+        };
+    }
+
+    let socket;
+    let reconnectTimeout = 3000; // 3 seconds delay
+    
+    function connectWebSocket() {
+        socket = new WebSocket(wsProtocol + window.location.host + "/ws/chat/" + conversationId + "/");
+    
+        socket.onopen = function () {
+            console.log(" WebSocket Connected!");
+        };
+    
+        socket.onmessage = function (event) {
+            let data = JSON.parse(event.data);
+            let chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<p><strong>${data.sender}:</strong> ${data.message}</p>`;
+            chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
+        };
+    
+        socket.onclose = function (event) {
+            console.warn(" WebSocket Disconnected! Reconnecting in 3 seconds...", event);
+            setTimeout(connectWebSocket, reconnectTimeout);
+        };
+    
+        socket.onerror = function (error) {
+            console.error(" WebSocket Error:", error);
+            socket.close(); // Ensure WebSocket is fully closed before reconnecting
+        };
+    }
+    
+    // Start WebSocket connection
+    connectWebSocket();
+    
+</script>
+
+{% endblock %}

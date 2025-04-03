@@ -637,7 +637,6 @@ def dashboard(request):
         'total_40_shots': total_40_shots,
         'total_60_shots': total_60_shots,
     }
-    print(avg_gps1_40)
     return render(request, 'dashboard.html', context)
 
 # inspection view

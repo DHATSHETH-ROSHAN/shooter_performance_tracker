@@ -268,7 +268,7 @@
         </div>
         <div class="col-6">
             <div class="row">
-                <h3 class="logo_txt">Series score Performance</h3>
+                <h3 class="logo_txt">Score Performance</h3>
                 <div class="chart-container col-6">
                     <h4>40-Shots trends</h4>
                     <div id="score40timeChartman"></div>
@@ -297,7 +297,7 @@
         </div>
         <div class="col-6">
             <div class="row">
-                <h3 class="logo_txt">Series score Performance</h3>
+                <h3 class="logo_txt">Score Performance</h3>
                 <div class="chart-container col-6">
                     <h4>40-Shots trends</h4>
                     <div id="scoreover_timemanual40"></div>
@@ -358,7 +358,7 @@
         </div>
         <div class="col-6">
             <div class="row">
-                <h3 class="logo_txt">Series score Performance</h3>
+                <h3 class="logo_txt">Score trends</h3>
                 <div class="chart-container col-6">
                     <h4>40-Shots trends</h4>
                     <div id="score40timeChartest"></div>
@@ -387,7 +387,7 @@
         </div>
         <div class="col-6">
             <div class="row">
-                <h3 class="logo_txt">Series score Performance</h3>
+                <h3 class="logo_txt">Total score</h3>
                 <div class="chart-container col-6">
                     <h4>40-Shots trends</h4>
                     <div id="scoreover_timeest40"></div>
@@ -711,7 +711,7 @@ renderLineChart("#shotline60est",
     JSON.parse('{{ date_est_60|safe }}').slice(-10)
     );
     
-function renderBarChart(chartId, dataSeries, categories) {
+function renderBarChart(chartId, dataSeries, categories,xlablel,ylablel) {
     var options = {
         chart: {
             type: "bar",
@@ -727,12 +727,13 @@ function renderBarChart(chartId, dataSeries, categories) {
         }],
         xaxis: {
             categories: categories,
-            title: { text: "Series", style: { color: "#FFFFFF" } },
+            title: { text: xlablel, style: { color: "#FFFFFF" } },
             labels: { style: { colors: "#FFFFFF" } }
         },
         yaxis: {
             min: Math.min(...dataSeries) - 10,  // Adds small padding below
             max: Math.max(...dataSeries) + 5,  // Ensures bars fully extend
+            title: { text: ylablel, style: { color: "#FFFFFF" } },
             labels: { style: { colors: "#FFFFFF" } }
         },
         stroke: {
@@ -767,19 +768,19 @@ function renderBarChart(chartId, dataSeries, categories) {
 
 renderBarChart("#scoreover_timemanual40", 
     JSON.parse('{{ score_40_man|safe }}').slice(-10), 
-    JSON.parse('{{ date_man_40|safe }}').slice(-10)
+    JSON.parse('{{ date_man_40|safe }}').slice(-10), "Date", "Score"
 );
 renderBarChart("#scoreover_timemanual60", 
     JSON.parse('{{ score_60_man|safe }}').slice(-10), 
-    JSON.parse('{{ date_man_60|safe }}').slice(-10)
+    JSON.parse('{{ date_man_60|safe }}').slice(-10), "Date", "Score"
 );
 renderBarChart("#scoreover_timeest40", 
     JSON.parse('{{ score_40_est|safe }}').slice(-10),
-    JSON.parse('{{ date_est_40|safe }}').slice(-10)
+    JSON.parse('{{ date_est_40|safe }}').slice(-10), "Series", "Score"
 );
 renderBarChart("#scoreover_timeest60", 
     JSON.parse('{{ score_60_est|safe }}').slice(-10),
-    JSON.parse('{{ date_est_60|safe }}').slice(-10)
+    JSON.parse('{{ date_est_60|safe }}').slice(-10), "Series", "Score"
 );
 renderBarChart("#inner10line40est", 
     JSON.parse('{{ in10_40_est_lst|safe }}').slice(-10),

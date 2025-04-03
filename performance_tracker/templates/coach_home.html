@@ -6,9 +6,7 @@ Coach Home
 {% endblock %}
 {% block extra_css %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link rel="stylesheet" type="text/css" href="{% static 'css/coachhome.css' %}">
@@ -52,7 +50,6 @@ Coach Home
             {% endif %}
         </ul>
     </div>
-
 </nav>
 <div id="navbarMessageContainer" class="collapse navbar-message">
     {% if messages %}
@@ -63,7 +60,7 @@ Coach Home
         {% endfor %}
     {% endif %}
 </div>
-<div  class="container-flex"style="background-color:#050505; margin:5px; border-radius:15px; padding:10px; height:100vh;">
+<div class="container-flex"style="background-color:#050505; margin:5px; border-radius:15px; padding:10px; height:100vh;">
     <div class="row">
         <div id="sidebar" class="col-2 d-flex flex-column" style="background-color:#050505;"> 
             <button id="shrink-btn"><i class="bi bi-arrows-angle-contract"></i><span>Shrink</span></button>
@@ -71,8 +68,8 @@ Coach Home
             <button id="dashboard-btn" class="custom-btn"><i class="bi bi-speedometer"></i><span> Dashboard</span></button>
             <button id="shooters-btn" class="custom-btn"><i class="bi bi-bullseye"></i><span> Shooters</span></button>
             <button id="notifications-btn" class="custom-btn position-relative">
-                <i class="bi bi-bell"></i>
-                <span> Notifications</span>
+                <i class="bi bi-chat-left-dots"></i>
+                <span>Notifications & Message</span>
                 {% if pending_requests_count > 0 %}
                     <span id="notification-badge" class="badge position-absolute top-0 start-100 translate-middle"
                           style="background-color: #00DDFF; color: black; padding: 5px 8px; border-radius: 50%; font-size: 12px;">
@@ -84,12 +81,12 @@ Coach Home
             <button id="profile-btn" class="custom-btn"><i class="bi bi-person-circle"></i><span> Profile</span></button>
             <button id="settings-btn" class="custom-btn"><i class="bi bi-gear"></i><span> Settings</span></button>
         </div>
-        <div id="main-content" class="col-10" style="background-color:#202020; ">
+        <div id="main-content" class="col-10" style="background-color: #202020;">
             {% comment %} home container {% endcomment %}
             <div id="home-container" class="container-fluid text-light" style="background-color:#202020; border-radius:15px; display:none;">
-                <div class="row d-flex justify-content-between align-items-start gap-3" style="padding-top:15px" >
+                <div class="row d-flex justify-content-between align-items-start gap-3" style="padding-top:15px;" >
                     <div class="col-md-8">
-                        <div class="row text-center align-items-center gx-3" style="background-color:#050505; border-radius:15px; padding-top:15px; ">
+                        <div class="row text-center align-items-center gx-3" style="background-color:#050505; border-radius:15px; padding-top:15px;">
                             <div class="col-2">
                                 <h4 class="logo_txt">Total shooters</h4>
                                 <p> {{ shooters_count }} </p>
@@ -111,7 +108,7 @@ Coach Home
                                 </p>
                             </div>
                         </div>
-                        <div class="row mt-4 p-3"style="background-color: #050505; border-radius: 15px;">
+                        <div class="row mt-4 p-3" style="background-color: #050505; border-radius: 15px;">
                             <div class="col-12">
                                 <div class="d-flex align-items-center">
                                     <!-- Spacer (Pushes the title to center) -->
@@ -453,33 +450,75 @@ Coach Home
                 </div>
             </div>
             {% comment %} Notification container {% endcomment %}
-            <div id="notifications-container" class="container-fluid text-light" style="background-color:#202020; border-radius:15px; display:none;">
-                <h2 class="logo_txt py-3" > Notifications</h2>
-                {% if pending_requests %}
-                <h4 class="text-center my-2 logo_txt">Coaching Requests</h4>
-                <div class="py-3">
-                    {% for request in pending_requests %}
-                        <div class="card p-3 mb-3" style="background-color: #0A0A0A; border-radius: 12px; border: 1px solid #303030; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-light"><b>{{ request.shooter.username }} wants you as a coach.</b></span>
-                                <div class="d-flex gap-2">
-                                    <form method="post" action="{% url 'accept_request' request.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-success btn-sm">Accept</button>
-                                    </form>
-                                    <form method="post" action="{% url 'reject_request' request.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                                    </form>
+            <div id="notifications-container" class="container-fluid py-3 text-light" style="background-color:#202020; border-radius:15px; display:none;">
+                <div class="container-fluid" style="background-color: #050505; padding-bottom:10px; margin-bottom:10px; border-radius:12px;">
+                    <h2 class="logo_txt py-3" > Notifications</h2>
+                    {% if pending_requests %}
+                    <h4 class="text-center my-2 logo_txt">Coaching Requests</h4>
+                    <div class="py-3">
+                        {% for request in pending_requests %}
+                            <div class="card p-3 mb-3" style="background-color: #0A0A0A; border-radius: 12px; border: 1px solid #303030; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-light"><b>{{ request.shooter.username }} wants you as a coach.</b></span>
+                                    <div class="d-flex gap-2">
+                                        <form method="post" action="{% url 'accept_request' request.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                        </form>
+                                        <form method="post" action="{% url 'reject_request' request.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                        <p class="text-center">No new requests.</p>
+                    {% endif %}
+                </div>
+                {% comment %} this is the part of messsages inside the notifications and messages thing {% endcomment %}
+                <div class="container-fluid scrollable-element" style="background-color: #050505; max-height:65vh; overflow-y:auto; border-radius:12px;">
+                    <h2 class="logo_txt py-3">Messages</h2>
+                    {% if conversations %}
+                        <div class="py-3">
+                            <div class="row">
+                                <!-- Conversation List -->
+                                <div class="col-4 ">
+                                    {% for convo in conversations %}
+                                        <div class="card p-3 mb-3 message-card open-chat" data-user-id="{{ convo.other_user.id }}" style="cursor: pointer; transition: background-color 0.3s;">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar">
+                                                        <span class="avatar-text">{{ convo.other_user.username|first|upper }}</span>
+                                                    </div>
+                                                    <span class="text-light ms-2 username"><b>{{ convo.other_user.username }}</b></span>
+                                                </div>
+                                                <div>
+                                                    <small class="text-muted">{{ convo.last_message.timestamp|date:"H:i" }}</small>
+                                                    {% if convo.unread_count > 0 %}
+                                                        <span class="badge bg-danger unread-badge">{{ convo.unread_count }}</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <p class="text-light mt-2 message-preview">{{ convo.last_message.content|truncatechars:50 }}</p>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Chat Window (Will be loaded dynamically) -->
+                                <div class="col-8">
+                                    <div id="chat-window" class="chat-box">
+                                        <p class="text-light text-center">Select a chat to start messaging</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
-                
-                {% else %}
-                    <p class="text-center">No new requests.</p>
-                {% endif %}
+                    {% else %}
+                        <p class="text-center">No messages yet.</p>
+                    {% endif %}
+                </div>  
             </div>
             {% comment %} profile container{% endcomment %}
             <div id="profile-container" class="container-fluid text-light" style="background-color:#202020; border-radius:15px; display:none;">
@@ -506,7 +545,6 @@ Coach Home
                                     <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-telephone" style="margin-right: 8px;"></i> Phone:</strong> <span style="color: white;">{{ coach_phone }}</span></p>
                                     <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-calendar-event" style="margin-right: 8px;"></i> DOB:</strong> <span style="color: white;">{{ date_of_birth }}</span></p>
                                 </div>
-                        
                                 <!-- Profile Info - Right Column -->
                                 <div class="col-4 py-5">
                                     <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-people" style="margin-right: 8px;"></i> Shooters:</strong> <span style="color: white;">{{ shooters_count }}</span></p>
@@ -711,6 +749,7 @@ Coach Home
             }, 5000);
         }
     });
+    
     document.addEventListener("DOMContentLoaded", function() {
         function showOnly(elementId) {
             // Hide all containers first
@@ -759,6 +798,7 @@ Coach Home
             showOnly('settings-container');
         });
     });
+
     document.addEventListener("DOMContentLoaded", function () {
         const sidebar = document.getElementById("sidebar"); // Change this to your actual sidebar class or ID
         const mainContent = document.getElementById("main-content"); // Change to your main content area
@@ -1012,6 +1052,229 @@ document.addEventListener("DOMContentLoaded", function () {
 
     lazyLoadCharts();
 });
+
+document.querySelectorAll(".open-chat").forEach(button => {
+    button.addEventListener("click", function() {
+        const userId = this.getAttribute("data-user-id");
+        const chatWindow = document.getElementById("chat-window");
+        const conversationId = [userId, '{{ request.user.id }}'].sort().join('_');
+        
+        // Remove active class from all cards and add to current
+        document.querySelectorAll('.message-card').forEach(card => {
+            card.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        // Mark messages as read in backend
+        fetch(`/message/messages/read/${conversationId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hide unread badge when messages are marked as read
+            const unreadBadge = this.querySelector('.unread-badge');
+            if (unreadBadge) {
+                unreadBadge.style.display = 'none';
+            }
+        })
+        .catch(error => console.error('Error marking messages as read:', error));
+        
+        // Load chat content
+        fetch(`/message/chat/${userId}/`)
+            .then(response => response.text())
+            .then(data => {
+                chatWindow.innerHTML = data;
+                
+                // Scroll to bottom of messages after loading chat
+                const messagesDiv = document.getElementById('chat-messages');
+                if (messagesDiv) {
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }
+                
+                // Initialize WebSocket connection
+                const chatSocket = new WebSocket(
+                    'ws://' + window.location.host + '/ws/chat/' + conversationId + '/'
+                );
+
+                chatSocket.onopen = function(e) {
+                    console.log('WebSocket connection established');
+                };
+
+                chatSocket.onmessage = function(e) {
+                    console.log('Received message:', e.data);
+                    const data = JSON.parse(e.data);
+                    
+                    // Get the messages container
+                    const messagesDiv = document.getElementById('chat-messages');
+                    if (!messagesDiv) {
+                        console.error('Messages container not found');
+                        return;
+                    }
+
+                    // Create new message element
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = data.sender === '{{ request.user.username }}' ? 'sent-message' : 'received-message';
+                    
+                    // Format the timestamp
+                    const timestamp = new Date(data.timestamp);
+                    const formattedTime = timestamp.toLocaleTimeString('en-US', { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: false 
+                    });
+                    
+                    // Set message content
+                    messageDiv.innerHTML = `
+                        <p>${data.message}</p>
+                        <small class="text-muted">${formattedTime}</small>
+                    `;
+                    
+                    // Append message and scroll to bottom
+                    messagesDiv.appendChild(messageDiv);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                    // If this is a received message and chat is active, mark it as read
+                    if (data.sender !== '{{ request.user.username }}' && this.classList.contains('active')) {
+                        fetch(`/message/messages/read/${conversationId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            }
+                        }).catch(error => console.error('Error marking message as read:', error));
+                    }
+                };
+
+                chatSocket.onerror = function(e) {
+                    console.error('WebSocket error:', e);
+                };
+
+                chatSocket.onclose = function(e) {
+                    console.error('WebSocket connection closed:', e);
+                    // Attempt to reconnect after a delay
+                    setTimeout(() => {
+                        console.log('Attempting to reconnect...');
+                        const newSocket = new WebSocket(
+                            'ws://' + window.location.host + '/ws/chat/' + conversationId + '/'
+                        );
+                        // Copy over the event handlers to the new socket
+                        newSocket.onopen = chatSocket.onopen;
+                        newSocket.onmessage = chatSocket.onmessage;
+                        newSocket.onerror = chatSocket.onerror;
+                        newSocket.onclose = chatSocket.onclose;
+                        chatSocket = newSocket;
+                    }, 3000);
+                };
+
+                // Set up message sending
+                const messageInput = document.querySelector('#chat-message-input');
+                const sendButton = document.querySelector('#chat-message-send');
+
+                function sendMessage() {
+                    const message = messageInput.value.trim();
+                    if (message && chatSocket.readyState === WebSocket.OPEN) {
+                        const messageData = {
+                            'message': message,
+                            'sender_id': '{{ request.user.id }}',
+                            'receiver_id': userId,
+                            'conversation_id': conversationId
+                        };
+                        console.log('Sending message:', messageData);
+                        chatSocket.send(JSON.stringify(messageData));
+                        messageInput.value = '';
+                    }
+                }
+
+                if (sendButton) {
+                    sendButton.onclick = sendMessage;
+                }
+
+                if (messageInput) {
+                    messageInput.onkeyup = function(e) {
+                        if (e.keyCode === 13) {  // enter, return
+                            sendMessage();
+                        }
+                    };
+                }
+            })
+            .catch(error => console.error("Error loading chat:", error));
+    });
+});
+
+// Keep track of active WebSocket connections
+let activeWebSockets = {};
+
+// Function to establish WebSocket connections for all chats
+function connectAllChats() {
+    document.querySelectorAll(".message-card").forEach(card => {
+        const userId = card.getAttribute("data-user-id");
+        if (!activeWebSockets[userId]) {
+            const socket = new WebSocket(
+                'ws://' + window.location.host + '/ws/chat/' + userId + '/'
+            );
+
+            socket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                
+                // Update unread badge for the conversation
+                if (data.sender !== '{{ request.user.username }}') {
+                    const conversationCard = document.querySelector(`.message-card[data-user-id="${userId}"]`);
+                    if (conversationCard) {
+                        // Only update badge if chat is not active
+                        if (!conversationCard.classList.contains('active')) {
+                            const unreadBadge = conversationCard.querySelector('.unread-badge');
+                            if (unreadBadge) {
+                                const currentCount = parseInt(unreadBadge.textContent) || 0;
+                                unreadBadge.textContent = currentCount + 1;
+                                unreadBadge.style.display = 'inline';
+                            }
+                        }
+
+                        // If this chat is currently open, append the message
+                        const messagesDiv = document.getElementById('chat-messages');
+                        if (messagesDiv && conversationCard.classList.contains('active')) {
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = 'received-message';
+                            
+                            const timestamp = new Date(data.timestamp);
+                            const formattedTime = timestamp.toLocaleTimeString('en-US', { 
+                                hour: '2-digit', 
+                                minute: '2-digit',
+                                hour12: false 
+                            });
+                            
+                            messageDiv.innerHTML = `
+                                <p>${data.message}</p>
+                                <small class="text-muted">${formattedTime}</small>
+                            `;
+                            
+                            messagesDiv.appendChild(messageDiv);
+                            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                        }
+                    }
+                }
+            };
+
+            socket.onerror = function(e) {
+                console.error('WebSocket error:', e);
+            };
+
+            socket.onclose = function(e) {
+                console.error('WebSocket connection closed:', e);
+                delete activeWebSockets[userId];
+                // Attempt to reconnect
+                setTimeout(() => connectAllChats(), 3000);
+            };
+
+            activeWebSockets[userId] = socket;
+        }
+    });
+}
+
+// Connect to all chats when the page loads
+document.addEventListener('DOMContentLoaded', connectAllChats);
 </script>
     
 

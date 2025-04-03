@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #050505;
+        color: white;
+    }
+
+    .chat-container {
+        max-width: 600px;
+        margin: auto;
+        background-color: #202020;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0px 0px 10px rgba(0, 221, 255, 0.2);
+    }
+
+    .chat-header {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: #00DDFF;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #00DDFF;
+    }
+
+    .chat-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .chat-list li {
+        background-color: #303030;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 8px;
+        transition: background 0.3s;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .chat-list li:hover {
+        background-color: #00DDFF;
+        color: black;
+    }
+
+    .chat-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+        border: 2px solid #00DDFF;
+    }
+
+    .chat-name {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+        width: 100%;
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">Chat List</div>
+    <ul class="chat-list">
+        {% for contact in contacts %}
+            <li>
+                <a href="{{ contact.chat_url }}">
+                    <img src="{% static 'images/default-avatar.png' %}" alt="User Avatar" class="chat-avatar">
+                    <span class="chat-name">{{ contact.user.username }}</span>
+                </a>
+            </li>
+        {% empty %}
+            <p style="text-align: center; color: gray;">No chats available</p>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

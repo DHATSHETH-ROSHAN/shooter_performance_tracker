@@ -1,0 +1,384 @@
+{% extends "admin/adminbase.html" %}
+{% load static %} 
+{% block extra_css %}
+<link rel= "stylesheet" href="{% static 'css/admin/staffhome.css'%}">
+<script src="{% static 'js/admin/adminhome.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+{% include "admin/adminnavbar.html" %}
+<div class="container-fluid text-light page-container">
+    <div class="row">
+        <div id="sidebar" class="col-2 d-flex flex-column" style="background-color: #050505;">
+            <button id="shrink-btn" class="custom-btn"><i class="fa-solid fa-down-left-and-up-right-to-center" ></i><span>Shrink</span></button>
+            <button id="users-btn" class="custom-btn"><i class="fa-solid fa-users"></i><span>Users </span></button>
+            <button id="coach-relation-btn" class="custom-btn"><i class="fa-solid fa-chalkboard-user"></i></i><span>Coaches</span></button>
+            <button id="notifications-btn" class="custom-btn"><i class="fa-regular fa-bell" ></i><span>Notifications & Messages</span></button>
+            <button id="profile-btn" class="custom-btn"><i class="fa-regular fa-address-card" ></i><span>Profile</span></button>
+            <button id="settings-btn" class="custom-btn"><i class="fa-solid fa-user-gear"></i><span> Settings</span></button>
+        </div>
+        <div id="main-Content" class="col-10 d-flex">
+            {% comment %} users container {% endcomment %}
+            <div id="users-container" class="w-100 container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
+                <div class="row d-flex justify-content-between align-items-start gap-3" style="padding-top:15px;">
+                    <div class="col-md-12" style"background-color: #050505;">
+                        <div class="row align-items-center gx-3 p-3" style="background-color: #050505; border-radius: 12px; width:100%;">
+                            <div class="col-12" >
+                                <p class='table-headings' >Users</p>
+                            </div>
+                            <div>
+                                <table class="text-center w-100 table-bordered">
+                                    <thead>
+                                        <tr class="tb-head">
+                                            <th>S.No</th>
+                                            <th>Tables Names</th>
+                                            <th>Add</th>
+                                            <th>Count of entries</th>
+                                            <th>View</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="table-contents">
+                                        <tr>
+                                            <td>1.</td>
+                                            <td>Students List</td>
+                                            <td><i class="bi bi-plus-lg"></i></td>
+                                            <td>{{ students_count }}</td>
+                                            <td><i onclick="showDetails('shooterdetails')" style="cursor: pointer; color: #00ddff;" class="bi bi-eye"></i></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2.</td>
+                                            <td>Coaches List</td>
+                                            <td><i class="bi bi-plus-lg"></i></td>
+                                            <td>{{ coaches_count }}</td>
+                                            <td><i onclick="showDetails('coachDetails')" style="cursor: pointer; color: #00ddff;" class="bi bi-eye"></i></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="shooterdetails" class="py-3 stud-coach-table" style="display:none;">
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <p class="tb-head mb-0 ">Shooter Details</p>
+                                    <button onclick="closeFunction('shooterdetails')" class="btn border-0 p-0">
+                                        <i class="bi bi-x-circle" style="background-color: #050505; color: #00ddff; font-size: 1.2rem;"></i>
+                                    </button>
+                                </div>
+                                <div class="pt-3 d-flex justify-content-between align-items-center">
+                                    <table class="text-center w-100 table-bordered">
+                                        <thead>
+                                            <tr class="tb-head">
+                                                <th>S.No</th>
+                                                <th>Names</th>
+                                                <th>D.O.B</th>
+                                                <th>Email</th>
+                                                <th>Mobile no.</th>
+                                                <th>Gender</th>
+                                                <th>category</th>
+                                                <th>views</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for shooter in club_students %}
+                                            <tr>
+                                                <td class="text-center">{{ forloop.counter }}</td>
+                                                <td>{{ shooter.username }}</td>
+                                                <td>{{ shooter.date_of_birth}}</td>
+                                                <td>{{ shooter.email }}</td>
+                                                <td>{{ shooter.mobile_number }}</td>
+                                                <td>{{ shooter.gender }}</td>
+                                                <td>{{ shooter.category }}</td>
+                                                <td class="text-center">
+                                                        <i class="bi bi-eye" onclick="viewShooter({{ shooter.id }})" style="color: #00ddff"></i>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>                            
+                            <div id="coachDetails" class="py-3 stud-coach-table" style="display:none;">
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <p class="tb-head mb-0">Coache's Details</p>
+                                    <button onclick="closeFunction('coachDetails')" class="btn border-0 p-0">
+                                        <i class="bi bi-x-circle" style="background-color: #050505; color: #00ddff; font-size: 1.2rem;"></i>
+                                    </button>
+                                </div>
+                                <div class="pt-3 d-flex justify-content-between align-items-center">
+                                    <table class="text-center w-100 table-bordered">
+                                        <thead>
+                                            <tr class="tb-head">
+                                                <th>S.No</th>
+                                                <th>Names</th>
+                                                <th>D.O.B</th>
+                                                <th>Email</th>
+                                                <th>Mobile no.</th>
+                                                <th>Gender</th>
+                                                <th>category</th>
+                                                <th>Specialization</th>
+                                                <th>View</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for coach in club_coaches %}
+                                            <tr>
+                                                <td class="text-center">{{ forloop.counter }}</td>
+                                                <td>{{ coach.username }}</td>
+                                                <td>{{ coach.date_of_birth}}</td>
+                                                <td>{{ coach.email }}</td>
+                                                <td>{{ coach.mobile_number }}</td>
+                                                <td>{{ coach.gender }}</td>
+                                                <td>{{ coach.category }}</td>
+                                                <td>{{ coach.coaching_specialization }}</td>
+                                                <td class="text-center">
+                                                        <i class="bi bi-eye" onclick="viewCoach({{ coach.id }})" style="color: #00ddff"></i>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% comment %} students details container {% endcomment %}
+                            <div id="shooterDetailsContainer" class="pt-3 details-container " style="display:none;">
+                                <hr >
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4 class="tb-head">Shooter Details</h4>
+                                    <button onclick="closeFunctionS_C_cont('shooterDetailsContainer','shooterdetails')" class="btn border-0 p-0"><i class="bi bi-x-circle" style="color: #00DDFF; font-size: 1.2rem;"></i></button>
+                                </div>
+                                <div class="pt-3">
+                                    <table class="text-center w-100 table-bordered">
+                                        <thead>
+                                            <tr class="tb-head">
+                                                <th>Name</th>
+                                                <th>Email</th>
+                                                <th>Mobile</th>
+                                                <th>Category</th>
+                                                <th>Gender</th>
+                                                <th>Coach</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><span id="shooterName"></span></td>
+                                                <td><span id="shooterEmail"></span></td>
+                                                <td><span id="shooterMobile"></span></td>
+                                                <td><span id="shooterCategory"></span></td>
+                                                <td><span id="shooterGender"></span></td>
+                                                <td><span id="coach_name"></span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% comment %} manual Scores {% endcomment %}
+                                <div>
+                                    <hr>
+                                    <h4 class="tb-head"> Manual Scores </h4>
+                                </div>
+                                <div class="pt-3 d-flex justify-content-between align-items-center">
+                                    <table class="text-center w-100 table-bordered">
+                                        <thead>
+                                            <tr class="tb-head">
+                                                <th>S.No</th>
+                                                <th>Date</th>
+                                                <th>Match Type</th>
+                                                <th>Series 1</th>
+                                                <th>Series 2</th>
+                                                <th>Series 3</th>
+                                                <th>Series 4</th>
+                                                <th>Series 5</th>
+                                                <th>Series 6</th>
+                                                <th>Total</th>
+                                                <th>Average Shot</th>
+                                                <th>Duration</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="shotersManualScoreTable">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% comment %} Est Scores {% endcomment %}
+                                <div>
+                                    <hr>
+                                    <h4 class="tb-head"> EST Scores </h4>
+                                </div>
+                                <div class="pt-3 d-flex justify-content-between align-items-center">
+                                    <table class="text-center w-100 table-bordered">
+                                        <thead>
+                                            <tr class="tb-head">
+                                                <th>S.No</th>
+                                                <th>Date</th>
+                                                <th>Match Type</th>
+                                                <th>Series 1</th>
+                                                <th>Series 2</th>
+                                                <th>Series 3</th>
+                                                <th>Series 4</th>
+                                                <th>Series 5</th>
+                                                <th>Series 6</th>
+                                                <th>Total</th>
+                                                <th>Average Shot</th>
+                                                <th>Duration</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="shotersEstScoreTable">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% comment %} coach details contaainer {% endcomment %}
+                            <div id="coachDetailsContainer" class="p-3 " style="display:none;">
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4 class="tb-head">Coach Details</h4>
+                                    <button onclick="closeFunctionS_C_cont('coachDetailsContainer','coachDetails')" class="btn border-0 p-0"><i class="bi bi-x-circle" style="color: #00DDFF; font-size: 1.2rem;"></i></button>
+                                </div>
+                                <div class="pt-3">
+                                    <table class="text-center w-100 table-bordered">
+                                        <thead>
+                                            <tr class="tb-head">
+                                                <th>Name</th>
+                                                <th>Email</th>
+                                                <th>Mobile</th>
+                                                <th>Gender</th>
+                                                <th>Experience(in years)</th>
+                                                <th>Specialization</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><span id="coachName"></span></td>
+                                                <td><span id="coachEmail"></span></td>
+                                                <td><span id="coachMobile"></span></td>
+                                                <td><span id="coachGender"><span></td>
+                                                <td><span id="coachExperience"></span></td>
+                                                <td><span id="coachSpecialization"></span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div>
+                                    <p>Total students <span id="shooters_count"></span></p>
+                                    <p>Male shooter <span id="male_shooters_count"></span></p>
+                                    <p>Female Shooters <span id="female_shooters_count"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% comment %} coach-relation container {% endcomment %}
+            <div id="coach-relation-container" class="container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
+                <div class="row d-flex justify-content-between align-items-start gap-2" style="padding-top:10px;">
+                    <div class="col=md-8">
+                        <div class="row text-center align-items-center gx-2"style="background-color: #050505; border-radius: 12px; padding-top: 12px;">
+                            
+                            <div class = "something">
+                             coach-relation-container
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% comment %} notification container {% endcomment %}
+            <div id="notification-container" class="container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
+                <div class="row d-flex justify-content-between align-items-start gap-2" style="padding-top:10px;">
+                    <div class="col=md-8">
+                        <div class="row text-center align-items-center gx-2"style="background-color: #050505; border-radius: 12px; padding-top: 12px;">
+                            <div clas="w-100">
+                                <p class="tb-head">Messages</p>
+                                    {% if conversations %}  
+                                    <div class="py-3">
+                                        <div class="row">
+                                            <!-- Conversation List -->
+                                            <div class="col-4 ">
+                                                {% for convo in conversations %}
+                                                    <div class="card p-3 m-3 message-card open-chat" data-user-id="{{ convo.other_user.id }}" style="cursor: pointer; transition: background-color 0.3s;">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="avatar">
+                                                                    <span class="avatar-text">{{ convo.other_user.username|first|upper }}</span>
+                                                                </div>
+                                                                <span class="text-light ms-2 username"><b>{{ convo.other_user.username }}</b></span>
+                                                            </div>
+                                                            <div>
+                                                                <small style="color: #707070">{{ convo.last_message.timestamp|date:"H:i" }}</small>
+                                                                {% if convo.unread_count > 0 %}
+                                                                    <span class="badge bg-danger unread-badge">{{ convo.unread_count }}</span>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                        <p class="text-light mt-2 message-preview">{{ convo.last_message.content|truncatechars:50 }}</p>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+            
+                                            <!-- Chat Window (Will be loaded dynamically) -->
+                                            <div class="col-8">
+                                                <div id="chat-window" class="chat-box">
+                                                    <p class="text-light text-center">Select a chat to start messaging</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                        <p class="text-center">No messages yet.</p>
+                                    {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% comment %} profile container {% endcomment %}
+            <div id="profile-container" class="container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
+                <div class="row d-flex justify-content-between align-items-start gap-2" style="padding-top:10px;">
+
+                            
+                    <div style="width: 80%; margin: auto; padding: 20px; background-color: #050505; border-radius: 10px; border-right: solid 1px #00DDFF; border-bottom: solid 1px #00DDFF;">
+                        <h2 style="color: #00DDFF; text-align: left; margin-bottom: 20px;">Profile Settings</h2>
+                        <div class="row">
+                            <!-- Profile Image & Name -->
+                            <div class="col-4" style="text-align: center;">
+                                <i class="fas fa-user-circle" style="font-size: 120px; color: #00DDFF;"></i>
+                                <h3 style="color: #00DDFF; margin-top: 10px;"><i class="bi bi-credit-card-2-front"></i>{{ user.username }}</h3>
+                                {% comment %} <p style="color: grey;"><i class="bi bi-bullseye"></i> {{ specialization }}</p> {% endcomment %}
+                                <p style="color: grey;"><i class="bi bi-gender-ambiguous"></i> Gender {{ gender }}</p>
+                                {% comment %} <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="background-color: #00DDFF; margin-right: 12px; border: none; padding: 8px 15px; border-radius: 5px; color: black; font-weight: bold; cursor: pointer; margin-top: 10px;">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-info" onclick="document.getElementById('shooters-btn').click();" style="background-color: #00DDFF; border: none; padding: 8px 15px; border-radius: 5px; color: black; font-weight: bold; cursor: pointer; margin-top: 10px;">
+                                    <i class="bi bi-people"></i> Students
+                                </button> {% endcomment %}
+                            </div>
+                            <!-- Profile Info - Left Column -->
+                            <div class="col-4 py-5" >
+                                <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-envelope-paper" style="margin-right: 8px;"></i> Email:</strong> <span style="color: white; border-bottom:2px;">{{ user.email }}</span></p>
+                                <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-telephone" style="margin-right: 8px;"></i> Phone:</strong> <span style="color: white;">{{ user.mobile_number }}</span></p>
+                                <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-calendar-event" style="margin-right: 8px;"></i> DOB:</strong> <span style="color: white;">{{ user.date_of_birth }}</span></p>
+                            </div>
+                            <!-- Profile Info - Right Column -->
+                            <div class="col-4 py-5">
+                                <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-people" style="margin-right: 8px;"></i> Shooters:</strong> <span style="color: white;">{{ students_count }}</span></p>
+                                <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-graph-up-arrow" style="margin-right: 8px;"></i> Established:</strong> <span style="color: white;">{{ user.years_of_experience }}</span></p>
+                                <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-cup-hot" style="margin-right: 8px;"></i> Club:</strong> <span style="color: white;">{{ user.affiliated_club }}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% comment %} settings container {% endcomment %}
+            <div id="settings-container" class="container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
+                <div class="row d-flex justify-content-between align-items-start gap-2" style="padding-top:10px;">
+                    <div class="col=md-8">
+                        <div class="row text-center align-items-center gx-2"style="background-color: #050505; border-radius: 12px; padding-top: 12px;">
+                            
+                            <div class = "something">
+                                settings-container
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

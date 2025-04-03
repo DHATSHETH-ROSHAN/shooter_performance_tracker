@@ -6,95 +6,8 @@ Shooter's Home
 {% endblock %}
 {% block extra_css %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<style>
-    .calendar {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 5px;
-        max-width: 350px;
-        margin: auto;
-    }
-    .day {
-        padding: 10px;
-        border: 1px solid #ccc;
-        text-align: center;
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-    }
-    .practice-day {
-        background-color: #00ddff; /* Highlighted color */
-        color: white;
-        
-    }
-    .popup {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #202020;
-        padding: 15px;
-        border-radius: 10px;
-        z-index: 1000;
-        width: 300px;
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-    }
-    
-    .popup-content {
-        text-align: center;
-        color: white;
-    }
-    
-    .close {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 20px;
-        cursor: pointer;
-    }
-    #coachSelectInput {
-        background-color: #fff;
-        color: #000;
-        border: 2px solid #00DDFF;
-        padding: 8px;
-        border-radius: 5px;
-        width: 100%;
-    }
-    #profileContainer {
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-    }
-    
-    #profileContainer.show-profile {
-        opacity: 1;
-        visibility: visible;
-    }
-    /* Style input fields */
-.form-control {
-    background-color: #202020 !important;
-    color: white !important;
-    border: 1px solid #00DDFF !important;
-}
+<link rel="stylesheet" type="text/css" href="{% static 'css/shooterhome.css' %}">
 
-/* Style dropdown */
-select.form-control {
-    background-color: #202020 !important;
-    color: white !important;
-}
-
-/* Placeholder color */
-.form-control::placeholder {
-    color: #aaaaaa !important;
-}
-
-/* Style checkbox */
-.form-check-input {
-    background-color: #202020 !important;
-    border: 1px solid #00DDFF !important;
-}
-</style>
 {% endblock %}
 {% block content %}
 {% include 'navbar.html' %}
@@ -283,7 +196,56 @@ select.form-control {
             </div>
             <hr>
         </div>
-        
+        <!-- messages thing -->
+        <div id="messagesContainer" class="container-fluid text-white shadow-sm" style="background-color: #050505; display: none;">
+            <div class="container-fluid py-5">
+                <div style="width: 100%; margin: auto; padding: 2px; background-color: #050505; border-radius: 10px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 style="color: #00DDFF; text-align: left; margin-bottom: 20px;">Messages</h2>
+                        <button onclick="document.getElementById('messagesContainer').style.display='none';" class="btn-close btn-close-white"></button>
+                    </div>
+                    {% if conversations %}
+                    <div class="py-3">
+                        <div class="row">
+                            <!-- Conversation List -->
+                            <div class="col-4">
+                                {% for convo in conversations %}
+                                    <div class="card p-3 mb-3 message-card open-chat" data-user-id="{{ convo.other_user.id }}" style="cursor: pointer; transition: background-color 0.3s;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar">
+                                                    <span class="avatar-text">{{ convo.other_user.username|first|upper }}</span>
+                                                </div>
+                                                <span class="text-light ms-2 username"><b>{{ convo.other_user.username }}</b></span>
+                                            </div>
+                                            <div>
+                                                <small style="color: #707070">{{ convo.last_message.timestamp|date:"H:i" }}</small>
+                                                {% if convo.unread_count > 0 %}
+                                                    <span class="badge bg-danger unread-badge">{{ convo.unread_count }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <p class="text-light mt-2 message-preview">{{ convo.last_message.content|truncatechars:50 }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Chat Window (Will be loaded dynamically) -->
+                            <div class="col-8">
+                                <div id="chat-window" class="chat-box">
+                                    <p class="text-light text-center">Select a chat to start messaging</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-center">No messages yet.</p>
+                {% endif %}
+                </div>
+            </div>
+            <hr>
+        </div>
+          
         <!-- chart -->
         <div id="middleChartContainer" class="card mt-4" style="background-color: #050505;">
             <div class="card-body">
@@ -293,7 +255,6 @@ select.form-control {
         </div>
     </div>
     <!-- Riglt colum(traing activities) -->
-
          <div class="col-lg-3 col-md-4 col-sm-12 mb-4">
             <div style="background-color: #050505; padding: 10px; height: 100%; border-radius: 10px;">
                 <div class="card text-white shadow-sm" style="background-color: #020202;">
@@ -330,7 +291,7 @@ select.form-control {
                     <hr>
                     <div class="d-flex justify-content-around">
                         <button class="btn btn-info btn-sm" onclick="openPopup('notificationsPopup')">🔔 Notifications</button>
-                        <button class="btn btn-info btn-sm" onclick="openPopup('messagessPopup')">💬 Messages</button>
+                        <button class="btn btn-sm btn-info mt-2" onclick="toggleMessages()">💬 Messages</button>
                     </div>
                     <!-- Coach Profile Modal -->
                     <div class="modal fade" id="coachProfileModal" tabindex="-1" aria-labelledby="coachProfileModalLabel" aria-hidden="true">
@@ -342,7 +303,7 @@ select.form-control {
                                 </div>
                                 <div class="modal-body">
                                     <p><strong>Name:</strong> {{ coach_relation.coach.username }}</p>
-                                    <p><strong>Total Shooters Trained:</strong> {{ coach_relation.coach.total_shooters }}</p>
+                                    <p><strong>Total Shooters Trained:</strong> {{ current_shooters_count }}</p>
                                     <p><strong>Highest Student Score:</strong> {{ coach_relation.coach.highest_score }}</p>
                                 </div>
                                 <div class="modal-footer">
@@ -356,7 +317,6 @@ select.form-control {
                             </div>
                         </div>
                     </div>
-
                     {% comment %} needs to hidden intially and it can open when needed {% endcomment %}
                     {% if not coach_relation %}
                     <div class="modal fade" id="selectcoachModal" tabindex="-1" aria-labelledby="selectcoachModalLabel" aria-hidden="true">
@@ -385,7 +345,6 @@ select.form-control {
                         </div>
                     </div>
                     {% endif %}
-                    
                     <hr>
                     <div class="card-body text-center">
                         <h5 class="card-title">Training & Activities</h5>
@@ -422,16 +381,6 @@ select.form-control {
                             <ul class="list-group">
                                 <li class="list-group-item">Your coach Commented on your session!</li>
                                 <li class="list-group-item">New training module available.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div id="messagessPopup" class="popup">
-                        <div class="popup-content">
-                            <span class="close" onclick="closePopup('messagessPopup')">&times;</span>
-                            <h5>Messages</h5>
-                            <ul class="list-group">
-                                <li class="list-group-item">Coach:"Great Progress this weeek!"</li>
                             </ul>
                         </div>
                     </div>
@@ -498,81 +447,81 @@ select.form-control {
 
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
-    // charts dipalayed inn the center of the page
-    var dataSeries = [{{ avg_dur_sun }}, {{ avg_dur_mon }}, {{ avg_dur_tue }}, {{ avg_dur_wed }}, {{ avg_dur_thu }}, {{ avg_dur_fri }}, {{ avg_dur_sat }}];
 
-    // Check if all values are 0
-    if (dataSeries.every(value => value === 0)) {
-        document.querySelector("#weeklyChart").innerHTML = `<div style="color: #ffffff; text-align: center; font-size: 16px; font-weight: bold; padding: 20px;">
-            No practice data available for this week.
-        </div>`;
-    } else {
-        var options = {
-            chart: {
-                type: 'bar'
-            },
+    // charts dipalayed inn the center of the page
+var dataSeries = [{{ avg_dur_sun }}, {{ avg_dur_mon }}, {{ avg_dur_tue }}, {{ avg_dur_wed }}, {{ avg_dur_thu }}, {{ avg_dur_fri }}, {{ avg_dur_sat }}];
+
+// Check if all values are 0
+if (dataSeries.every(value => value === 0)) {
+    document.querySelector("#weeklyChart").innerHTML = `<div style="color: #ffffff; text-align: center; font-size: 16px; font-weight: bold; padding: 20px;">
+        No practice data available for this week.
+    </div>`;
+} else {
+    var options = {
+        chart: {
+            type: 'bar'
+        },
+        title: {
+            text: "Average Practice Time Per Day",
+            align: 'center',
+            style: {
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: '#ffffff'
+            }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '50%'    
+            }
+        },
+        xaxis: {
             title: {
-                text: "Average Practice Time Per Day",
-                align: 'center',
+                text: 'Days of the Week',
                 style: {
-                    fontSize: '16px',
+                    fontSize: '14px',
                     fontWeight: 'bold',
                     color: '#ffffff'
                 }
             },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    columnWidth: '50%'    
+            categories: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], 
+            labels: {
+                style: {
+                    colors: '#ffffff'
                 }
-            },
-            xaxis: {
-                title: {
-                    text: 'Days of the Week',
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 'bold',
-                        color: '#ffffff'
-                    }
-                },
-                categories: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], 
-                labels: {
-                    style: {
-                        colors: '#ffffff'
-                    }
-                }
-            },
-            yaxis: {
-                title: {
-                    text: 'Avg. Practice Time (minutes)',
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 'bold',
-                        color: '#ffffff'
-                    }
-                },
-                labels: {
-                    style: {
-                        colors: '#ffffff'
-                    }
-                }
-            },
-            series: [
-                {
-                    name: 'Average Time',
-                    data: dataSeries
-                }
-            ],
-            colors: ['#00ddff'],
-            grid: {
-                borderColor: '#444'
             }
-        };
-    
-        var chart = new ApexCharts(document.querySelector("#weeklyChart"), options);
-        chart.render();
-    }
-    
+        },
+        yaxis: {
+            title: {
+                text: 'Avg. Practice Time (minutes)',
+                style: {
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    color: '#ffffff'
+                }
+            },
+            labels: {
+                style: {
+                    colors: '#ffffff'
+                }
+            }
+        },
+        series: [
+            {
+                name: 'Average Time',
+                data: dataSeries
+            }
+        ],
+        colors: ['#00ddff'],
+        grid: {
+            borderColor: '#444'
+        }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#weeklyChart"), options);
+    chart.render();
+}
 
 // streak progress
 document.addEventListener("DOMContentLoaded", function () {
@@ -583,7 +532,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("streakProgress").style.width = progressPercentage + "%";
     document.getElementById("streakProgress").setAttribute("aria-valuenow", streakCount);
 });
-
 
 // show and hide the taabs in the rigth side panel  
 function showContent(section) {
@@ -607,6 +555,24 @@ function toggleProfile() {
         setTimeout(() => {
             profileContainer.classList.add("show-profile");
         }, 10); // Small delay to trigger transition
+    }
+};
+
+function toggleMessages() {
+    var messageContainer = document.getElementById("messagesContainer");
+
+    if (messageContainer.classList.contains("show-profile")) {
+        messageContainer.classList.remove("show-profile");
+        messageContainer.classList.add("hide-profile");
+        setTimeout(() => {
+            messageContainer.style.display = "none";
+        }, 300);
+    } else {
+        messageContainer.style.display = "block";
+        setTimeout(() => {
+            messageContainer.classList.add("show-profile");
+            messageContainer.classList.remove("hide-profile");
+        }, 10);
     }
 };
 
@@ -774,12 +740,237 @@ function generateCalendar(containerId, year, month, practiceDays = []) {
 
         calendar.appendChild(dayCell);
     }
-}
+};
 
 generateCalendar("calendar_shooting", currentYear, currentMonth, practiceDays);
 generateCalendar("calendar_workout", currentYear, currentMonth, workoutdates);
 generateCalendar("calendar_meditation", currentYear, currentMonth, meddays);
 generateCalendar("equipment_calendar", currentYear, currentMonth, equidays);
+
+{% comment %} connect chats scripts {% endcomment %}
+document.querySelectorAll(".open-chat").forEach(button => {
+    button.addEventListener("click", function() {
+        const userId = this.getAttribute("data-user-id");
+        const chatWindow = document.getElementById("chat-window");
+        const conversationId = [userId, '{{ request.user.id }}'].sort().join('_');
+        
+        // Remove active class from all cards and add to current
+        document.querySelectorAll('.message-card').forEach(card => {
+            card.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        // Mark messages as read in backend
+        fetch(`/message/messages/read/${conversationId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hide unread badge when messages are marked as read
+            const unreadBadge = this.querySelector('.unread-badge');
+            if (unreadBadge) {
+                unreadBadge.style.display = 'none';
+            }
+        })
+        .catch(error => console.error('Error marking messages as read:', error));
+        
+        // Load chat content
+        fetch(`/message/chat/${userId}/`)
+            .then(response => response.text())
+            .then(data => {
+                chatWindow.innerHTML = data;
+                
+                // Scroll to bottom of messages after loading chat
+                const messagesDiv = document.getElementById('chat-messages');
+                if (messagesDiv) {
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }
+                
+                // Initialize WebSocket connection
+                const chatSocket = new WebSocket(
+                    'ws://' + window.location.host + '/ws/chat/' + conversationId + '/'
+                );
+
+                chatSocket.onopen = function(e) {
+                    console.log('WebSocket connection established');
+                };
+
+                chatSocket.onmessage = function(e) {
+                    console.log('Received message:', e.data);
+                    const data = JSON.parse(e.data);
+                    
+                    // Get the messages container
+                    const messagesDiv = document.getElementById('chat-messages');
+                    if (!messagesDiv) {
+                        console.error('Messages container not found');
+                        return;
+                    }
+
+                    // Create new message element
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = data.sender === '{{ request.user.username }}' ? 'sent-message' : 'received-message';
+                    
+                    // Format the timestamp
+                    const timestamp = new Date(data.timestamp);
+                    const formattedTime = timestamp.toLocaleTimeString('en-US', { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: false 
+                    });
+                    
+                    // Set message content
+                    messageDiv.innerHTML = `
+                        <p>${data.message}</p>
+                        <small class="text-muted">${formattedTime}</small>
+                    `;
+                    
+                    // Append message and scroll to bottom
+                    messagesDiv.appendChild(messageDiv);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                    // If this is a received message and chat is active, mark it as read
+                    if (data.sender !== '{{ request.user.username }}' && this.classList.contains('active')) {
+                        fetch(`/message/messages/read/${conversationId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            }
+                        }).catch(error => console.error('Error marking message as read:', error));
+                    }
+                };
+
+                chatSocket.onerror = function(e) {
+                    console.error('WebSocket error:', e);
+                };
+
+                chatSocket.onclose = function(e) {
+                    console.error('WebSocket connection closed:', e);
+                    // Attempt to reconnect after a delay
+                    setTimeout(() => {
+                        console.log('Attempting to reconnect...');
+                        const newSocket = new WebSocket(
+                            'ws://' + window.location.host + '/ws/chat/' + conversationId + '/'
+                        );
+                        // Copy over the event handlers to the new socket
+                        newSocket.onopen = chatSocket.onopen;
+                        newSocket.onmessage = chatSocket.onmessage;
+                        newSocket.onerror = chatSocket.onerror;
+                        newSocket.onclose = chatSocket.onclose;
+                        chatSocket = newSocket;
+                    }, 3000);
+                };
+
+                // Set up message sending
+                const messageInput = document.querySelector('#chat-message-input');
+                const sendButton = document.querySelector('#chat-message-send');
+
+                function sendMessage() {
+                    const message = messageInput.value.trim();
+                    if (message && chatSocket.readyState === WebSocket.OPEN) {
+                        const messageData = {
+                            'message': message,
+                            'sender_id': '{{ request.user.id }}',
+                            'receiver_id': userId,
+                            'conversation_id': conversationId
+                        };
+                        console.log('Sending message:', messageData);
+                        chatSocket.send(JSON.stringify(messageData));
+                        messageInput.value = '';
+                    }
+                }
+
+                if (sendButton) {
+                    sendButton.onclick = sendMessage;
+                }
+
+                if (messageInput) {
+                    messageInput.onkeyup = function(e) {
+                        if (e.keyCode === 13) {  // enter, return
+                            sendMessage();
+                        }
+                    };
+                }
+            })
+            .catch(error => console.error("Error loading chat:", error));
+    });
+});
+
+// Keep track of active WebSocket connections
+let activeWebSockets = {};
+
+// Function to establish WebSocket connections for all chats
+function connectAllChats() {
+    document.querySelectorAll(".message-card").forEach(card => {
+        const userId = card.getAttribute("data-user-id");
+        if (!activeWebSockets[userId]) {
+            const socket = new WebSocket(
+                'ws://' + window.location.host + '/ws/chat/' + userId + '/'
+            );
+
+            socket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                
+                // Update unread badge for the conversation
+                if (data.sender !== '{{ request.user.username }}') {
+                    const conversationCard = document.querySelector(`.message-card[data-user-id="${userId}"]`);
+                    if (conversationCard) {
+                        // Only update badge if chat is not active
+                        if (!conversationCard.classList.contains('active')) {
+                            const unreadBadge = conversationCard.querySelector('.unread-badge');
+                            if (unreadBadge) {
+                                const currentCount = parseInt(unreadBadge.textContent) || 0;
+                                unreadBadge.textContent = currentCount + 1;
+                                unreadBadge.style.display = 'inline';
+                            }
+                        }
+
+                        // If this chat is currently open, append the message
+                        const messagesDiv = document.getElementById('chat-messages');
+                        if (messagesDiv && conversationCard.classList.contains('active')) {
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = 'received-message';
+                            
+                            const timestamp = new Date(data.timestamp);
+                            const formattedTime = timestamp.toLocaleTimeString('en-US', { 
+                                hour: '2-digit', 
+                                minute: '2-digit',
+                                hour12: false 
+                            });
+                            
+                            messageDiv.innerHTML = `
+                                <p>${data.message}</p>
+                                <small class="text-muted">${formattedTime}</small>
+                            `;
+                            
+                            messagesDiv.appendChild(messageDiv);
+                            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                        }
+                    }
+                }
+            };
+
+            socket.onerror = function(e) {
+                console.error('WebSocket error:', e);
+            };
+
+            socket.onclose = function(e) {
+                console.error('WebSocket connection closed:', e);
+                delete activeWebSockets[userId];
+                // Attempt to reconnect
+                setTimeout(() => connectAllChats(), 3000);
+            };
+
+            activeWebSockets[userId] = socket;
+        }
+    });
+}
+
+// Connect to all chats when the page loads
+document.addEventListener('DOMContentLoaded', connectAllChats);
+
 </script>
 
 

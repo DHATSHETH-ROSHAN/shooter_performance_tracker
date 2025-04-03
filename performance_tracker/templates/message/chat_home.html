@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Join a Chat Room</h2>
+<form action="{% url 'chat_room' room_name='default' %}" method="GET">
+    <input type="text" name="room_name" placeholder="Enter Room Name" required>
+    <button type="submit">Join</button>
+</form>
+{% endblock %}

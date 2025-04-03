@@ -82,6 +82,8 @@
     transition: width 0.3s ease-in-out;
     border-radius:12px;
     overflow: auto;
+    -ms-overflow-style: none; 
+    scrollbar-width:none;
 }
 
 /* Adjust Main Content when Sidebar Collapses */
@@ -183,3 +185,74 @@ select.form-control {
     
 }
 
+/*  this is for the messaging thing only */
+.message-card:hover {
+    background-color: #202020 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 221, 255, 0.2);
+}
+
+.message-card {
+    background-color: #151515 !important;
+    border: 1px solid #303030;
+    transition: all 0.3s ease;
+}
+
+.message-card:active {
+    background-color: #151515 !important;
+    border: 1px solid #303030;
+    transform: translateY(1px); /* Slightly move down on active */
+    box-shadow: none; /* Remove shadow on active */
+    border-right: solid 1px #00DDFF;
+    border-bottom: solid 1px #00DDFF;
+    transition: all 0.3s ease;
+}
+
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #00DDFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-text {
+    color: black;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.username {
+    font-size: 16px;
+}
+
+.message-preview {
+    font-size: 14px;
+    color: #CCCCCC;
+    max-width: 80%;
+}
+
+.unread-badge {
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 10px;
+}
+
+.btn-custom {
+    background-color: #00DDFF;
+    color: black;
+    font-weight: bold;
+    border-radius: 8px;
+    width: 100%;
+    padding: 8px 0;
+    text-align: center;
+    transition: background 0.3s;
+}
+
+.btn-custom:hover {
+    background-color: #00B8D9;
+    color: white;
+}

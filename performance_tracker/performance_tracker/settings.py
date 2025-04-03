@@ -12,9 +12,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,12 +30,15 @@ SECRET_KEY = 'django-insecure-leyx08ecx#%cgp^@%06db&u_v^g-h$&k9+6d#97()lpads!0%2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.10.10.81', '192.168.0.183']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.10.10.81', '192.168.0.183', '0.0.0.0', '10.10.10.119']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'grappelli',
+    "django_bootstrap5",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,11 +47,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'scores',
     'users',
+    'admins',
     'channels',
-    'message'
+    'message',
     
-
-
+    
 ]
 
 MIDDLEWARE = [
@@ -78,6 +85,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'performance_tracker.wsgi.application'
+
 ASGI_APPLICATION = 'performance_tracker.asgi.application' # added this for the realtime data transfer afteer getting one single connection
 
 
@@ -155,9 +163,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Use your email provider's SMTP server
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'  # Replace with your email
-EMAIL_HOST_PASSWORD = 'your-email-password'  # Use an App Password instead of your actual password
-
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Replace with your email
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  # Use an App Password instead of your actual password
+ADMIN_EMAIL = 'dhatshethroshan.a0csa@gmail.com'
 
 #sessions part
 SESSION_COOKIE_NAME = "mysite_session"

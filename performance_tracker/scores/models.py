@@ -97,7 +97,7 @@ class pdfScore(models.Model):
             super().save(*args, **kwargs)
 
         def __str__(self):
-                return f"{self.user_profile.user.username} - {self.match_type} ({self.current_time.strftime('%Y-%m-%d')})"
+                return f"{self.user_profile.username} - {self.match_type} ({self.current_time.strftime('%Y-%m-%d')})"
 
 class manualscore(models.Model):
     user_profile = models.ForeignKey(UserProfiles, on_delete=models.CASCADE)
@@ -185,5 +185,5 @@ class activities(models.Model):
     date = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return self.activity
+        return self.activity_name
 # Create your models here.

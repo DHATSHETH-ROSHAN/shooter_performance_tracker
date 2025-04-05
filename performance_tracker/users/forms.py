@@ -21,7 +21,6 @@ class DayPlannerForm(forms.ModelForm):
         if self.coach:
             self.fields['shooter'].queryset = UserProfiles.objects.filter(coach=self.coach)
 
-
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event

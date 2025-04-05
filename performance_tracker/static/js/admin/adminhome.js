@@ -302,6 +302,23 @@ function viewCoach(coach_id) {
             document.getElementById("male_shooters_count").textContent = data.male_shooters_count;
             document.getElementById("female_shooters_count").textContent = data.female_shooters_count;
 
+            
+            let shooterTableHTML = "";
+
+            data.shooter_details.forEach((shooter, index) => {
+                shooterTableHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${shooter.username}</td>
+                    <td>${shooter.category || "N/A"}</td>
+                    <td>${shooter.date_of_birth || "N/A"}</td>
+                    <td>${shooter.mobile_number}</td>
+                    <td>${shooter.gender}</td>
+                </tr>
+                `;
+            });
+            document.getElementById("shooterTableBody").innerHTML = shooterTableHTML;
+
             // Show Coach Details Div
             document.getElementById("coachDetailsContainer").style.display = "block";
             document.getElementById("coachDetails").style.display="none";
@@ -319,4 +336,200 @@ function closeFunctionS_C_cont(id1, id2) {
     document.getElementById(id2).style.display = "block";
 };
 
+// add new shooter 
+const passwordInput = document.getElementById('password1');
+const passwordRequirements = document.getElementById('password-requirements');
+
+passwordInput.addEventListener('input', function() {
+    const password = passwordInput.value;
+    const isValid = password.length >= 8 && 
+                    /[a-z]/.test(password) && 
+                    /[A-Z]/.test(password) && 
+                    /\d/.test(password) && 
+                    /[!#$%^&*>?]/.test(password);
+    setTimeout(() => {
+        passwordRequirements.style.display = 'none';
+    }, 5000);
+    passwordRequirements.style.display = isValid ? 'none' : 'block';
+});
+document.addEventListener("DOMContentLoaded", function() {
+const firstnameInput = document.getElementById("first_name");
+const lastnameInput = document.getElementById("last_name");
+const firstLastRequirements = document.getElementById("first_last-requirements");
+let firstLastTimeout;
+// first name and last name validation
+function validateAlphabetInput(event) {
+    const input = event.target;
+    const regex = /^[A-Za-z]+$/; // Allow alphabets only
+
+    if (!regex.test(input.value)) {
+        input.value = input.value.replace(/[^A-Za-z]/g, ''); // Remove all non-alphabetic characters
+        firstLastRequirements.style.display = "block"; // Show message
+
+        clearTimeout(firstLastTimeout); // Clear existing timeout if any
+        firstLastTimeout = setTimeout(() => {
+            firstLastRequirements.style.display = "none"; // Hide message after 5 seconds
+        }, 5000);
+    } else {
+        firstLastRequirements.style.display = "none";
+    }
+}
+
+firstnameInput.addEventListener("input", validateAlphabetInput);
+lastnameInput.addEventListener("input", validateAlphabetInput);
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+const usernameInput = document.getElementById("username");
+let usernameTimeout;
+
+usernameInput.addEventListener("input", function() {
+    const regex = /^[a-zA-Z0-9_@]+$/; // Allow letters, numbers, _ and @
+    if (!regex.test(usernameInput.value)) {
+        usernameInput.value = usernameInput.value.replace(/[^a-zA-Z0-9_@]/g, ''); // Remove unwanted characters
+
+        clearTimeout(usernameTimeout); // Clear existing timeout if any
+        usernameTimeout = setTimeout(() => {
+            usernameInput.style.borderColor = ""; // Reset border color after 5 seconds
+        }, 5000);
+
+        usernameInput.style.borderColor = "red"; // Temporarily highlight input
+    } else {
+        usernameInput.style.borderColor = ""; // Reset immediately if valid
+    }
+});
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+const emailInput = document.getElementById("email");
+const emailRequirements = document.getElementById("email-requirements");
+let emailTimeout;
+
+function validateEmail() {
+    const emailPattern = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; 
+    // Ensures email starts with a letter/number and follows proper structure
+
+    if (!emailPattern.test(emailInput.value)) {
+        emailInput.style.borderColor = "red"; // Highlight input in red
+        emailRequirements.style.display = "block"; // Show message
+
+        clearTimeout(emailTimeout); // Clear existing timeout
+        emailTimeout = setTimeout(() => {
+            emailRequirements.style.display = "none"; // Hide message after 5 seconds
+            emailInput.style.borderColor = ""; // Reset border color
+        }, 5000);
+    } else {
+        emailInput.style.borderColor = ""; // Reset border color
+        emailRequirements.style.display = "none"; // Hide error message
+    }
+}
+
+emailInput.addEventListener("input", validateEmail);
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+const mobileInput = document.getElementById("mobile");
+const mobileRequirements = document.getElementById("mobile-requirements");
+let mobileTimeout;
+
+mobileInput.addEventListener("input", function () {
+    const regex = /^[0-9]*$/; // Allow only numbers
+    if (!regex.test(mobileInput.value)) {
+        mobileInput.value = mobileInput.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+    }
+
+    if (mobileInput.value.length !== 10) {
+        mobileRequirements.style.display = "block"; // Show message
+        clearTimeout(mobileTimeout); // Clear existing timeout
+        mobileTimeout = setTimeout(() => {
+            mobileRequirements.style.display = "none"; // Hide message after 5 seconds
+        }, 5000);
+    } else {
+        mobileRequirements.style.display = "none"; // Hide message if valid
+    }
+});
+});
+
+// coach relation & remove coach or shoter
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.coach-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const coachId = this.getAttribute('data-coach-id');
+            fetch(`/staff/coach-shooter-relation/${coachId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('relation-display').innerHTML = `
+                    <div class="container text-start text-light bg-dark p-3" style="border-radius: 10px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-2 tb-head" >Coach: ${data.name}</h4>
+                            <button class="btn btn-outline-info add-shooter-btn" data-coach-id="${coachId}">Assign shooter's </button>       
+                        </div>
+                        <div class="container text-start text-light bg-dark p-3">
+                            <p>Email: ${data.email}</p>
+                            <p>Total Shooters: ${data.shooter_count}</p>
+                            <ul class="list-group list-group-flush bg-dark">
+                                ${data.shooters.map(shooter => `<li class="list-group-item bg-dark text-light">${shooter}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                document.querySelector('.add-shooter-btn').addEventListener('click', function () {
+                    const coach_id = this.getAttribute('data-coach-id');
+                    document.getElementById('modal-coach-id').value = coach_id;
+
+                    const selectElement = document.getElementById('available-shooters-select');
+                    selectElement.innerHTML='';
+
+                    if (data.available_shooters.length === 0) {
+                        const option = document.createElement('option');
+                        option.textContent = 'No shooters available';
+                        option.disabled = true;
+                        selectElement.appendChild(option);
+                    } else {
+                        data.available_shooters.forEach(shooter => {
+                            const option = document.createElement('option');
+                            option.value = shooter[0];  // shooterid
+                            option.textContent = shooter[1]; // username
+                            selectElement.appendChild(option);
+                        });
+                    }
+
+                    const choices = new Choices(selectElement, {
+                        removeItemButton: true,
+                        placeholder: true,
+                        placeeholderValue: 'Select shooters...',
+                        maxItemCoun: 10,
+                        searchResultLismit: 10,
+                        renderChoiceLimit: 10
+                    });
+
+                    const modalElement = document.getElementById('addShooterModal');
+                    const bootstrapModal = new bootstrap.Modal(modalElement);
+                    bootstrapModal.show();
+
+                });
+            });
+        });
+    });
+});
+
+// relation shooter and coach
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.shooter-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const shooterId = this.getAttribute('data-shooter-id');
+            fetch(`/staff/shooter-coach-relation/${shooterId}/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('relation-display').innerHTML = `
+                    <div class="card text-start text-light bg-dark p-3">
+                        <h5 class="mb-2">Shooter: ${data.name}</h5>
+                        <p>Email: ${data.email}</p>
+                        <p>Category: ${data.category}</p>
+                    </div>
+                `;
+            });
+        });
+    });
+});
 //end of chats

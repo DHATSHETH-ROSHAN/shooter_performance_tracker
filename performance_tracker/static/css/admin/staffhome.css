@@ -79,6 +79,15 @@
     display: none;
 }
 
+.form-heading {
+    font-size: larger;
+    font-weight: bold;
+    font-style: italic;
+    margin-left: 20px;
+    margin-top: 2px;
+
+}
+
 .tb-head {
     color: #00DDFF;
     font-size: larger;
@@ -226,3 +235,41 @@
     color: white;
 }
 /* end of messages */
+
+/* classes for the custom choices */
+/* Dark mode override for Choices.js */
+.choices {
+    background-color: #202020 !important;
+    color: #fff !important;
+}
+
+.choices__inner {
+    background-color: #202020 !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+
+.choices__list--dropdown {
+    background-color: #202020 !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+
+.choices__item--selectable {
+    color: #fff !important;
+    background-color: transparent !important;
+}
+
+.choices__item--choice.is-highlighted {
+    background-color: #333 !important;
+    color: #00DDFF !important;
+}
+
+.choices__button {
+    color: #fff !important;
+    border-left: 1px solid #444 !important;
+}
+.choices__placeholder {
+    color: #cccccc !important; /* light grey for visibility on dark bg */
+}
+/* end of classes for custom choices */

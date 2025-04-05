@@ -2,6 +2,9 @@
 {% load static %} 
 {% block extra_css %}
 <link rel= "stylesheet" href="{% static 'css/admin/staffhome.css'%}">
+<!-- Add to your template -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script src="{% static 'js/admin/adminhome.js' %}" defer></script>
 {% endblock %}
 {% block content %}
@@ -40,14 +43,14 @@
                                         <tr>
                                             <td>1.</td>
                                             <td>Students List</td>
-                                            <td><i class="bi bi-plus-lg"></i></td>
+                                            <td><i class="bi bi-plus-lg" data-bs-toggle="modal" data-bs-target="#shooterAddModal" style="cursor: pointer;" ></i></td>
                                             <td>{{ students_count }}</td>
                                             <td><i onclick="showDetails('shooterdetails')" style="cursor: pointer; color: #00ddff;" class="bi bi-eye"></i></td>
                                         </tr>
                                         <tr>
                                             <td>2.</td>
                                             <td>Coaches List</td>
-                                            <td><i class="bi bi-plus-lg"></i></td>
+                                            <td><i class="bi bi-plus-lg" data-bs-toggle="modal" data-bs-target="#coachAddModal" style="cursor: pointer;"></i></td>
                                             <td>{{ coaches_count }}</td>
                                             <td><i onclick="showDetails('coachDetails')" style="cursor: pointer; color: #00ddff;" class="bi bi-eye"></i></td>
                                         </tr>
@@ -225,7 +228,7 @@
                                 </div>
                             </div>
                             {% comment %} coach details contaainer {% endcomment %}
-                            <div id="coachDetailsContainer" class="p-3 " style="display:none;">
+                            <div id="coachDetailsContainer" class="p-3 details-container" style="display:none;">
                                 <hr>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h4 class="tb-head">Coach Details</h4>
@@ -255,10 +258,314 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div>
-                                    <p>Total students <span id="shooters_count"></span></p>
-                                    <p>Male shooter <span id="male_shooters_count"></span></p>
-                                    <p>Female Shooters <span id="female_shooters_count"></span></p>
+                                <div class="d-flex justify-content-between flex-wrap" style="padding-top: 30px;">
+                                    <div class="card bg-dark text-light text-center p-3 shadow-sm" style="width: 300px;">
+                                        <i class="fas fa-users fa-2x text-primary"></i>
+                                        <p class="mt-2 tb-head">Total Shooters</p>
+                                        <span id="shooters_count"></span>
+                                    </div>
+                                    <div class="card bg-dark text-light text-center p-3 shadow-sm" style="width: 300px;">
+                                        <i class="fas fa-male fa-2x text-info" style="color: #040273;"></i>
+                                        <p class="mt-2 tb-head">Male Shooters</p>
+                                        <span id="male_shooters_count"></span>
+                                    </div>
+                                    <div class="card bg-dark text-light text-center p-3 shadow-sm" style="width: 300px;">
+                                        <i class="fas fa-female fa-2x" style="color: #FF1493"></i>
+                                        <p class="mt-2 tb-head" >Female Shooters</p>
+                                        <span id="female_shooters_count"></span>
+                                    </div>
+                                </div>
+                                <div class="bg-dark text-light mt-3 p-3 shadow-sm" style="border-radius:12px;">
+                                    <h4 class="tb-head">Shooters Details</h4>
+                                    <table class="text-center w-100 table-bordered">
+                                        <thead class="tb-head">
+                                            <th>S.No</th>
+                                            <th>Name</th>
+                                            <th>category</th>
+                                            <th>D.O.B</th>
+                                            <th>Mobile</th>
+                                            <th>Gender</th>
+                                        </thead>
+                                        <tbody id="shooterTableBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% comment %} shooter edit modal {% endcomment %}
+                            <div class="modal fade" id="shooterAddModal" tabindex="-1" aria-labelledby="shooterAddModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content" style="background-color: #050505; border-radius: 12px; border: solid 1px #00DDFF;">
+                                        <div class="modal-header" style="border-bottom: none;">
+                                            <h4 class="modal-title" id="shooterAddModalLabel" style="color: #00DDFF; font-size: 1.5rem;">Add Shooter</h4>
+                                            <button type="button" class="border-0 bg-transparent" data-bs-dismiss="modal" aria-label="Close"><i class="bi bi-x-lg" style="color: #00DDFF; font-size: 1.2rem;"></i></button>
+                                        </div>
+                                        <hr style="border: solid px #ffffff;">
+                                        <form  action="{% url 'add_shooter' %}" method="post" class="mt-1" style="color: #e0e0e0;">
+                                            {% csrf_token %}
+                                            <div class="modal-body">
+                                                <p class="text-center form-heading" style="font-size: 1.2rem;">Fill in the details to register a new shooter.</p>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="first_name" class="form-label form-heading">First Name</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <input type="text" id="first_name" name="first_name" class="form-control" placeholder="Enter your first name" minlength="4" maxlength="255" required >
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="last_name" class="form-label form-heading">Last Name</label>
+                                                    </div>    
+                                                    <div class="col-md-6">
+                                                        <input type="text" id="last_name" name="last_name" class="form-control" placeholder="Enter your last name" minlength="3" maxlength="256" required >
+                                                    </div>
+                                                    <small class="text-light" id="first_last-requirements" style="display: none;">Alphabets only accepted<br>
+                                                        * Must contain a lower case letter(a-z)<br>
+                                                        * Must contain an upper case letter(A-Z)<br>
+                                                        * Must not contain a number(0-9)<br>
+                                                        * Must not contain a symbol(!#$%^&*>?)</small>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="username" class="form-label form-heading">Username</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <input type="text" id="username" name="username" class="form-control" placeholder="Set your username" minlength="8" maxlength="16" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="email" class="form-label form-heading">Email</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="dob" class="form-label form-heading">Date of Birth</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <input type="date" id="dob" name="dob" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="gender" class="form-label form-heading">Gender</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <select name="gender" id="gender" class="form-select" required>
+                                                            <option value="" disabled selected>Select your gender</option>
+                                                            <option value="Male">Male</option>
+                                                            <option value="Female">Female</option>
+                                                            <option value="Other">Other</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-6">
+                                                        <label for="mobile" class="form-label form-heading">Mobile Number</label>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <input type="tel" id="mobile" name="mobile" class="form-control" placeholder="Enter your mobile number" pattern="[0-9]{10}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-6">
+                                                        <label for="password1" class="form-label form-heading">Password</label>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <input type="password" id="password1" name="password1" class="form-control" placeholder="Enter your password" required pattern="(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}">
+                                                        <small class="text-light" id="password-requirements" style="display: none;">Password must be at least 8 characters long.<br>
+                                                                                            * Must contain a lower case letter(a-z)<br>
+                                                                                            * Must contain an upper case letter(A-Z)<br>
+                                                                                            * Must contain a number(0-9)<br>
+                                                                                            * Must contain a symbol(!#$%^&*>?)</small>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-6">
+                                                        <label for="password2" class="form-label form-heading">Confirm Password</label>
+                                                    </div>
+                                                    <div class="col-6">
+                                                    <input type="password" id="password2" name="password2" class="form-control" placeholder="Confirm password" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <label for="role" class="form-label form-heading">Role</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <select name="role" id="role" class="form-select">
+                                                            <option value="Shooter">Shooter</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer" style="border-top: none;">
+                                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn text-dark" style="background-color: #00ddff;">Register</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% comment %} Add coach modal {% endcomment %}
+                            <div class="modal fade" id="coachAddModal" tabindex="-1" aria-labelledby="coachAddModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content" style="background-color: #050505; border-radius: 12px; border: solid 1px #00DDFF;">
+                                        <div class="modal-header" style="border-bottom: none;">
+                                            <h4 class="modal-title" id="CoachAddModalLabel" style="color: #00DDFF; font-size: 1.5rem;">Add Coach</h4>
+                                            <button type="button" class="border-0 bg-transparent" data-bs-dismiss="modal" aria-label="Close"><i class="bi bi-x-lg" style="color: #00DDFF; font-size: 1.2rem;"></i></button>
+                                        </div>
+                                        <hr style="border: solid px #ffffff;">
+                                        <form  action="{% url 'add_coach' %}" method="post" class="mt-1" style="color: #e0e0e0;">
+                                            {% csrf_token %}
+                                            <div class="modal-body">
+                                                <p class="text-center form-heading" style="font-size: 1.2rem;">Register a new Coach.</p>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="first_name" class="form-label form-heading">First Name</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <input type="text" id="first_name" name="first_name" class="form-control" placeholder="Enter your first name" minlength="4" maxlength="255" required >
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="last_name" class="form-label form-heading">Last Name</label>
+                                                    </div>    
+                                                    <div class="col-md-6">
+                                                        <input type="text" id="last_name" name="last_name" class="form-control" placeholder="Enter your last name" minlength="3" maxlength="256" required >
+                                                    </div>
+                                                    <small class="text-light" id="first_last-requirements" style="display: none;">Alphabets only accepted<br>
+                                                        * Must contain a lower case letter(a-z)<br>
+                                                        * Must contain an upper case letter(A-Z)<br>
+                                                        * Must not contain a number(0-9)<br>
+                                                        * Must not contain a symbol(!#$%^&*>?)</small>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="username" class="form-label form-heading">Username</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <input type="text" id="username" name="username" class="form-control" placeholder="Set your username" minlength="8" maxlength="16" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="email" class="form-label form-heading">Email</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="dob" class="form-label form-heading">Date of Birth</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <input type="date" id="dob" name="dob" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="gender" class="form-label form-heading">Gender</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <select name="gender" id="gender" class="form-select" required>
+                                                            <option value="" disabled selected>Select your gender</option>
+                                                            <option value="Male">Male</option>
+                                                            <option value="Female">Female</option>
+                                                            <option value="Other">Other</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-6">
+                                                        <label for="mobile" class="form-label form-heading">Mobile Number</label>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <input type="tel" id="mobile" name="mobile" class="form-control" placeholder="Enter your mobile number" pattern="[0-9]{10}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-6">
+                                                        <label for="password1" class="form-label form-heading">Password</label>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <input type="password" id="password1" name="password1" class="form-control" placeholder="Enter your password" required pattern="(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}">
+                                                        <small class="text-light" id="password-requirements" style="display: none;">Password must be at least 8 characters long.<br>
+                                                                                            * Must contain a lower case letter(a-z)<br>
+                                                                                            * Must contain an upper case letter(A-Z)<br>
+                                                                                            * Must contain a number(0-9)<br>
+                                                                                            * Must contain a symbol(!#$%^&*>?)</small>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-6">
+                                                        <label for="password2" class="form-label form-heading">Confirm Password</label>
+                                                    </div>
+                                                    <div class="col-6">
+                                                    <input type="password" id="password2" name="password2" class="form-control" placeholder="Confirm password" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="role" class="form-label form-heading">Role</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <select name="role" id="role" class="form-select">
+                                                            <option value="Coach">Coach</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="specialization" class="form-label form-heading">Specialization</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <select name="specialization" id="specialization" class="form-select">
+                                                            <option value="10M Air Rifle">10M Air Rifle</option>
+                                                            <option value="10M Air Pistol">10M Air Pistol</option>
+                                                            <option value="25M Pistol">25M Pistol</option>
+                                                            <option value="50M Pistol">50M Pistol</option>
+                                                            <option value="50M Rifle">50M Rifle</option>
+                                                        </select>
+                                                    </div> 
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6">
+                                                        <label for="experience" class="form-label form-heading">Years of Experience</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <input type="number" id="experience" name="experience" class="form-control" placeholder="Enter your years of experience" min="0">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer" style="border-top: none;">
+                                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn text-dark" style="background-color: #00ddff;">Register</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% comment %} shooter Edit modal {% endcomment %}
+                            <div class="modal fade" id="coachAddModal" tabindex="-1" aria-labelledby="coachAddModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content" style="background-color: #050505; border-radius: 12px; border: solid 1px #00DDFF;">
+                                        <div class="modal-header" style="border-bottom: none;">
+                                            <h4 class="modal-title" id="CoachAddModalLabel" style="color: #00DDFF; font-size: 1.5rem;">Add Shooter</h4>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color: #00DDFF;"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-primary">Add Shooter</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -268,11 +575,56 @@
             {% comment %} coach-relation container {% endcomment %}
             <div id="coach-relation-container" class="container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
                 <div class="row d-flex justify-content-between align-items-start gap-2" style="padding-top:10px;">
-                    <div class="col=md-8">
-                        <div class="row text-center align-items-center gx-2"style="background-color: #050505; border-radius: 12px; padding-top: 12px;">
-                            
-                            <div class = "something">
-                             coach-relation-container
+                    <div class="col-md-12 ">
+                        <div class="row text-center align-items-center gx-2 pb-3"style="background-color: #050505; border-radius: 12px; padding-top: 12px; padding-left: 12px;">
+                            <div class="col-3" style="text-align: center; border-right: solid 1px #00DDFF; border-bottom: solid 1px #00DDFF; border-radius: 12px;">
+                                <h4 class="tb-head">Coaches</h4>
+                                <ul class="list-group-flush mb-4">
+                                    {% for coach in club_coaches %}
+                                    <li class="list-group-item text-light d-flex justify-content-between px-3 py-1" style="font-size:18px;" >
+                                    <button class="btn btn-outline-info w-100 coach-btn" data-coach-id="{{ coach.id }}">{{ forloop.counter }}. {{ coach.username }}</button>
+                                    {% endfor %}
+                                </ul>
+                                <h4 class="tb-head">Shooters</h4>
+                                <ul class="list-group-flush  mb-4">
+                                    {% for shooter in club_students %}
+                                    <li class="list-group-item text-light d-flex justify-content-between px-3 py-1" style="font-size:18px;" >
+                                        <button class="btn btn-outline-info w-100 shooter-btn" data-shooter-id="{{ shooter.id }}">{{ forloop.counter }}. {{ shooter.username }}</button>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="col-9">
+                                <h4 class="tb-head mb-3">Coach-Shooter Relation</h4>
+                                <div id="relation-display" class="p-3">
+                                    <!-- You can display the relation here or add controls to create new ones -->
+                                    <p style="color: gray;">Select a coach or shooter to view relation data here.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="addShooterModal" tabindex="-1" aria-labelledby="addShooterModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content text-light" style="background-color: #151515">
+                            <div class="modal-header">
+                                <h5 class="modal-title text-info" id="addShooterModalLabel">Add Shooter</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="add-shooter-form" method="POST">
+                                    <div class="mb-3">
+                                        <label for="available-shooters-select" class="form-label">Select Shooters</label>
+                                        <select id="available-shooters-select" name="shooter_ids" class="form-select" multiple required>
+                                            <option value="" disabled hidden>Select shooters</option>
+                                        </select>
+                                    </div>
+                                    <input type="hidden" name="coach_id" id="modal-coach-id">
+                                </form>
+                                
+                            </div>
+                            <div class="modal-footer justify-content-between ">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-info" id="assign-shooters-btn">Assign Shooter</button>
                             </div>
                         </div>
                     </div>
@@ -329,9 +681,7 @@
             </div>
             {% comment %} profile container {% endcomment %}
             <div id="profile-container" class="container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
-                <div class="row d-flex justify-content-between align-items-start gap-2" style="padding-top:10px;">
-
-                            
+                <div class="row d-flex justify-content-between align-items-start gap-2" style="padding-top:10px;">      
                     <div style="width: 80%; margin: auto; padding: 20px; background-color: #050505; border-radius: 10px; border-right: solid 1px #00DDFF; border-bottom: solid 1px #00DDFF;">
                         <h2 style="color: #00DDFF; text-align: left; margin-bottom: 20px;">Profile Settings</h2>
                         <div class="row">

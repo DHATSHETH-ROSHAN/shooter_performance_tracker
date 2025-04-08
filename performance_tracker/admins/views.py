@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
+from django.template.loader import render_to_string
 from django.contrib import messages
 from django.db.models import Q
 from users.models import *
@@ -14,6 +16,7 @@ from message.models import *
 # modules
 from datetime import datetime
 from users.views import *
+import json
 
 @login_required
 def staff_home(request):
@@ -134,7 +137,6 @@ def add_new_shooter(request):
     if request.method == "POST":
         # Get the form data
         staff = request.user
-        print(staff)
         firstname = request.POST.get("first_name")
         lastname = request.POST.get("last_name")
         username = request.POST.get("username")
@@ -189,7 +191,6 @@ def add_new_shooter(request):
 def add_new_coach(request):
     if request.method == "POST":
         staff = request.user
-        print(staff)
         firstname = request.POST.get("first_name")
         lastname = request.POST.get("last_name")
         username = request.POST.get("username")
@@ -271,7 +272,6 @@ def coach_shooter_relation(request, coachId,):
         coachdetails = UserProfiles.objects.get(id=coachId)
         shooters = CoachShooterRelation.objects.filter(coach=coachId, status="Accepted").values_list('shooter_id__username', flat=True)
         available_shooters = UserProfiles.objects.filter(role="Shooter", affiliated_club = coachdetails.affiliated_club, coach_id__isnull= True).values_list('id','username' )
-        print(available_shooters)
         data = {
             "id": coachdetails.id,
             "name": coachdetails.username,
@@ -286,51 +286,97 @@ def coach_shooter_relation(request, coachId,):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
+@login_required
+def aassign_shooter_to_coach(request):
+    try:
+        data = json.loads(request.body)
+        coach_id = data.get('coach_id')
+        shooter_ids = data.get('shooter_ids', [])
 
+        coach = UserProfiles.objects.get(id=coach_id)
 
-
-
+        for shooter_id in shooter_ids:
+            shooter = UserProfiles.objects.get(id=shooter_id)
+            CoachShooterRelation.objects.get_or_create(coach=coach, shooter=shooter, status = "Accepted")
+            Message.objects.create(sender=coach, receiver=shooter, content="Welcome!, You are now connected for training. Let's start practicing.")
+            shooter.coach_id = coach.id
+            shooter.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 @login_required
-def aassign_shooter_to_coach(request, coachId, shooterId):
-    user_profile = request.user
+def remove_shooter_from_coach(request):
     if request.method == "POST":
-        coach = UserProfiles.objects.get(id=coachId)
-        shooter = UserProfiles.objects.get(id=shooterId)
-        print(shooter, coach)
-        messages.success(request, 'Shooter added to coach successfully!!')
-        return redirect('staff_home')
+        try:
+            data = json.loads(request.body)
+            coach_id = data.get('coach_id')
+            shooter_username = data.get('shooter_username')
 
+            coach = UserProfiles.objects.get(id=coach_id)
+            shooter = UserProfiles.objects.get(username=shooter_username)
 
+            CoachShooterRelation.objects.filter(coach=coach, shooter=shooter).delete()
 
-
-
-
-
-
-
+            shooter.coach_id = None
+            shooter.save()
+            return JsonResponse({'Success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+  
 
 @login_required
 def shooter_coach_relation(request, shooterId):
     try:
         shooter = UserProfiles.objects.get(id=shooterId)
-        coaches = CoachShooterRelation.objects.filter(shooter=shooterId, status="Accepted").values_list('coach_id__username', flat=True)
-        coaches_list = list(coaches)
-        if not coaches_list:
-            available_coaches = UserProfiles.objects.filter(role="Coach", affiliated_club=shooter.affiliated_club).exclude(id__in=coaches_list).values_list('username', flat=True)
-            coaches = list(available_coaches)
-        else:
-            coaches = list(coaches)
-        print(shooter, coaches)
+        relation = CoachShooterRelation.objects.filter(shooter=shooter, status="Accepted").select_related('coach').first()
+        assigned_coach = relation.coach if relation else None
         data = {
-            "id": shooter.id,
-            "name": shooter.username,
-            "email": shooter.email,
-            "coaches": list(coaches),
-            "coaches_count": len(coaches),
+            'shooter': {
+                'id': shooter.id,
+                'username': shooter.username,
+                'email': shooter.email,
+                'category': shooter.category,
+            },
+            'coach': {
+                'id': assigned_coach.id,
+                'username': assigned_coach.username,
+            } if assigned_coach else None
         }
         return JsonResponse(data)
     except UserProfiles.DoesNotExist:
-        return JsonResponse({"error": "Shooter not found"}, status=404)
+        return JsonResponse({"error": "Shooter not found"}, status= 404)
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"error": str(e)}, status= 500)
+
+@login_required
+def available_coaches(request):
+    coaches = UserProfiles.objects.filter(role='Coach')
+    coach_list = [{'id': coach.id, 'username': coach.username} for coach in coaches]
+    return JsonResponse({'coaches': coach_list})
+   
+@csrf_exempt
+def assign_coach(request, coach_id, shooter_id):
+    if request.method == 'POST':
+        coach = get_object_or_404(UserProfiles, id=coach_id, role='Coach')
+        shooter = get_object_or_404(UserProfiles, id=shooter_id, role="Shooter")
+
+        existing = CoachShooterRelation.objects.filter(coach=coach, shooter=shooter).first()
+        if existing:
+            return JsonResponse({'success':False, 'warning': 'Already assigned.'})
+        CoachShooterRelation.objects.create(coach=coach, shooter=shooter, status="Accepted")
+        return JsonResponse({'success': True})
+    return JsonResponse({'success':False, 'error': 'Invalid request method.'})
+
+@csrf_exempt
+def unassign_coach(request, coach_id, shooter_id):
+    if request.method == 'POST':
+        coach = get_object_or_404(UserProfiles, id=coach_id, role='Coach')
+        shooter = get_object_or_404(UserProfiles, id=shooter_id, role='Shooter')      
+        relation = CoachShooterRelation.objects.filter(coach=coach, shooter=shooter).first()
+        if relation:
+            relation.delete()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'error': 'No existing relation found to delete.'})
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})

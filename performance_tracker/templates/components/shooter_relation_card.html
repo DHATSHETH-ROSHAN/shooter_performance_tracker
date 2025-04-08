@@ -1,0 +1,26 @@
+<div class="card text-start text-light bg-dark p-3">
+    <h5 class="mb-2"><span class="tb-head">Shooter:</span> {{ shooter.username }}</h5>
+    <p>Email: {{ shooter.email }}</p>
+    <p>Category: {{ shooter.category }}</p>
+    {% if coach %}
+        <p class="d-flex align-items-center justify-content-between">
+            <span>
+            <strong class="tb-head">Coach:</strong> {{ coach.username }}
+            </span>
+            <button class="btn btn-sm btn-danger unassign-coach-btn ms-3"
+                    data-coach-id="{{ coach.id }}"
+                    data-shooter-username="{{ shooter.username }}">
+                Unassign coach
+            </button>
+        </p>
+    {% else %}
+        <p class="d-flex align-items-center justify-content-between">
+            <span style="color: gray;">Coach not assigned</span>
+            <button class="btn btn-sm btn-primary assign-select-btn ms-3"
+            data-shooter-id="{{ shooter.id }}">
+                Assign Coach
+            </button>    
+        </p>
+    {% endif %}
+</div>
+

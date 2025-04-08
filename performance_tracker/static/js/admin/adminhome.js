@@ -468,7 +468,12 @@ document.addEventListener('DOMContentLoaded', function () {
                             <p>Email: ${data.email}</p>
                             <p>Total Shooters: ${data.shooter_count}</p>
                             <ul class="list-group list-group-flush bg-dark">
-                                ${data.shooters.map(shooter => `<li class="list-group-item bg-dark text-light">${shooter}</li>`).join('')}
+                                ${data.shooters.map(shooter => `<li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
+                                    ${shooter}
+                                    <button class="btn btn-sm btn-danger remove-shooter-btn" data-shooter-username="${shooter}" data-coach-id="${coachId}">
+                                    Remove
+                                    </button>
+                                    </li>`).join('')}
                             </ul>
                         </div>
                     </div>
@@ -494,12 +499,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     }
 
-                    const choices = new Choices(selectElement, {
+                    window.choicesInstance = new Choices(selectElement, {
                         removeItemButton: true,
                         placeholder: true,
-                        placeeholderValue: 'Select shooters...',
-                        maxItemCoun: 10,
-                        searchResultLismit: 10,
+                        placeholderValue: 'Select shooters...',
+                        maxItemCount: 10,
+                        searchResultLimit: 10,
                         renderChoiceLimit: 10
                     });
 
@@ -508,28 +513,256 @@ document.addEventListener('DOMContentLoaded', function () {
                     bootstrapModal.show();
 
                 });
+
+                // logic for the remove shooter button
+
+                setTimeout(() => {
+                    document.querySelectorAll('.remove-shooter-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const coachId = this.getAttribute('data-coach-id');
+                            const shooterUsername = this.getAttribute('data-shooter-username');
+
+                            if (!confirm(`Are you sure you want to remove ${shooterUsername}?`)) return;
+
+                            fetch(`/staff/remove-shooter/`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getcookie('csrftoken'),
+                                },
+                                body: JSON.stringify({
+                                    coach_id: coachId,
+                                    shooter_username: shooterUsername,
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.Success) {
+                                    alert('shooter removed successfully!');
+                                    location.reload();
+                                } else {
+                                    alert('Error:' + data.error);
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err)
+                                alert('Error', + err.message);
+                            });
+                        });
+                    });
+                }, 100);
             });
         });
     });
 });
 
-// relation shooter and coach
+// assign shooters to  the coaches 
+document.getElementById('assign-shooters-btn').addEventListener('click', function () {
+    const coachId = document.getElementById('modal-coach-id').value;
+    const shooterIds = window.choicesInstance ? window.choicesInstance.getValue(true) : [];
+
+    if (shooterIds.length === 0) {
+        alert('please select at least one shooter!!');
+        return;
+    }
+
+    fetch(`/staff/assign-shooters-to-coach/`, {
+        method: 'POST',
+        headers: {
+            'content-Type': 'application/json',
+            'X-CSRFToken': getcookie('csrftoken'),
+        },
+        body: JSON.stringify({
+            coach_id: coachId,
+            shooter_ids:shooterIds
+            
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('shooters assigned successfully!');
+            location.reload();
+        } else {
+            alert('Error:' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error('Caught error:', err);
+        alert('Error: ' + err.message);
+    });
+
+});
+
+// helper function to get csrf token
+function getcookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim()
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+};
+
+// csrftoken helper
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
+    let selectedShooterId = null;
+    let selectedCoachId = null;
+    
+    // evento trigger when the card is clicked
     document.querySelectorAll('.shooter-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const shooterId = this.getAttribute('data-shooter-id');
             fetch(`/staff/shooter-coach-relation/${shooterId}/`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('relation-display').innerHTML = `
-                    <div class="card text-start text-light bg-dark p-3">
-                        <h5 class="mb-2">Shooter: ${data.name}</h5>
-                        <p>Email: ${data.email}</p>
-                        <p>Category: ${data.category}</p>
-                    </div>
-                `;
-            });
+                .then(response => response.json())
+                .then(data => {
+                    const shooter = data.shooter;
+                    const coach = data.coach;
+
+                    document.getElementById('relation-display').innerHTML = `
+                        <div class="card text-start text-light bg-dark p-3">
+                            <h5 class="mb-2"><span class="tb-head">Shooter:</span> ${shooter.username}</h5>
+                            <p>Email: ${shooter.email}</p>
+                            <p>Category: ${shooter.category}</p>
+                            ${
+                                coach
+                                ? `<p class="d-flex align-items-center justify-content-between">
+                                    <span><strong class="tb-head">Coach:</strong> ${coach.username}</span>
+                                    <button class="btn btn-sm btn-danger unassign-coach-btn ms-3"
+                                            data-coach-id="${coach.id}"
+                                            data-shooter-id="${shooter.id}"
+                                            data-shooter-username="${shooter.username}">
+                                        Unassign coach
+                                    </button>
+                                </p>`
+                                : `<p class="d-flex align-items-center justify-content-between">
+                                    <span style="color: gray;">Coach not assigned</span>
+                                    <button class="btn btn-sm btn-primary assign-select-btn ms-3"
+                                            data-shooter-id="${shooter.id}">
+                                        Assign Coach
+                                    </button>
+                                </p>`
+                            }
+                        </div>
+                    `;
+                });
         });
     });
+
+    //  dynamically created 'Assign Coach' buttons
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('assign-select-btn')) {
+            selectedShooterId = e.target.getAttribute('data-shooter-id');
+
+            fetch('/staff/available-coaches/')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('coachSelect');
+                    select.innerHTML = `<option value="">Select a coach</option>`; // reset options
+
+                    data.coaches.forEach(coach => {
+                        const option = document.createElement('option');
+                        option.value = coach.id;
+                        option.textContent = coach.username;
+                        select.appendChild(option);
+                    });
+
+                    // Show modal
+                    const assignModal = new bootstrap.Modal(document.getElementById('assignCoachModal'));
+                    assignModal.show();
+                });
+        }
+    });
+
+    // Enable the assign button only when a coach is selected
+    document.getElementById('coachSelect').addEventListener('change', function () {
+        const assignBtn = document.getElementById('assignCoachBtn');
+        assignBtn.disabled = !this.value;
+    });
+
+    // Assign coach - this handler is added **only once**
+    document.getElementById('assignCoachBtn').addEventListener('click', function () {
+        const coachId = document.getElementById('coachSelect').value;
+
+        fetch(`/staff/assign-coach/${coachId}/${selectedShooterId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.warning || 'Coach assigned successfully!');
+                location.reload();
+            } else {
+                alert('Failed: ' + data.error);
+            }
+        });
+    });
+
+        // Handle click on "Unassign Coach" button: Show confirm modal
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('unassign-coach-btn')) {
+                const coachId = e.target.getAttribute('data-coach-id');
+                const shooterId = e.target.getAttribute('data-shooter-id');
+        
+                // Save these values to the modal's confirm button
+                const modalBtn = document.querySelector('#unassignCoachModal .confirm-unassign-btn');
+                modalBtn.setAttribute('data-coach-id', coachId);
+                modalBtn.setAttribute('data-shooter-id', shooterId);
+        
+                // Then open the modal
+                const modal = new bootstrap.Modal(document.getElementById('unassignCoachModal'));
+                modal.show();
+            }
+        });
+
+        // Confirm Unassign: Make POST request
+        document.querySelector('.confirm-unassign-btn').addEventListener('click', function() {
+            const coachId = this.getAttribute('data-coach-id');
+            const shooterId = this.getAttribute('data-shooter-id');
+        
+            fetch(`/staff/unassign-coach/${coachId}/${shooterId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Coach unassigned successfully.');
+                    location.reload();
+                    // Optionally reload or update relation-display
+                } else {
+                    alert(data.error || 'Unassign failed.');
+                }
+            });
+        });
+
+    // CSRF token helper
+    function getCSRFToken() {
+        const name = 'csrftoken';
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            if (cookie.trim().startsWith(name + '=')) {
+                return decodeURIComponent(cookie.trim().substring(name.length + 1));
+            }
+        }
+        return '';
+    }
 });
+
 //end of chats

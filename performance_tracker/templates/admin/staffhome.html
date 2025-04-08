@@ -603,6 +603,7 @@
                         </div>
                     </div>
                 </div>
+                {% comment %} assign shootermodal {% endcomment %}
                 <div class="modal fade" id="addShooterModal" tabindex="-1" aria-labelledby="addShooterModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content text-light" style="background-color: #151515">
@@ -615,7 +616,6 @@
                                     <div class="mb-3">
                                         <label for="available-shooters-select" class="form-label">Select Shooters</label>
                                         <select id="available-shooters-select" name="shooter_ids" class="form-select" multiple required>
-                                            <option value="" disabled hidden>Select shooters</option>
                                         </select>
                                     </div>
                                     <input type="hidden" name="coach_id" id="modal-coach-id">
@@ -629,6 +629,46 @@
                         </div>
                     </div>
                 </div>
+                <!-- Coach Assign Modal -->
+                <div class="modal fade" id="assignCoachModal" tabindex="-1" aria-labelledby="assignCoachModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content bg-dark text-light">
+                        <div class="modal-header">
+                        <h5 class="modal-title" id="assignCoachModalLabel">Assign a Coach</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                        <select class="form-select" id="coachSelect">
+                            <option value="">Select a coach</option>
+                            <!-- Coach options will be injected here -->
+                        </select>
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="assignCoachBtn" disabled>Assign Coach</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                {% comment %} unassign coach modal {% endcomment %}
+                <div class="modal fade" id="unassignCoachModal" tabindex="-1" aria-labelledby="unassignCoachModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content bg-dark text-light">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="unassignCoachModalLabel">Confirm Unassign</h5>
+                          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                          Are you sure you want to unassign the coach from this shooter?
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button class="btn btn-danger confirm-unassign-btn">
+                            Confirm Unassign
+                        </button>                        
+                        </div>
+                      </div>
+                    </div>
+                  </div>                  
             </div>
             {% comment %} notification container {% endcomment %}
             <div id="notification-container" class="container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
@@ -730,5 +770,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

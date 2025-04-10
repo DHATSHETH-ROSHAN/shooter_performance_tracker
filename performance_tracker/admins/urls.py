@@ -20,5 +20,8 @@ path('remove-shooter/', remove_shooter_from_coach, name="remove_shooter_from_coa
 path('available-coaches/', available_coaches, name='available_coaches'),
 path('assign-coach/<int:coach_id>/<int:shooter_id>/', assign_coach, name='assign_coach'),
 path('unassign-coach/<int:coach_id>/<int:shooter_id>/', unassign_coach, name='unassign_coach'),
+path("remove-affiliation/", remove_affiliation, name="remove_affiliation"),
+
+
 
 ]

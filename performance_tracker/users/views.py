@@ -400,6 +400,8 @@ def update_profile(request):
         if current_club != affilated :
             try:
                 club_staff = UserProfiles.objects.filter(affiliated_club=affilated, role='Staff').first()
+                old_staff = UserProfiles.objects.filter(affiliated_club=current_club, role='Staff').first()
+                Message.objects.filter(sender=old_staff, receiver= request.user).delete()
                 if club_staff:
                     Message.objects.create(sender=club_staff, receiver=request.user, content=f"Welcome to {affilated}! We're glad to have you here.")
                 
@@ -585,7 +587,7 @@ def coach_home(request):
             # calculate the scrores of shooters individually
             manual_scores_40 = manualscore.objects.filter(user_profile_id=shooter_id, match_type="40-Shots").values("date", "total").order_by("date")
             manual_scores_60 = manualscore.objects.filter(user_profile_id=shooter_id, match_type="60-Shots").values("date", "total").order_by("date")
-            est_scores_40 = pdfScore.objects.filter(user_profile_id= shooter_id, match_type="40-shots").values("date", "total").order_by("date")
+            est_scores_40 = pdfScore.objects.filter(user_profile_id= shooter_id, match_type="40-Shots").values("date", "total").order_by("date")
             est_scores_60 = pdfScore.objects.filter(user_profile_id=shooter_id, match_type="60-Shots").values("date", "total").order_by("date")
             # Store data separately
             manual_40_shot_trends[shooter.username] = [{"date": entry["date"].strftime("%Y-%m-%d"), "score": entry["total"]} for entry in manual_scores_40 if entry["date"]]
@@ -639,14 +641,20 @@ def coach_home(request):
             })
         pending_requests = CoachShooterRelation.objects.filter(coach=coach_profile, status="Pending")
         count_pending_req = pending_requests.count()
-        max_shooters = CoachShooterRelation.objects.filter(coach=coach_profile).first().max_shooters if CoachShooterRelation.objects.filter(coach=coach_profile).exists() else "N/A"
+    # max_shooters = CoachShooterRelation.objects.filter(coach=coach_profile).first().max_shooters if CoachShooterRelation.objects.filter(coach=coach_profile).exists() else "N/A"
+        relation = CoachShooterRelation.objects.filter(coach=coach_profile).first()
+        max_shooters = relation.max_shooters if relation else "N/A"
         # Day planner handling
         # Filter out expired day plans (only keep today's and future plans)
         day_plans = DayPlanner.objects.filter(coach=request.user, date__gte=now().date())
         form1 = DayPlannerForm(coach=request.user)
         form2 = EventForm()
         # Retrieve recent activities of all shooters trained under this coach
-        recent_activities = activities.objects.filter(user__in=[shooter['id'] for shooter in shooter_list]).order_by('-date')[:10]
+    # recent_activities = activities.objects.filter(user__in=[shooter['id'] for shooter in shooter_list]).order_by('-date')[:10]
+        
+        shooter_ids = [relation.shooter.id for relation in shooters]
+        recent_activities = activities.objects.filter(user_id__in=shooter_ids).order_by('-date')[:10]
+
         if request.method == "POST":
             if "day_planner_submit" in request.POST:
                 form1 = DayPlannerForm(request.POST, coach=request.user)
@@ -745,15 +753,19 @@ def coach_home(request):
         messages.warning(request, "Wait till Admin accepts you as coach")
         return render(request, 'home')
 
+
 @login_required
 def load_chat(request, user_id):
-    other_user = UserProfiles.objects.get(id=user_id)
+    other_user_profile = UserProfiles.objects.get(id=user_id)
+    other_user = other_user_profile
+    
     conversation_id = "_".join(sorted([str(request.user.id), str(other_user.id)]))
     messages = Message.objects.filter(
         Q(sender=request.user, receiver=other_user) |
         Q(sender=other_user, receiver=request.user)
     ).order_by('timestamp')
     
+    print(messages, other_user, conversation_id)
     return render(request, 'message/chat_message.html', {
         'messages': messages,
         'other_user': other_user,

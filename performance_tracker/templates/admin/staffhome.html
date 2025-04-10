@@ -5,7 +5,6 @@
 <!-- Add to your template -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script src="{% static 'js/admin/adminhome.js' %}" defer></script>
 {% endblock %}
 {% block content %}
 {% include "admin/adminnavbar.html" %}
@@ -14,17 +13,17 @@
         <div id="sidebar" class="col-2 d-flex flex-column" style="background-color: #050505;">
             <button id="shrink-btn" class="custom-btn"><i class="fa-solid fa-down-left-and-up-right-to-center" ></i><span>Shrink</span></button>
             <button id="users-btn" class="custom-btn"><i class="fa-solid fa-users"></i><span>Users </span></button>
-            <button id="coach-relation-btn" class="custom-btn"><i class="fa-solid fa-chalkboard-user"></i></i><span>Coaches</span></button>
+            <button id="coach-relation-btn" class="custom-btn"><i class="fa-solid fa-chalkboard-user"></i><span>Coaches</span></button>
             <button id="notifications-btn" class="custom-btn"><i class="fa-regular fa-bell" ></i><span>Notifications & Messages</span></button>
             <button id="profile-btn" class="custom-btn"><i class="fa-regular fa-address-card" ></i><span>Profile</span></button>
             <button id="settings-btn" class="custom-btn"><i class="fa-solid fa-user-gear"></i><span> Settings</span></button>
         </div>
-        <div id="main-Content" class="col-10 d-flex">
+        <div id="main-Content" class="col-md-10 d-flex" >
             {% comment %} users container {% endcomment %}
-            <div id="users-container" class="w-100 container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
+            <div id="users-container" class="container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
                 <div class="row d-flex justify-content-between align-items-start gap-3" style="padding-top:15px;">
-                    <div class="col-md-12" style"background-color: #050505;">
-                        <div class="row align-items-center gx-3 p-3" style="background-color: #050505; border-radius: 12px; width:100%;">
+                    <div class="col-md-12">
+                        <div class="row align-items-center gx-3 p-3" style="background-color: #050505; border-radius: 12px;">
                             <div class="col-12" >
                                 <p class='table-headings' >Users</p>
                             </div>
@@ -77,6 +76,7 @@
                                                 <th>Gender</th>
                                                 <th>category</th>
                                                 <th>views</th>
+                                                <th>Remove</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -91,6 +91,10 @@
                                                 <td>{{ shooter.category }}</td>
                                                 <td class="text-center">
                                                         <i class="bi bi-eye" onclick="viewShooter({{ shooter.id }})" style="color: #00ddff"></i>
+                                                </td>
+                                                <td class="text-center">
+                                                    <i class="bi bi-trash" style="color: crimson; cursor: pointer;" title="Remove Shooter from Club"
+                                                    onclick="removeUserFromClub({{ shooter.id }}, 'Shooter')"></i>
                                                 </td>
                                             </tr>
                                             {% endfor %}
@@ -119,6 +123,7 @@
                                                 <th>category</th>
                                                 <th>Specialization</th>
                                                 <th>View</th>
+                                                <th>Remove</td>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -134,6 +139,9 @@
                                                 <td>{{ coach.coaching_specialization }}</td>
                                                 <td class="text-center">
                                                         <i class="bi bi-eye" onclick="viewCoach({{ coach.id }})" style="color: #00ddff"></i>
+                                                </td>
+                                                <td>
+                                                    <i class="bi bi-x-circle" style="cursor:pointer; color: red;"onclick="removeUserFromClub({{ coach.id }}, 'Coach')"></i>
                                                 </td>
                                             </tr>
                                             {% endfor %}
@@ -578,15 +586,21 @@
                     <div class="col-md-12 ">
                         <div class="row text-center align-items-center gx-2 pb-3"style="background-color: #050505; border-radius: 12px; padding-top: 12px; padding-left: 12px;">
                             <div class="col-3" style="text-align: center; border-right: solid 1px #00DDFF; border-bottom: solid 1px #00DDFF; border-radius: 12px;">
-                                <h4 class="tb-head">Coaches</h4>
+                                <div class="d-flex flex-column flex-md-row gap-3 p-3 justify-content-between align-items-center">
+                                    <h4 class="tb-head mb-3">Coaches</h4>
+                                    {% comment %} <input type="text" id="coachSearch" class="form-control" placeholder="Search Coaches..."> {% endcomment %}
+                                </div>
                                 <ul class="list-group-flush mb-4">
                                     {% for coach in club_coaches %}
                                     <li class="list-group-item text-light d-flex justify-content-between px-3 py-1" style="font-size:18px;" >
                                     <button class="btn btn-outline-info w-100 coach-btn" data-coach-id="{{ coach.id }}">{{ forloop.counter }}. {{ coach.username }}</button>
                                     {% endfor %}
                                 </ul>
-                                <h4 class="tb-head">Shooters</h4>
-                                <ul class="list-group-flush  mb-4">
+                                <div class="d-flex flex-column flex-md-row gap-3 p-3 justify-content-between align-items-center">
+                                    <h4 class="tb-head mb-0">Shooters</h4>
+                                    {% comment %} <input type="text" id="shooterSearch" class="form-control" placeholder="Search Shooters..."> {% endcomment %}
+                                </div>                                
+                                    <ul class="list-group-flush  mb-4">
                                     {% for shooter in club_students %}
                                     <li class="list-group-item text-light d-flex justify-content-between px-3 py-1" style="font-size:18px;" >
                                         <button class="btn btn-outline-info w-100 shooter-btn" data-shooter-id="{{ shooter.id }}">{{ forloop.counter }}. {{ shooter.username }}</button>
@@ -673,17 +687,59 @@
             {% comment %} notification container {% endcomment %}
             <div id="notification-container" class="container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
                 <div class="row d-flex justify-content-between align-items-start gap-2" style="padding-top:10px;">
-                    <div class="col=md-8">
+                    <div class="col-md-12">
                         <div class="row text-center align-items-center gx-2"style="background-color: #050505; border-radius: 12px; padding-top: 12px;">
-                            <div clas="w-100">
-                                <p class="tb-head">Messages</p>
+                            <div class="w-100" style="max-height: 40vh; overflow-y:auto; overflow-x: auto;scrollbar-width: none;" >
+                                <div class="row mt-1 p-3"style="background-color: #050505; border-radius: 15px;">
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center">
+                                            <!-- Spacer (Pushes the title to center) -->
+                                            <div class="flex-grow-1 text-center">
+                                                <h4 class="m-0" style="color: #00DDFF; font-weight: bold; font-style: italic;">📅 Upcoming Matches & Events</h4>
+                                            </div>
+                                            <!-- Create Button (Aligned to the Right) -->
+                                            <button onclick="showDetails('eventFormContainer')" class="btn btn-sm btn-info mb-2"><i class="bi bi-plus-lg"></i> Add Event</button>
+                                        </div>
+                                        <!-- Event List -->
+                                        <ul class="list-group">
+                                            {% for event in events %}
+                                            <li class="list-group-item bg-dark d-flex justify-content-between">
+                                                <div class="text-light">
+                                                    <strong>{{ event.title }}</strong> - {{ event.date }}<br>
+                                                    📍 {{ event.location|default:"TBA" }}
+                                                </div>
+                                                <span class="badge bg-info">{{ event.visibility|title }}</span>
+                                            </li>
+                                            {% empty %}
+                                            <li class="list-group-item text-center" 
+                                            style="background-color: #050505; color: #00DDFF; border: 1px solid #00DDFF; border-radius: 10px;">
+                                            No upcoming events
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    <div class="col-12 mt-3" >
+                                        <!-- Add Event Modal -->
+                                        <div id="eventFormContainer" style="display:none; border: 1px solid #00DDFF; padding: 15px; border-radius: 10px;">
+                                            <h5 class="text-center">Add New Event</h5>
+                                            <form method="post">
+                                                {% csrf_token %}
+                                                {{ formevent.as_p }}
+                                                <button type="submit" name="event_submit" class="btn btn-primary w-100">Save Event</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="tb-head">Messages</p>
+                            <div class="w-100" style="max-height: 60vh; overflow: auto:" >
                                     {% if conversations %}  
                                     <div class="py-3">
                                         <div class="row">
                                             <!-- Conversation List -->
-                                            <div class="col-4 ">
+                                            <div class="col-4 scrollable-element" style="max-height: 40vh; overflow-y: auto;" >
                                                 {% for convo in conversations %}
-                                                    <div class="card p-3 m-3 message-card open-chat" data-user-id="{{ convo.other_user.id }}" style="cursor: pointer; transition: background-color 0.3s;">
+                                                    <div class="card p-2 m-3 message-card open-chat" data-profile-name="{{ userprofile.username }}" data-profile-id="{{ profile_id }}" data-user-id="{{ convo.other_user.id }}" style="cursor: pointer; transition: background-color 0.3s;">
                                                         <div class="d-flex justify-content-between align-items-center">
                                                             <div class="d-flex align-items-center">
                                                                 <div class="avatar">
@@ -704,7 +760,7 @@
                                             </div>
             
                                             <!-- Chat Window (Will be loaded dynamically) -->
-                                            <div class="col-8">
+                                            <div class="col-8" style="max-height: 40vh; overflow-y: auto;">
                                                 <div id="chat-window" class="chat-box">
                                                     <p class="text-light text-center">Select a chat to start messaging</p>
                                                 </div>
@@ -714,6 +770,7 @@
                                     {% else %}
                                         <p class="text-center">No messages yet.</p>
                                     {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -770,4 +827,5 @@
         </div>
     </div>
 </div>
+<script src="{% static 'js/admin/adminhome.js' %}" defer></script>
 {% endblock %}

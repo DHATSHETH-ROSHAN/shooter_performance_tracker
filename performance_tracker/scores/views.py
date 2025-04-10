@@ -110,7 +110,6 @@ def manual_upload(request):
 
     return render(request, "manual_upload.html")
 
-
 @login_required(login_url='/login/')
 def pdf_uploading(request):
     if request.method == "POST":
@@ -380,6 +379,7 @@ def analytics(request):
         latest_score = None
     return render(request, 'current_analytics.html', {"latest_score": latest_score, "uploaded_data": last_manual_upload})
 
+@login_required
 def user_activities(request):
     if not request.user.is_authenticated:
         messages.warning(request, "You need to login to access this page!!")
@@ -648,18 +648,21 @@ def inspect(request, id):
     manual_scores = manualscore.objects.filter(user_profile=user_profile)
     pdf_scores = pdfScore.objects.filter(user_profile=user_profile)
 
-    practice_dates_man = manual_scores.values_list('date', flat=True).distinct()
+    
     streak_count_man = 0
     current_streak_man = 0
     previous_date_man = None
- 
-    for date in sorted(practice_dates_man, reverse=True):
-        if previous_date_man is None or previous_date_man - date == timedelta(days=1):
-            current_streak_man += 1
-        else:
-            break
-        previous_date_man = date
-    streak_count_man = current_streak_man
+    try:
+        practice_dates_man = manual_scores.values_list('date', flat=True).distinct()
+        for date in sorted(practice_dates_man, reverse=True):
+            if previous_date_man is None or previous_date_man - date == timedelta(days=1):
+                current_streak_man += 1
+            else:
+                break
+            previous_date_man = date
+        streak_count_man = current_streak_man
+    except Exception:
+        streak_count_man = 0
 
     # calculate the total number of scores
     duration_40_man = list(manual_scores.filter(match_type="40-Shots").values_list('duration', flat=True))
@@ -693,8 +696,14 @@ def inspect(request, id):
     shot_avg_man_60 = round(statistics.mean([score.average for score in manual_scores.filter(match_type="60-Shots")]) ,1) if manual_scores.filter(match_type="60-Shots").exists() else 0
     shot_avg_man_40_lst = list(manual_scores.filter(match_type="40-Shots").values_list("average", flat=True))
     shot_avg_man_60_lst = list(manual_scores.filter(match_type="60-Shots").values_list("average", flat=True))
-    shot_avg_man = round(statistics.mean([score.average for score in manual_scores]),1)
-    avg_man_duration = round(statistics.mean([score.duration for score in manual_scores]),1)
+    # shot_avg_man = round(statistics.mean([score.average for score in manual_scores]),1)
+    # avg_man_duration = round(statistics.mean([score.duration for score in manual_scores]),1)
+    if manual_scores:
+        shot_avg_man = round(statistics.mean([score.average for score in manual_scores]), 1)
+        avg_man_duration = round(statistics.mean([score.duration for score in manual_scores]), 1)
+    else:
+        shot_avg_man = 0.0  # or None, or "-"
+        avg_man_duration = 0.0
     date_man_40 = list(manual_scores.filter(match_type="40-Shots").values_list("date", flat=True))
     date_man_40 = [date.strftime("%Y-%m-%d") for date in date_man_40]  # Convert to string
     date_man_60 = list(manual_scores.filter(match_type="60-Shots").values_list("date", flat=True))
@@ -766,9 +775,9 @@ def inspect(request, id):
     avg_gps6_60 = round(sum([score.gps6 for score in filt_est_60 ])/ max(1, filt_est_60.count()), 1) if len(filt_est_60) > 0 else 0
 
 # other things
-    est_tot_60_avg = round(statistics.mean([score.total for score in pdf_scores.filter(match_type = "60-Shots")]),1)
-    est_ser_60_avg = round(statistics.mean([score.average_series_score for score in pdf_scores.filter(match_type="60-Shots")]),1)
-    est_shot_60_avg = round(statistics.mean([score.average_shot_score for score in pdf_scores.filter(match_type="60-Shots")]),1)
+    est_tot_60_avg = round(statistics.mean([score.total for score in pdf_scores.filter(match_type = "60-Shots")]),1) if pdf_scores.filter(match_type = "60-Shots").exists() else 0
+    est_ser_60_avg = round(statistics.mean([score.average_series_score for score in pdf_scores.filter(match_type="60-Shots")]),1) if pdf_scores.filter(match_type="60-Shots").exists() else 0
+    est_shot_60_avg = round(statistics.mean([score.average_shot_score for score in pdf_scores.filter(match_type="60-Shots")]),1) if pdf_scores.filter(match_type="60-Shots").exists() else 0
     shot_avg_est_40_lst = list(pdf_scores.filter(match_type="40-Shots").values_list("average_shot_score", flat=True))
     shot_avg_est_60_lst = list(pdf_scores.filter(match_type="60-Shots").values_list("average_shot_score", flat=True))
     

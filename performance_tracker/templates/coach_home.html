@@ -155,7 +155,7 @@ Coach Home
                                                 <label class="form-check-label" for="id_shared_with_shooter" style="color: white;">Share with Shooter</label>
                                             </div>
                                     
-                                            <button type="submit" class="btn btn-info" style="background-color: #00DDFF; color: black; border: none;">Save</button>
+                                            <button type="submit" name="day_planner_submit" class="btn btn-info" style="background-color: #00DDFF; color: black; border: none;">Save</button>
                                         </form>
                                     </div>
                                     <!-- List of Planned Activities -->
@@ -191,8 +191,8 @@ Coach Home
                                 <!-- Event List -->
                                 <ul class="list-group">
                                     {% for event in events %}
-                                    <li class="list-group-item d-flex justify-content-between">
-                                        <div>
+                                    <li class="list-group-item bg-dark d-flex justify-content-between">
+                                        <div class="text-light">
                                             <strong>{{ event.title }}</strong> - {{ event.date }}<br>
                                             📍 {{ event.location|default:"TBA" }}
                                         </div>
@@ -213,7 +213,7 @@ Coach Home
                                     <form method="post">
                                         {% csrf_token %}
                                         {{ form2.as_p }}
-                                        <button type="submit" class="btn btn-primary w-100">Save Event</button>
+                                        <button type="submit" name="event_submit" class="btn btn-primary w-100">Save Event</button>
                                     </form>
                                 </div>
                             </div>
@@ -242,8 +242,8 @@ Coach Home
                                         <td class="text-center">{{ forloop.counter }}</td>
                                         <td>{{ shooter.name }}</td>
                                         <td class="text-center">
-                                            <a href="{% url 'inspect' shooter.id %}" class="btn view-btn btn-sm">
-                                                <i class="fa-solid fa-eye"></i> 
+                                            <a href="{% url 'inspect' shooter.id %}" class="btn btn-sm">
+                                                <i class="fa-solid fa-eye"  style="color: #00ddff;"></i> 
                                             </a>
                                         </td>
                                     </tr>
@@ -437,7 +437,7 @@ Coach Home
                                 <td class="text-center">{{ shooter.est_60_avg }}</td>
                                 <td class="text-center">
                                     <a href="{% url 'inspect' shooter.id %}" class="btn view-btn btn-sm">
-                                        <i class="fa-solid fa-eye"></i> 
+                                        <i class="fa-solid fa-eye"  style="color: #00ddff;"></i> 
                                     </a>
                                 </td>
                                 <td class="text-center">
@@ -734,139 +734,111 @@ Coach Home
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let messageContainer = document.getElementById("navbarMessageContainer");
-    
-        if (messageContainer && messageContainer.innerText.trim() !== "") {
-            // Expand the message container
-            let bsCollapse = new bootstrap.Collapse(messageContainer, {
-                toggle: true
-            });
-    
-            // Collapse after 5 seconds
-            setTimeout(() => {
-                bsCollapse.hide();
-            }, 5000);
-        }
-    });
-    
-    document.addEventListener("DOMContentLoaded", function() {
-        function showOnly(elementId) {
-            // Hide all containers first
-            let containers = [
-                'home-container',
-                'dashboard-container',
-                'shooters-container',
-                'notifications-container',
-                'profile-container',
-                'settings-container'
-            ];
-            
-            containers.forEach(id => {
-                document.getElementById(id).style.display = 'none';
-            });
-    
-            // Show the selected container
-            document.getElementById(elementId).style.display = 'block';
-        }
-    
-        // Set Home as default open
+{% comment %} message navbar {% endcomment %}
+document.addEventListener("DOMContentLoaded", function () {
+    let messageContainer = document.getElementById("navbarMessageContainer");
+
+    if (messageContainer && messageContainer.innerText.trim() !== "") {
+        // Expand the message container
+        let bsCollapse = new bootstrap.Collapse(messageContainer, {
+            toggle: true
+        });
+
+        // Collapse after 5 seconds
+        setTimeout(() => {
+            bsCollapse.hide();
+        }, 5000);
+    }
+});
+
+{% comment %} side bar and container {% endcomment %}
+document.addEventListener("DOMContentLoaded", function() {
+    function showOnly(elementId) {
+        // Hide all containers first
+        let containers = [
+            'home-container',
+            'dashboard-container',
+            'shooters-container',
+            'notifications-container',
+            'profile-container',
+            'settings-container'
+        ];
+        
+        containers.forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+
+        // Show the selected container
+        document.getElementById(elementId).style.display = 'block';
+    }
+
+    // Set Home as default open
+    showOnly('home-container');
+
+    // Event listeners for buttons
+    document.getElementById('home-btn').addEventListener('click', function() {
         showOnly('home-container');
-    
-        // Event listeners for buttons
-        document.getElementById('home-btn').addEventListener('click', function() {
-            showOnly('home-container');
-        });
-    
-        document.getElementById('dashboard-btn').addEventListener('click', function() {
-            showOnly('dashboard-container');
-        });
-    
-        document.getElementById('shooters-btn').addEventListener('click', function() {
-            showOnly('shooters-container');
-        });
-    
-        document.getElementById('notifications-btn').addEventListener('click', function() {
-            showOnly('notifications-container');
-        });
-    
-        document.getElementById('profile-btn').addEventListener('click', function() {
-            showOnly('profile-container');
-        });
-    
-        document.getElementById('settings-btn').addEventListener('click', function() {
-            showOnly('settings-container');
-        });
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const sidebar = document.getElementById("sidebar"); // Change this to your actual sidebar class or ID
-        const mainContent = document.getElementById("main-content"); // Change to your main content area
-        const shrinkButton = document.getElementById("shrink-btn");
-
-        shrinkButton.addEventListener("click", function () {
-            sidebar.classList.toggle("collapsed"); // Toggle a collapsed class
-            mainContent.classList.toggle("expanded"); // Adjust main content width accordingly
-        });
-    });
-{% comment %} create button function {% endcomment %}
-    document.getElementById("showFormBtn").addEventListener("click", function () {
-        var formDiv = document.getElementById("dayPlannerForm");
-        if (formDiv.style.display === "none") {
-            formDiv.style.display = "block";
-        } else {
-            formDiv.style.display = "none";
-        }
-    });
-    document.getElementById("toggleEventFormBtn").addEventListener("click", function () {
-        var formdiv = document.getElementById("eventFormContainer");
-        if (formdiv.style.display === "none") {
-            formdiv.style.display = "block";
-        } else {
-            formdiv.style.display = "none";
-        } 
+    document.getElementById('dashboard-btn').addEventListener('click', function() {
+        showOnly('dashboard-container');
     });
 
+    document.getElementById('shooters-btn').addEventListener('click', function() {
+        showOnly('shooters-container');
+    });
+
+    document.getElementById('notifications-btn').addEventListener('click', function() {
+        showOnly('notifications-container');
+    });
+
+    document.getElementById('profile-btn').addEventListener('click', function() {
+        showOnly('profile-container');
+    });
+
+    document.getElementById('settings-btn').addEventListener('click', function() {
+        showOnly('settings-container');
+    });
+});
+
+{% comment %} shrink button {% endcomment %}
+document.addEventListener("DOMContentLoaded", function () {
+    const sidebar = document.getElementById("sidebar"); // Change this to your actual sidebar class or ID
+    const mainContent = document.getElementById("main-content"); // Change to your main content area
+    const shrinkButton = document.getElementById("shrink-btn");
+
+    shrinkButton.addEventListener("click", function () {
+        sidebar.classList.toggle("collapsed"); // Toggle a collapsed class
+        mainContent.classList.toggle("expanded"); // Adjust main content width accordingly
+    });
+});
+
+{% comment %} create button day Planner function {% endcomment %}
+document.getElementById("showFormBtn").addEventListener("click", function () {
+    var formDiv = document.getElementById("dayPlannerForm");
+    if (formDiv.style.display === "none") {
+        formDiv.style.display = "block";
+    } else {
+        formDiv.style.display = "none";
+    }
+});
+
+{% comment %} create button event form {% endcomment %}
+document.getElementById("toggleEventFormBtn").addEventListener("click", function () {
+    var formdiv = document.getElementById("eventFormContainer");
+    if (formdiv.style.display === "none") {
+        formdiv.style.display = "block";
+    } else {
+        formdiv.style.display = "none";
+    } 
+});
+
+{% comment %} remove shooter function {% endcomment %}
 function openRemoveModal(shooterId) {
     let form = document.getElementById("removeShooterForm");
     form.action = `/remove_shooter/${shooterId}/`;  // Update action with shooter's ID
     let modal = new bootstrap.Modal(document.getElementById("removeShooterModal"));
     modal.show();
-};
-
-function generateCalendar(containerId, year, month, practiceDays = []) {
-    const calendar = document.getElementById(containerId);
-    if (!calendar) {
-        console.error(`Element with ID '${containerId}' not found.`);
-        return;
-    }
-    
-    calendar.innerHTML = ""; // Clear previous content
-
-    const firstDay = new Date(year, month - 1, 1);
-    const lastDay = new Date(year, month, 0).getDate();
-    const startDay = firstDay.getDay(); // 0 = Sunday, 1 = Monday...
-
-    // Add empty cells for first week
-    for (let i = 0; i < startDay; i++) {
-        const emptyCell = document.createElement("div");
-        emptyCell.classList.add("day");
-        calendar.appendChild(emptyCell);
-    }
-
-    // Fill in the dates
-    for (let date = 1; date <= lastDay; date++) {
-        const dayCell = document.createElement("div");
-        dayCell.classList.add("day");
-        dayCell.innerText = date;
-
-        const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-        if (practiceDays.includes(formattedDate)) {
-            dayCell.classList.add("practice-day"); // Highlight practiced days
-        }
-
-        calendar.appendChild(dayCell);
-    }
 };
 
 function showActivityModal(activityId) {
@@ -881,7 +853,7 @@ function showActivityModal(activityId) {
     contentElement.style.display = "block";
     new bootstrap.Modal(modalElement).show();
 };
-
+{% comment %} filter by date shooter activityContent {% endcomment %}
 function filterByDate() {
     let startDate = document.getElementById("startDate").value;
     let endDate = document.getElementById("endDate").value;
@@ -898,6 +870,8 @@ function filterByDate() {
         }
     });
 };
+
+{% comment %} notification badge {% endcomment %}
 document.addEventListener("DOMContentLoaded", function () {
     const badge = document.getElementById("notification-badge");
     const notificationsBtn = document.getElementById("notifications-btn");
@@ -1020,6 +994,7 @@ document.getElementById("scoreFilter").addEventListener("change", function() {
     });
 });
 
+{% comment %} load charts {% endcomment %}
 document.addEventListener("DOMContentLoaded", function () {
     function lazyLoadCharts() {
         const chartElements = document.querySelectorAll(".chart-container"); // Ensure charts have this class
@@ -1053,6 +1028,8 @@ document.addEventListener("DOMContentLoaded", function () {
     lazyLoadCharts();
 });
 
+
+{% comment %} chat {% endcomment %}
 document.querySelectorAll(".open-chat").forEach(button => {
     button.addEventListener("click", function() {
         const userId = this.getAttribute("data-user-id");

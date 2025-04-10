@@ -12,6 +12,28 @@
     transition: background-color 0.2s ease-in-out, padding 0.2s ease-in-out;
 }
 
+.custom-input {
+    background-color: #202020;
+    color: #e9e8d4;
+    border: 2px solid #00DDFF;
+    border-radius: 1.5rem;
+    padding: 0.5rem 1rem;
+    max-width: 250px;
+    transition: border-color 0.3s ease;
+}
+
+.custom-input::placeholder {
+    color: #00DDFF;
+    opacity: 0.6;
+}
+
+.custom-input:focus {
+    outline: none;
+    border-color: #00DDFF;
+    box-shadow: none; /* No glow */
+}
+
+
 .custom-btn, #shrink-btn {
     background-color: #050505;
     color: #00DDFF;
@@ -175,8 +197,6 @@
     background-color: #202020 !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 221, 255, 0.2);
-    border-right: solid 1px #00DDFF;
-    border-bottom: solid 1px #00DDFF;
 }
 
 .message-card {
@@ -184,8 +204,6 @@
     border: 1px solid #303030;
     transition: all 0.3s ease;
 }
-
-
 
 .avatar {
     width: 40px;
@@ -234,6 +252,7 @@
     background-color: #00B8D9;
     color: white;
 }
+
 /* end of messages */
 
 /* classes for the custom choices */

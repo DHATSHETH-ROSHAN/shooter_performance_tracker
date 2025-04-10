@@ -12,6 +12,28 @@
     transition: background-color 0.2s ease-in-out, padding 0.2s ease-in-out;
 }
 
+.custom-input {
+    background-color: #202020;
+    color: #e9e8d4;
+    border: 2px solid #00DDFF;
+    border-radius: 1.5rem;
+    padding: 0.5rem 1rem;
+    max-width: 250px;
+    transition: border-color 0.3s ease;
+}
+
+.custom-input::placeholder {
+    color: #00DDFF;
+    opacity: 0.6;
+}
+
+.custom-input:focus {
+    outline: none;
+    border-color: #00DDFF;
+    box-shadow: none; /* No glow */
+}
+
+
 .custom-btn, #shrink-btn {
     background-color: #050505;
     color: #00DDFF;
@@ -66,6 +88,28 @@
 .stud-coach-table::-webkit-scrollbar {
     display: none;
 }
+
+.details-container {
+    max-height: 560px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.details-container {
+    -ms-overflow-style: none;
+}
+.details-container::-webkit-scrollbar {
+    display: none;
+}
+
+.form-heading {
+    font-size: larger;
+    font-weight: bold;
+    font-style: italic;
+    margin-left: 20px;
+    margin-top: 2px;
+
+}
+
 .tb-head {
     color: #00DDFF;
     font-size: larger;
@@ -213,3 +257,41 @@
     color: white;
 }
 /* end of messages */
+
+/* classes for the custom choices */
+/* Dark mode override for Choices.js */
+.choices {
+    background-color: #202020 !important;
+    color: #fff !important;
+}
+
+.choices__inner {
+    background-color: #202020 !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+
+.choices__list--dropdown {
+    background-color: #202020 !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+
+.choices__item--selectable {
+    color: #fff !important;
+    background-color: transparent !important;
+}
+
+.choices__item--choice.is-highlighted {
+    background-color: #333 !important;
+    color: #00DDFF !important;
+}
+
+.choices__button {
+    color: #fff !important;
+    border-left: 1px solid #444 !important;
+}
+.choices__placeholder {
+    color: #cccccc !important; /* light grey for visibility on dark bg */
+}
+/* end of classes for custom choices */

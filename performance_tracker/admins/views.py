@@ -8,6 +8,8 @@ from django.template.loader import render_to_string
 from django.contrib import messages
 from django.db.models import Q
 from users.models import *
+from django.utils.timezone import now
+from users.forms import EventForm
 from scores.models import *
 from django.http import JsonResponse
 # models import
@@ -23,6 +25,7 @@ def staff_home(request):
     if request.user.role == "Staff" and request.user.permitted == "Yes":
         userprofile = request.user
         profile_id = userprofile.id
+        print(profile_id)
         club_students = UserProfiles.objects.filter(Q(affiliated_club = userprofile.affiliated_club) & Q(role ="Shooter"))
         club_coaches = UserProfiles.objects.filter(Q(affiliated_club = userprofile.affiliated_club) & Q(role="Coach"))
         club_staff = UserProfiles.objects.filter(Q(affiliated_club = userprofile.affiliated_club) & Q(role="Staff"))
@@ -34,7 +37,7 @@ def staff_home(request):
         established = current_year - (request.user.years_of_experience)
         staff = request.user
         try:
-            staff_profile = UserProfiles.objects.get(role='Staff')
+            staff_profile = request.user
             same_club_users = UserProfiles.objects.filter(affiliated_club=staff_profile.affiliated_club).exclude(role='Staff')
         except UserProfiles.DoesNotExist:
             same_club_users = []
@@ -47,7 +50,7 @@ def staff_home(request):
 
             if convo_id not in conversations:
                 conversations[convo_id] = {
-                    "otheruser": other_user,
+                    "other_user": other_user,
                     "last_message" : msg,
                     "unread_count": Message.objects.filter(receiver=staff, sender=other_user, is_read=False).count()
                 }
@@ -61,9 +64,29 @@ def staff_home(request):
                     "unread_count": 0,
                 }
 
+        events = Event.objects.filter(visibility__in=['coach', 'both'], date__gte=now().date()).order_by('date')
+        formevent = EventForm()
+        if request.method == "POST" and "event_submit" in request.POST:
+            formevent = EventForm(request.POST)
+            if formevent.is_valid():
+                event = formevent.save(commit=False)
+                event.created_by = request.user
+                event.save()
+                formevent.save_m2m()  # Save the many-to-many relationship
+                messages.success(request, "Event created successfully!")
+                return redirect("staff_home")
+            else:
+                messages.error(request, "There was a problem saving the event.")
+        else:
+            formevent = EventForm()
+
+        
+        print(events)
         context = {
             'userprofile' : userprofile,
             'profile_id': profile_id,
+            'events': events, 
+            'formevent': formevent,
             'club_students': club_students,
             'club_coaches' : club_coaches,
             'club_staff': club_staff,
@@ -77,6 +100,7 @@ def staff_home(request):
     else:
         messages.error(request, "You are not allowed to vsit this page!!")
         return render(request, "home.html")
+
     
 @login_required
 def get_shooter_details(request, shooter_id):
@@ -324,7 +348,6 @@ def remove_shooter_from_coach(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=400)
   
-
 @login_required
 def shooter_coach_relation(request, shooterId):
     try:
@@ -355,7 +378,7 @@ def available_coaches(request):
     coach_list = [{'id': coach.id, 'username': coach.username} for coach in coaches]
     return JsonResponse({'coaches': coach_list})
    
-@csrf_exempt
+@login_required
 def assign_coach(request, coach_id, shooter_id):
     if request.method == 'POST':
         coach = get_object_or_404(UserProfiles, id=coach_id, role='Coach')
@@ -368,7 +391,7 @@ def assign_coach(request, coach_id, shooter_id):
         return JsonResponse({'success': True})
     return JsonResponse({'success':False, 'error': 'Invalid request method.'})
 
-@csrf_exempt
+@login_required
 def unassign_coach(request, coach_id, shooter_id):
     if request.method == 'POST':
         coach = get_object_or_404(UserProfiles, id=coach_id, role='Coach')
@@ -380,3 +403,42 @@ def unassign_coach(request, coach_id, shooter_id):
         else:
             return JsonResponse({'success': False, 'error': 'No existing relation found to delete.'})
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+
+@login_required
+def remove_affiliation(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        user_id = data.get("user_id")
+        user_type = data.get("user_type")  # Should be either 'Shooter' or 'Coach'
+
+        try:
+            profile = UserProfiles.objects.get(id=user_id)
+
+            # Check that the user_type matches
+            if profile.role != user_type:
+                messages.error(request, f"The selected user is not a valid {user_type.lower()}.")
+                return JsonResponse({"status": "error"}, status=403)
+
+            club_name = profile.affiliated_club if profile.affiliated_club else "your club"
+            profile.affiliated_club = None
+            profile.save()
+
+            # # Notification message based on type
+            # notif_title = "Removed from Club"
+            # notif_message = f"You have been removed from {club_name}."
+
+            # Notification.objects.create(
+            #     user=profile.user,
+            #     title=notif_title,
+            #     message=notif_message,
+            # )
+
+            messages.success(request, f"{profile.username} ({user_type}) has been removed from the club.")
+            return JsonResponse({"status": "success"})
+
+        except UserProfiles.DoesNotExist:
+            messages.error(request, f"{user_type} not found.")
+            return JsonResponse({"status": "error"}, status=404)
+
+    messages.error(request, "Invalid request method.")
+    return JsonResponse({"status": "error"}, status=400)

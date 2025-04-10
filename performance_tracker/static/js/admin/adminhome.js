@@ -72,32 +72,70 @@ function closeFunction(id) {
 
 
 // for the chats only
-document.querySelectorAll(".open-chat").forEach(button => {
-    button.addEventListener("click", function() {
-        const userId = this.getAttribute("data-user-id");
-        const chatWindow = document.getElementById("chat-window");
-        const conversationId = [userId, '{{ profile_id }}'].sort().join('_');
+// Function to create and reconnect WebSocket
+function setupChatSocket(conversationId, messageCardElement) {
+    const currentUserId = document.body.getAttribute('data-user-id');
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const chatSocket = new WebSocket(`${protocol}://${window.location.host}/ws/chat/${conversationId}/`);
+    
 
-        // Remove active class from all message cards and add to the current one
+    chatSocket.onopen = () => console.log('WebSocket connected');
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const chatWindow = document.getElementById('chat-window');
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+
+        if (data.sender_id == currentUserId) {
+            messageDiv.classList.add('sent');
+        } else {
+            messageDiv.classList.add('received');
+        }
+
+        messageDiv.innerHTML = `<p>${data.message}</p>`;
+        chatWindow.appendChild(messageDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    };
+
+    chatSocket.onerror = e => console.error("WebSocket error:", e);
+
+    chatSocket.onclose = function() {
+        console.error("WebSocket closed");
+        setTimeout(() => setupChatSocket(conversationId, messageCardElement), 3000);
+    };
+
+    return chatSocket;
+}
+
+
+//  Chat message card click listener
+document.querySelectorAll(".open-chat").forEach(button => {
+    button.addEventListener("click", function () {
+        const userId = this.getAttribute("data-user-id");
+        const profileId = this.getAttribute("data-profile-id");
+        const chatWindow = document.getElementById("chat-window");
+        const conversationId = [profileId ,userId].sort().join('_');
+
+        // Remove active class from all cards
         document.querySelectorAll('.message-card').forEach(card => {
             card.classList.remove('active');
         });
         this.classList.add('active');
 
-        // Mark messages as read in backend
+        // Mark messages as read
         fetch(`/message/messages/read/${conversationId}/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
             }
-        })
-        .then(response => response.json())
-        .then(() => {
-            // Hide unread badge
-            const unreadBadge = this.querySelector('.unread-badge');
-            if (unreadBadge) unreadBadge.style.display = 'none';
-        })
-        .catch(error => console.error('Error marking messages as read:', error));
+        }).then(response => response.json())
+          .then(() => {
+              const unreadBadge = this.querySelector('.unread-badge');
+              if (unreadBadge) unreadBadge.style.display = 'none';
+          })
+          .catch(error => console.error('Error marking messages as read:', error));
 
         // Load chat content
         fetch(`/message/chat/${userId}/`)
@@ -105,120 +143,122 @@ document.querySelectorAll(".open-chat").forEach(button => {
             .then(data => {
                 chatWindow.innerHTML = data;
 
-                // Scroll to the bottom of messages
                 const messagesDiv = document.getElementById('chat-messages');
-                if (messagesDiv) messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                if (messagesDiv) scrollChatToBottom();
 
-                // Initialize WebSocket connection
-                connectChatSocket(userId, conversationId);
+
+                //  Initialize WebSocket
+                const chatSocket = setupChatSocket(conversationId, this);
+
+                //  Message sending logic
+                const messageInput = document.querySelector('#chat-message-input');
+                const sendButton = document.querySelector('#chat-message-send');
+
+                function sendMessage() {
+                    const message = messageInput.value.trim();
+
+                    if (message && chatSocket.readyState === WebSocket.OPEN) {
+                        chatSocket.send(JSON.stringify({
+                            'message': message,
+                            'sender_id': profileId,
+                            'receiver_id': userId,
+                            'conversation_id': conversationId
+                        }));
+                        messageInput.value = '';
+                    }
+                }
+
+                if (sendButton) sendButton.onclick = sendMessage;
+
+                if (messageInput) {
+                    messageInput.onkeyup = function (e) {
+                        if (e.keyCode === 13) sendMessage();
+                    };
+                }
             })
             .catch(error => console.error("Error loading chat:", error));
     });
 });
 
-// Track active WebSocket connections
+//  Keep track of background sockets
 let activeWebSockets = {};
 
-function connectChatSocket(userId, conversationId) {
-    // Close existing WebSocket for this user (if any) before reconnecting
-    if (activeWebSockets[userId]) {
-        activeWebSockets[userId].close();
-    }
+//  Connect background sockets for unread badges
+function connectAllChats() {
+    document.querySelectorAll(".message-card").forEach(card => {
+        const userId = card.getAttribute("data-user-id");
+        if (!activeWebSockets[userId]) {
 
-    // Create a new WebSocket connection
-    const chatSocket = new WebSocket(
-        (window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host + "/ws/chat/" + conversationId + "/"
-    );
+            const socket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + userId + '/');
 
-    chatSocket.onopen = function() {
-        console.log('WebSocket connection established');
-    };
+            socket.onmessage = function (e) {
+                const data = JSON.parse(e.data);
 
-    chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        
-        // Get chat messages container
-        const messagesDiv = document.getElementById('chat-messages');
-        if (!messagesDiv) return;
+                if (data.sender !== '{{ request.user.username }}') {
+                    const conversationCard = document.querySelector(`.message-card[data-user-id="${userId}"]`);
+                    if (conversationCard && !conversationCard.classList.contains('active')) {
+                        const unreadBadge = conversationCard.querySelector('.unread-badge');
+                        if (unreadBadge) {
+                            const count = parseInt(unreadBadge.textContent) || 0;
+                            unreadBadge.textContent = count + 1;
+                            unreadBadge.style.display = 'inline';
+                        }
+                    }
 
-        // Create a new message element
-        const messageDiv = document.createElement('div');
-        messageDiv.className = data.sender === '{{ request.user.username }}' ? 'sent-message' : 'received-message';
+                    // Show message if chat is open
+                    const messagesDiv = document.getElementById('chat-messages');
+                    if (messagesDiv && conversationCard.classList.contains('active')) {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'received-message';
 
-        // Format timestamp
-        const timestamp = new Date(data.timestamp);
-        const formattedTime = timestamp.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            hour12: false 
-        });
+                        const timestamp = new Date(data.timestamp);
+                        const formattedTime = timestamp.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        });
 
-        // Set message content
-        messageDiv.innerHTML = `
-            <p>${data.message}</p>
-            <small class="text-muted">${formattedTime}</small>
-        `;
+                        messageDiv.innerHTML = `
+                            <p>${data.message}</p>
+                            <small class="text-muted">${formattedTime}</small>
+                        `;
 
-        // Append message and scroll to bottom
-        messagesDiv.appendChild(messageDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                        messagesDiv.appendChild(messageDiv);
+                        scrollChatToBottom();
 
-        // Mark message as read if chat is active
-        const activeChat = document.querySelector('.message-card.active');
-        if (data.sender !== '{{ request.user.username }}' && activeChat?.getAttribute("data-user-id") === userId) {
-            fetch(`/message/messages/read/${conversationId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    }
                 }
-            }).catch(error => console.error('Error marking message as read:', error));
-        }
-    };
-
-    chatSocket.onerror = function(e) {
-        console.error('WebSocket error:', e);
-    };
-
-    chatSocket.onclose = function(e) {
-        console.error('WebSocket connection closed:', e);
-        delete activeWebSockets[userId];  // Remove the reference
-        
-        // Attempt to reconnect after a delay
-        setTimeout(() => {
-            console.log('Attempting to reconnect...');
-            connectChatSocket(userId, conversationId);
-        }, 3000);
-    };
-
-    activeWebSockets[userId] = chatSocket;  // Store the active WebSocket connection
-
-    // Set up message sending
-    const messageInput = document.querySelector('#chat-message-input');
-    const sendButton = document.querySelector('#chat-message-send');
-
-    function sendMessage() {
-        const message = messageInput.value.trim();
-        if (message && chatSocket.readyState === WebSocket.OPEN) {
-            const messageData = {
-                'message': message,
-                'sender_id': '{{ request.user.id }}',
-                'receiver_id': userId,
-                'conversation_id': conversationId
             };
-            chatSocket.send(JSON.stringify(messageData));
-            messageInput.value = '';  // Clear input field
-        }
-    }
 
-    if (sendButton) sendButton.onclick = sendMessage;
-    if (messageInput) {
-        messageInput.onkeyup = function(e) {
-            if (e.keyCode === 13) {  // Enter key
-                sendMessage();
-            }
-        };
+            socket.onerror = e => console.error('WebSocket error:', e);
+
+            socket.onclose = function () {
+                console.error('WebSocket closed, reconnecting...');
+                delete activeWebSockets[userId];
+                setTimeout(() => connectAllChats(), 3000);
+            };
+
+            activeWebSockets[userId] = socket;
+        }
+    });
+}
+
+function scrollChatToBottom() {
+    const messagesDiv = document.getElementById('chat-messages');
+    if (messagesDiv) {
+        // Ensure scroll after DOM has been updated
+        setTimeout(() => {
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }, 50);
     }
-};
+}
+
+// Connect background listeners on page load
+document.addEventListener('DOMContentLoaded', connectAllChats);
+
+// end of chats
+
+
 
 function viewShooter(shooter_id) {
     //maek ajax request call to fetch details
@@ -330,6 +370,32 @@ function viewCoach(coach_id) {
         .catch(error => console.error("Error fetching the coach details:", error));
 
 };
+
+function removeUserFromClub(userId, userType) {
+    const confirmed = confirm(`Are you sure you want to remove this ${userType.toLowerCase()} from the club?`);
+
+    if (confirmed) {
+        fetch("/staff/remove-affiliation/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken(),
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                user_type: userType // Should be either "Shooter" or "Coach"
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                location.reload(); // Django messages will appear after reload
+            }
+        });
+    }
+}
+
+
 
 function closeFunctionS_C_cont(id1, id2) {
     document.getElementById(id1).style.display = "none";
@@ -462,7 +528,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="container text-start text-light bg-dark p-3" style="border-radius: 10px;">
                         <div class="d-flex justify-content-between align-items-center">
                             <h4 class="mb-2 tb-head" >Coach: ${data.name}</h4>
-                            <button class="btn btn-outline-info add-shooter-btn" data-coach-id="${coachId}">Assign shooter's </button>       
+                            <button class="btn btn-outline-info add-shooter-btn" data-coach-id="${coachId}"><i class="bi bi-plus-lg"></i> Assign shooter's</button>       
                         </div>
                         <div class="container text-start text-light bg-dark p-3">
                             <p>Email: ${data.email}</p>
@@ -471,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 ${data.shooters.map(shooter => `<li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
                                     ${shooter}
                                     <button class="btn btn-sm btn-danger remove-shooter-btn" data-shooter-username="${shooter}" data-coach-id="${coachId}">
-                                    Remove
+                                    <i class="bi bi-trash3"></i> Remove
                                     </button>
                                     </li>`).join('')}
                             </ul>
@@ -643,14 +709,14 @@ document.addEventListener('DOMContentLoaded', function () {
                                             data-coach-id="${coach.id}"
                                             data-shooter-id="${shooter.id}"
                                             data-shooter-username="${shooter.username}">
-                                        Unassign coach
+                                        <i class="bi bi-eraser"></i> Unassign coach
                                     </button>
                                 </p>`
                                 : `<p class="d-flex align-items-center justify-content-between">
                                     <span style="color: gray;">Coach not assigned</span>
                                     <button class="btn btn-sm btn-primary assign-select-btn ms-3"
                                             data-shooter-id="${shooter.id}">
-                                        Assign Coach
+                                        <i class="bi bi-plus-lg"></i> Assign Coach
                                     </button>
                                 </p>`
                             }

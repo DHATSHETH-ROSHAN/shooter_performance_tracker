@@ -6,36 +6,55 @@ Home
 {% endblock %}
 {% block extra_css %}
 <script src="{% static 'js/home.js' %}"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    .bg-base-dark {
+        background-color: #050505;
+    }
+    .bg-base-light {
+        background-color: #202020;
+    }
+    .text-base-col {
+        color: #e0e0e0;
+    }
+    .bg-thm-col {
+        background-color: #00DDFF;
+    }
+</style>
+
 {% endblock %}
 {% block content %}
 {% include 'navbar.html' %}
-<div class=" d-flex justify-content-center align-items-center" style="margin-top: 20px;">
+<div class=" d-flex justify-content-center align-items-center mt-4 " >
     <div class="center-container">
-        <div id="wello" class="content text-center" style="background-color: #9494945f; border-radius: 20px; padding: 20px;">
-            <h2>Welcome to Performance Tracker</h2>
-            <p>Track your progress and achieve your goals efficiently.</p>
-            <a href="{% url 'login' %}" class="btn" style="background-color: #00DDFF; color: black;">Login</a>
-            <a href="{% url 'register' %}" class="btn btn-secondary">Register</a>
+        <div id="wello" class="content text-center p-2 rounded shadow" style="background-color: #9494945f;">
+            <h2 class="fw-bold mb-3">Welcome to <span class="logo_txt">Performance Tracker</span></h2>
+            <p class="mb-4">Track your progress and achieve your goals efficiently.</p>
+            <div class="d-flex flex-column flex-md-row m-4 justify-content-center gap-3">
+                <a href="{% url 'login' %}" class="btn " style="background-color: #00DDFF; color: black;">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-secondary">Register</a>
+            </div>
         </div>
     </div>
 </div>
 <!-- Features Section -->
-<div id="features" class="mt-5 text-white rounded" style="background-color: #050505; padding: 20px; margin-bottom: 20px;" >
+<div id="features" class="mt-4 py-5 text-white rounded" style="background-color: #050505; padding: 20px; margin-bottom: 20px;" >
     <div class="container">
-    <h3 class="text-center">Why Choose Performance Tracker?</h3>
-    <div class="row mt-3">
-        <div class="col-md-4 text-center">
-            <i class="fas fa-chart-line fa-3x"></i>
-            <h4>Track Progress</h4>
-            <p>Monitor your performance over time and get insights.</p>
+    <h3 class="text-center mb-3">Why Choose Performance Tracker?</h3>
+    <div class="row text-center g-4">
+        <div class="col-md-4">
+                <i class="fas fa-chart-line fa-3x mb-3 text-info"></i>
+                <h4>Track Progress</h4>
+                <p>Monitor your performance over time and get insights.</p>
         </div>
-        <div class="col-md-4 text-center">
-            <i class="fas fa-user-friends fa-3x"></i>
+        <div class="col-md-4">
+            <i class="fas fa-user-friends fa-3x mb-3 text-info"></i>
             <h4>Connect with Coaches</h4>
             <p>Get expert guidance from professional coaches.</p>
         </div>
-        <div class="col-md-4 text-center">
-            <i class="fas fa-medal fa-3x"></i>
+        <div class="col-md-4">
+            <i class="fas fa-medal fa-3x mb-3 text-info"></i>
             <h4>Achieve Your Goals</h4>
             <p>Set targets and push your limits to improve.</p>
         </div>

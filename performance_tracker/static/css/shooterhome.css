@@ -73,6 +73,13 @@ iframe {
     }
 }
 
+@media (max-width: 768px) {
+    .modal-content {
+        width: 100% !important;
+    }
+}
+
+
 .practice-day {
     background-color: #00ddff; /* Highlighted color */
     color: white;

@@ -13,6 +13,12 @@
     box-shadow: 0 0 5px #00DDFF;
 }
 
+.login-card {
+    width: 400px;
+    background-color: #050505;
+    border-radius: 12px;
+}
+
 /* Style for the password input field */
 .input-field {
     width: 100%;
@@ -54,4 +60,35 @@
 /* Button hover effect */
 .custom-btn:hover {
     background-color: #00bbdd;
+}
+
+
+@media (max-width: 576px) {
+    .login-card {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .input-field {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .custom-btn {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .toggle-password {
+        font-size: 14px;
+    }
+
+    .text-center img {
+        width: 80px;
+        height: 80px;
+    }
+
+    h3 {
+        font-size: 22px;
+    }
 }

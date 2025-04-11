@@ -197,8 +197,6 @@
     background-color: #202020 !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 221, 255, 0.2);
-    border-right: solid 1px #00DDFF;
-    border-bottom: solid 1px #00DDFF;
 }
 
 .message-card {
@@ -206,8 +204,6 @@
     border: 1px solid #303030;
     transition: all 0.3s ease;
 }
-
-
 
 .avatar {
     width: 40px;
@@ -256,6 +252,7 @@
     background-color: #00B8D9;
     color: white;
 }
+
 /* end of messages */
 
 /* classes for the custom choices */

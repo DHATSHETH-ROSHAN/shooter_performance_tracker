@@ -1,15 +1,33 @@
 /* General Reset */
-body, ul, li, a {
+/* body, ul, li, a {
     margin: 0;
     padding: 0;
     list-style: none;
     text-decoration: none;
+} */
+
+body {
+    margin: 0;
+    padding: 0;
 }
+
+a {
+    text-decoration: none;
+}
+
+.bg-base-dark {
+    background-color: #050505 !important;
+}
+.footer {
+    margin-top: auto; /* Push footer to bottom */
+}
+
 .logo_txt{
     color: #00ddff;
     font-weight: bold;
     font-family: 'Poppins', sans-serif;
     font-style: italic;
+    font-size: clamp(1rem, 2vw + 1rem, 2.5rem);
 }
 
 .scrollable-element {

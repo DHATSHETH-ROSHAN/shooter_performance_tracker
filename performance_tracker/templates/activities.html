@@ -7,53 +7,75 @@
 {% endblock %}
 {% block content %}
 {% include 'navbar.html' %}
-<div class="container" style="margin-top: 10px; margin-bottom: 10px;background: #101010; " >
-        <h2 class="page-title">Training Activities</h2>
-        <hr>
-        <!-- Activity Logging Form -->
-        <form class="activity-form" action="{% url 'activities' %}" method="post">
-            <h4 style="margin-bottom: 10px;color: #00DDFF;">Today's activity</h4>
-            {% csrf_token %}
-            <label for="category">Activity Category:</label>
-            <select id="category" name="category">
-                <option value="technical">Technical Training</option>
-                <option value="physical">Physical Training</option>
-                <option value="mental">Mental Training</option>
-                <option value="equipment">Equipment Maintenance</option>
-            </select>
-            <label for="name">Activity Name:</label>
-            <select id="name" name="name" required>
-                <!-- Options will be dynamically updated -->
-            </select>
-            <label for="duration">Duration (minutes):</label>
-            <input type="number" id="duration" name="duration" min="1" max="3600" required oninput="validity.valid||(value='');">
-            <label for="notes">Notes:</label>
-            <textarea id="notes" name="notes" rows="3"></textarea>
-            <button type="submit">Add Activity</button>
-        </form>
-        
-        <!-- Activity Log Table -->
-        <div class="activity-log">
-            <h3>Recent Activities</h3>
-            <table>
-                <tr>
-                    <th>Date</th>
-                    <th>Activity </th>
-                    <th>Category</th>
-                    <th>Duration (min)</th>
-                </tr>
-                {% for activity in recent_activities %}
-                <tr>
-                    <td>{{ activity.date }}</td>
-                    <td>{{ activity.activity_name }}</td>
-                    <td>{{ activity.activity_category }}</td>
-                    <td>{{ activity.duration }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-</div>
-</div>
+<div class="container-fluid bg-base-light">
+    <div class="container mt-3 mb-3 rounded p-4 p-md-2 bg-base-dark">
+            <h2 class="page-title text-highlight">Training Activities</h2>
+            <hr class="border-info ">
+            <!-- Activity Logging Form -->
+            <form class="activity-form" action="{% url 'activities' %}" method="post">
+                <h4  class="text-info mb-3">Today's activity</h4>
+                {% csrf_token %}
+                <div class= "row g-3">
+                    <div class"col-md-6">
+                        <label for="category">Activity Category:</label>
+                        <select id="category" name="category">
+                            <option value="technical">Technical Training</option>
+                            <option value="physical">Physical Training</option>
+                            <option value="mental">Mental Training</option>
+                            <option value="equipment">Equipment Maintenance</option>
+                        </select>
+                    </div>
+                <div class="col-md-6">
+                    <label for="name">Activity Name:</label>
+                    <select id="name" name="name" required>
+                        <!-- Options will be dynamically updated -->
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="duration">Duration (minutes):</label>
+                    <input type="number" id="duration" name="duration" min="1" max="3600" required oninput="validity.valid||(value='');">
+                </div>
+                <div class="col-md-12">
+                    <label for="notes">Notes:</label>
+                    <textarea id="notes" name="notes" rows="3"></textarea>
+                </div>
+                <div class="col-md-12">
+                    <button type="submit">Add Activity</button>
+                </div>
+            </div>
+            </form>
+            
+            <!-- Activity Log Table -->
+            <div class="activity-log my-5">
+                <h3 class="text-highlight">Recent Activities</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Activity </th>
+                                <th>Category</th>
+                                <th>Duration (min)</th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                            {% for activity in recent_activities %}
+                            <tr>
+                                <td>{{ activity.date }}</td>
+                                <td>{{ activity.activity_name }}</td>
+                                <td>{{ activity.activity_category }}</td>
+                                <td>{{ activity.duration }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-secondary">No activities yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    </div>
 </div>
 {% include 'footer.html' %}
 {% endblock %}

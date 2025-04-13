@@ -15,11 +15,11 @@ Shooter's Home
 <div class="container-fluid mt-4">
     <div class="row">
     <!--Left column(profile holder)-->
-    <div class="col-lg-3 col-md-4 col-sm-12 mb-4" style="size: auto-fit;" >
-        <div style="background-color: #050505; padding: 10px; border-radius: 10px; height: 100%; margin-bottom: 10px;">
-            <div class="card text-white shadow-sm" style="background-color: #050505;" >
-                <div class="card-body text-white text-center">
-                    <img src="{% static 'images/shooter.jpg' %}" alt="Profile Pic" class="rounded-circle" width="80" height="80">
+    <div class="col-lg-3 col-md-4 col-sm-12 mb-4" >
+        <div class="p-1 rounded h-100 mb-1 bg-base-dark">
+            <div class="card text-light shadow-sm bg-base-dark" >
+                <div class="card-body text-center">
+                    <img src="{% static 'images/shooter.jpg' %}" alt="Profile Pic" class="rounded-circle image-fluid" width="80" height="80">
                     <h4 class="mt-2">Welcome, {{ user.first_name }}🎯</h4>
                     <p class="logo_txt">{{ user.role }}</p>
                     <button class="btn btn-sm btn-info mt-2" onclick="toggleProfile()">View Profile</button>
@@ -28,11 +28,11 @@ Shooter's Home
                     <div class="col">
                         <div class="row">
                             <div class="col-6">
-                                <h6>Last session</h6>
+                                <h6 class="text-info" >Last session</h6>
                                 <p class="fw-bold">{{ last_session|date:"d.m.Y" }}</p>
                             </div>
                             <div class="col-6">
-                                <h6>Session duration</h6>
+                                <h6 class="text-info">Session duration</h6>
                                 <p class="fw-bold">{{ session_timing }} </p>
                             </div>
                         </div>
@@ -43,39 +43,39 @@ Shooter's Home
             <!-- Panel contents -->
             <div class="card" style="background-color: #050505;">
                 <div class="card-body text-white text-center">
-                    <h5 class="card-title">Training categories</h5>
-                    <button class="btn btn-sm btn-info mb-2" onclick="showContent('shooting')">Shooting</button>
-                    <button class="btn btn-sm btn-info mb-2" onclick="showContent('workout')">Workout</button>
-                    <button class="btn btn-sm btn-info mb-2" onclick="showContent('meditation')">Meditation</button>
-                    <button class="btn btn-sm btn-info mb-2" onclick="showContent('equipment')">Equipment</button>
+                    <h5 class="card-title text-info">Training categories</h5>
+                    <button class="btn btn-sm btn-outline-info mb-2" onclick="showContent('shooting')">Shooting</button>
+                    <button class="btn btn-sm btn-outline-info mb-2" onclick="showContent('workout')">Workout</button>
+                    <button class="btn btn-sm btn-outline-info mb-2" onclick="showContent('meditation')">Meditation</button>
+                    <button class="btn btn-sm btn-outline-info mb-2" onclick="showContent('equipment')">Equipment</button>
                 </div>
                 <div class="card-body text-white">
                     <div id="shooting" class="training-content">
                         <h5>Shooting session</h5>
-                        <p>Track your shooting practice and analyze your performance</p>
+                        <p class="fst-italic">Track your shooting practice and analyze your performance</p>
                         <h4 class="text-center">Monthly Practice Tracker <br> {{ current_month }}/{{ current_year }}</h4>
                         <div class="calendar" id="calendar_shooting"></div>
                     </div>
                     <div id="workout" class="training-content" style="display: none;" >
                         <h5>Workout session</h5>
-                        <p>Monitor your fitness and strength training for better stability.</p>
+                        <p class="fst-italic">Monitor your fitness and strength training for better stability.</p>
                         <h4 class="text-center">Workouts sessions</h4>
                         <div class="calendar" id="calendar_workout"></div>
                     </div>
                     <div id="meditation" class="training-content" style="display: none;">
                         <h5>Meditation & Focus</h5>
-                        <p>Improve your concentration and mental clarity for shooting.</p>
+                        <p class="fst-italic">Improve your concentration and mental clarity for shooting.</p>
                         <div class="calendar" id="calendar_meditation"></div>
                     </div>
                     <div id="equipment" class="training-content" style="display: none;">
                         <h5>Equipment Maintenance</h5>
-                        <p>Keep track of your rifle maintenance and adjustments.</p>
+                        <p class="fst-italic">Keep track of your rifle maintenance and adjustments.</p>
                         <div class="calendar" id="equipment_calendar"></div>
                     </div>
                 </div>
             </div>
             <div>
-                <div class="card-body text-white text-center">
+                <div class="card-body text-white text-center ">
                     <button onclick="window.location.href='{% url 'history' %}';" class="btn btn-info">
                         <b>Go to Shooter History</b>
                     </button>                    
@@ -84,14 +84,15 @@ Shooter's Home
         </div>
     </div>
     <!-- center column(stats holder & some perfomance ) -->
-     <div class="col-lg-6 col-md-8 col-sm-12 mb-4" style="background-color: #050505; padding: 10px; border-radius: 10px;">
-        <div class="card text-white" style="background-color: #050505;">
-            <div class="card-body">
+     <div class="col-lg-6 col-md-8 col-sm-12 mb-4 rounded" >
+        <div class=" rounded bg-base-dark h-100">
+        <div class=" p-1 rounded card text-white bg-base-dark">
+            <div class="card-body shadow-sm">
                 <h5 class="card-title logo_txt text-center"> Performance Overview</h5>
                 <br>
                 <div class="row text-center">
-                    <div class="col-4">
-                        <h6>Total Session</h6>
+                    <div class="col-md-4 col-sm-12">
+                        <h6 class="text-info">Total Session</h6>
                         <div class="row">
                         <div class="col-6">
                             <p>40 shots</p>    
@@ -103,8 +104,8 @@ Shooter's Home
                         </div>
                         </div>
                     </div>
-                    <div class="col-4">
-                        <h6>Best Score</h6>
+                    <div class="col-md-4 col-sm-12">
+                        <h6 class="text-info">Best Score</h6>
                         <div class="row">
                         <div class="col-6">
                             <p>40 shots</p>    
@@ -116,8 +117,8 @@ Shooter's Home
                         </div>
                         </div>
                     </div>
-                    <div class="col-4">
-                        <h6>30 Days Average</h6>
+                    <div class="col-md-4 col-sm-12">
+                        <h6 class="text-info">30 Days Average</h6>
                         <div class="row">
                             <div class="col-6">
                                 <p>40 shots</p>    
@@ -134,7 +135,7 @@ Shooter's Home
         </div>
         <hr style="color:white;">
         <!--profile container -->
-        <div id="profileContainer" class="container-fluid text-white shadow-sm" style="background-color: #050505; display: none;">
+        <div id="profileContainer" class="container-fluid text-white shadow-sm bg-base-dark" style="display: none;">
             <div class="container-fluid py-5">
                 <div style="width: 100%; margin: auto; padding:2px; background-color: #050505; border-radius: 10px;">
                     <div class="d-flex justify-content-between align-items-center">
@@ -143,19 +144,19 @@ Shooter's Home
                     </div>
                     <div class="row">
                         <!-- Profile Image & Name -->
-                        <div class="col-4 py-4 text-center">
+                        <div class="col-md-4 col-sm-12 py-md-4 py-sm-2 text-center">
                             <i class="fas fa-user-circle" style="font-size: 120px; color: #00DDFF;"></i>
                             <h4 style="color: #00DDFF; margin-top: 10px;"><i class="bi bi-person"></i> {{ user.username }}</h4>
                             <p style="color: grey;"><i class="bi bi-calendar3"></i> Age: {{ age }} / {{ user.category }} </p>
-                            <p style="color: grey;"><i class="bi bi-gender-ambiguous"></i> Gender: {{ user.gender }}</p>
+                            <p style="color: grey;"><i class="bi bi-gender-ambiguous"></i> {{ user.gender }}</p>
                             <div class="py-3">
-                                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="background-color: #00DDFF; border: none; padding: 8px 15px; border-radius: 5px; color: black; font-weight: bold; cursor: pointer; margin-top: 10px;">
+                                <button class="btn btn-info fw-bold bg-info mt-lg-1 mt-sm-0" data-bs-toggle="modal" data-bs-target="#editProfileModal" style=" padding: 8px 15px; color: black; cursor: pointer;">
                                     <i class="bi bi-pencil"></i> Edit
                                 </button>
                             </div>
                         </div>
                         <!-- Contact Info -->
-                        <div class="col-4 py-5">
+                        <div class="col-md-4 col-sm-12 py-md-5 py-sm-2">
                             <p style="margin-bottom: 15px; font-size: 16px;">
                                 <strong style="color: #00DDFF; font-size:18px; margin-right: 2px;">
                                     <i class="bi bi-envelope-paper" style="margin-right: 2px;"></i>Email:
@@ -174,7 +175,7 @@ Shooter's Home
                         </div>
         
                         <!-- Shooting Stats -->
-                        <div class="col-4 py-5">
+                        <div class="col-md-4 col-sm-12 py-md-5 py-sm-2">
                             <p style="margin-bottom: 15px; font-size: 16px;">
                                 <strong style="color: #00DDFF; font-size:18px; margin-right: 4px;">
                                     <i class="bi bi-bullseye" style="margin-right: 4px;"></i> Total Matches:
@@ -187,7 +188,7 @@ Shooter's Home
                             </p>
                             <p style="margin-bottom: 15px; font-size: 16px;">
                                 <strong style="color: #00DDFF; font-size:18px; margin-right: 4px;">
-                                    <i class="bi bi-bar-chart" style="margin-right: 4px;"></i> Affiliated club:
+                                    <i class="bi bi-building" style="margin-right: 4px;"></i> Affiliated club:
                                 </strong> <span style="color: white;">{{ user.affiliated_club }}</span>
                             </p>
                         </div>
@@ -197,69 +198,69 @@ Shooter's Home
             <hr>
         </div>
         <!-- messages thing -->
-        <div id="messagesContainer" class="container-fluid text-white shadow-sm" style="background-color: #050505; display: none;">
-            <div class="container-fluid py-5">
-                <div style="width: 100%; margin: auto; padding: 2px; background-color: #050505; border-radius: 10px;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h2 style="color: #00DDFF; text-align: left; margin-bottom: 20px;">Messages</h2>
+        <div id="messagesContainer" class="container-fluid text-white shadow-sm bg-base-dark" style="display: none;">
+            <div class="container-fluid py-5 py-md-5">
+                <div class="rounded bg-base-dark p-1 m-auto w-100">
+                    <div class="d-flex justify-content-between align-items-center px-2 px-md-3">
+                        <h2 class="h4 h-md-2 mb-2 text-info text-start">Messages</h2>
                         <button onclick="document.getElementById('messagesContainer').style.display='none';" class="btn-close btn-close-white"></button>
                     </div>
                     {% if conversations %}
-                    <div class="py-3">
+                    <div class="py-2 py-md-3">
                         <div class="row">
                             <!-- Conversation List -->
-                            <div class="col-4">
+                            <div class="col-12 col-md-4 mb-3 mb-md-0">
                                 {% for convo in conversations %}
-                                    <div class="card p-3 mb-3 message-card open-chat" data-user-id="{{ convo.other_user.id }}" style="cursor: pointer; transition: background-color 0.3s;">
+                                    <div class="card p-2 p-md-3 mb-2 message-card open-chat" data-user-id="{{ convo.other_user.id }}" style="cursor: pointer; transition: background-color 0.3s;">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar">
                                                     <span class="avatar-text">{{ convo.other_user.username|first|upper }}</span>
                                                 </div>
-                                                <span class="text-light ms-2 username"><b>{{ convo.other_user.username }}</b></span>
+                                                <span class="text-light ms-2 username small"><b>{{ convo.other_user.username }}</b></span>
                                             </div>
                                             <div>
-                                                <small style="color: #707070">{{ convo.last_message.timestamp|date:"H:i" }}</small>
+                                                <small class="d-none d-md-inline" style="color: #707070">{{ convo.last_message.timestamp|date:"H:i" }}</small>
                                                 {% if convo.unread_count > 0 %}
                                                     <span class="badge bg-danger unread-badge">{{ convo.unread_count }}</span>
                                                 {% endif %}
                                             </div>
                                         </div>
-                                        <p class="text-light mt-2 message-preview">{{ convo.last_message.content|truncatechars:50 }}</p>
+                                        <p class="text-light mt-1 p-1 message-preview">{{ convo.last_message.content|truncatechars:50 }}</p>
                                     </div>
                                 {% endfor %}
                             </div>
 
                             <!-- Chat Window (Will be loaded dynamically) -->
-                            <div class="col-8">
+                            <div class="col-12 col-md-8">
                                 <div id="chat-window" class="chat-box">
-                                    <p class="text-light text-center">Select a chat to start messaging</p>
+                                    <p class="text-light text-center my-5">Select a chat to start messaging</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 {% else %}
-                    <p class="text-center">No messages yet.</p>
+                    <p class="text-center py-3">No messages yet.</p>
                 {% endif %}
                 </div>
             </div>
             <hr>
-        </div>
-          
+        </div>         
         <!-- chart -->
-        <div id="middleChartContainer" class="card mt-4" style="background-color: #050505;">
-            <div class="card-body">
-                <div id="weeklyChart">
+        <div id="middleChartContainer" class="card mt-3 mt-md-4 bg-base-dark">
+            <div class="card-body p-2 p-md-3">
+                <div id="weeklyChart" style="min-height: 250px;">
                 </div>
             </div>
         </div>
     </div>
+    </div>
     <!-- Riglt colum(traing activities) -->
          <div class="col-lg-3 col-md-4 col-sm-12 mb-4">
-            <div style="background-color: #050505; padding: 10px; height: 100%; border-radius: 10px;">
+            <div class="rounded p-1 bg-base-dark h-100">
                 <div class="card text-white shadow-sm" style="background-color: #020202;">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">🔥 Streaks</h5>
+                    <div class="card-body text-center m-1">
+                        <h5 class="card-title text-info">🔥 Streaks</h5>
                         <p class="fw-bold">Current Streak:<span id="streakDays">{{ streak_count }}</span>Days</p>
                         <div class="progress" style="height: 5px;">
                             <div id="streakProgress" class="progress-bar bg-warning" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="30"></div>
@@ -267,7 +268,7 @@ Shooter's Home
                         <small>Maintain your streaks to score more.</small>
                     </div>
                     <hr>
-                    <div>
+                    <div class="p-2 p-md-3">
                         <div class="align-center">
                             <h5 class= "text-info">My Coach</h5>
                             <div class="d-flex justify-content-around">
@@ -289,7 +290,7 @@ Shooter's Home
                         </div>
                     </div>
                     <hr>
-                    <div class="d-flex justify-content-around">
+                    <div class="d-flex flex-wrap gap-2 justify-content-around">
                         <button class="btn btn-info btn-sm" onclick="openPopup('notificationsPopup')">🔔 Notifications</button>
                         <button class="btn btn-sm btn-info mt-2" onclick="toggleMessages()">💬 Messages</button>
                     </div>
@@ -350,11 +351,12 @@ Shooter's Home
                         <h5 class="card-title">Training & Activities</h5>
                         <br>
                         <div class="row">
-                            <a href="{% url 'manual_upload' %}" class="btn btn-danger btn-sm mb-2">Manually Upload Score</a>
-                            <a href="{% url 'pdf_upload' %}" class="btn btn-success btn-sm mb-2">Upload Pdf (EST Score)</a>
-                        </div>
+                            <a href="{% url 'manual_upload' %}" class="btn btn-danger btn-sm mb-2 w-100">Manually Upload Score</a>
+                            <a href="{% url 'pdf_upload' %}" class="btn btn-success btn-sm mb-2 w-100">Upload Pdf (EST Score)</a>
                         <br>
-                        <a href="{% url 'activities' %}" class="btn btn-primary btn-sm">Activities</a>
+                        <hr class="mt-2">
+                        <a href="{% url 'activities' %}" class="btn btn-primary btn-sm mb-2 w-100">Activities</a>
+                        </div>
                     </div>
                     <!-- for 40 shots -->
                     <div class="card-body text-center" id="goalTracker40Container">
@@ -508,7 +510,68 @@ if (dataSeries.every(value => value === 0)) {
         colors: ['#00ddff'],
         grid: {
             borderColor: '#444'
+        },
+        // this is for tthe chart responsive ness for mobile views
+        responsive: [
+        {
+            breakpoint: 768, // Tablets and below
+            options: {
+                chart: {
+                    height: 300
+                },
+                xaxis: {
+                    labels: {
+                        rotate: -30,
+                        style: {
+                            fontSize: '11px'
+                        }
+                    }
+                },
+                yaxis: {
+                    labels: {
+                        style: {
+                            fontSize: '11px',
+                            color: '#ffffff'
+                        }
+                    }
+                }
+            }
+        },
+        {
+            breakpoint: 480, // Mobile phones
+            options: {
+                chart: {
+                    height: 280
+                },
+                plotOptions: {
+                    bar: {
+                        columnWidth: '60%'
+                    }
+                },
+                xaxis: {
+                    labels: {
+                        rotate: -45,
+                        style: {
+                            fontSize: '10px'
+                        }
+                    }
+                },
+                yaxis: {
+                    labels: {
+                        style: {
+                            fontSize: '10px'
+                        }
+                    }
+                },
+                title: {
+                    style: {
+                        fontSize: '14px'
+                        
+                    }
+                }
+            }
         }
+    ]
     };
 
     var chart = new ApexCharts(document.querySelector("#weeklyChart"), options);

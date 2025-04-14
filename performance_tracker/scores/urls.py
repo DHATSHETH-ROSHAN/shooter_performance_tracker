@@ -9,4 +9,5 @@ urlpatterns = [
     path('shooter/home/history', views.history, name='history'),
     path('shooter/home/activities/', views.user_activities, name='activities'),
     path('coach/home/inspect/dashboard/<int:id>/', views.inspect, name='inspect'),
+    path('get-activity-modal/<int:activity_id>/', views.get_activity_modal, name='get_activity_modal')
 ]

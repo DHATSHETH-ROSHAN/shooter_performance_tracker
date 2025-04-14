@@ -28,72 +28,82 @@
     tr:nth-child(even) {
         background-color: rgba(255, 255, 255, 0.1); /* Light grey effect */
     }
+    @media (max-width: 768px) {
+        .logo_txt {
+            font-size: 1.5rem;
+        }
+        table td, table th {
+            font-size: 0.85rem;
+            padding: 6px;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 {% include 'navbar.html' %}
-<div class="container" style="background-color: #050505; margin-top:15px; margin-bottom:15px; border-radius: 10px">
+<div class="container bg-base-dark my-2 rounded">
     <div class="container">
-    <div class="position-relative text-center" style="margin-top:10px" >
+    <div class="position-relative text-center mt-2" >
         <h2 class="logo_txt">Todays performance</h2>
         <button class="btn btn-info fw-bold text-dark position-absolute top-0 end-0" onclick="window.location.href='{% url 'shooter_home' %}'"><i class="bi bi-arrow-left"></i>Back</button>
     </div>
     <div class="text-light" id="manualContainer">
-        <h2 class="text-center">Manually uploaded data.</h2>
+        <h2 class="text-center">Manual score.</h2>
         {% if request.session.analytics_source == "manual" %}
             {% if latest_score %}
                 <div>
                     <h3>Match Summary</h3>
                     <hr>
-                    <table class="table table-dark table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Match Type</th>
-                                <th>Average Score</th>
-                                <th>Total Score</th>
-                                <th>Duration</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{ latest_score.date }}</td>
-                                <td>{{ latest_score.match_type }}</td>
-                                <td>{{ latest_score.average }}</td>
-                                <td>{{ latest_score.total }}</td>
-                                <td>{{ latest_score.duration }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-bordered">
+                            <thead class="text-info">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Match Type</th>
+                                    <th>Average Score</th>
+                                    <th>Total Score</th>
+                                    <th>Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ latest_score.date }}</td>
+                                    <td>{{ latest_score.match_type }}</td>
+                                    <td>{{ latest_score.average }}</td>
+                                    <td>{{ latest_score.total }}</td>
+                                    <td>{{ latest_score.duration }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <!-- ApexCharts Container -->
                  <hr>
                 <div class="container">
-                    <div class="row">
-                        <div class="col-4">
-                            <div id="scoreChart1" style="height: 350px;"></div>
+                    <div class="row align-item-center">
+                        <div class="col-12 col-md-4 mb-3">
+                            <div id="scoreChart1" style="height: 300px;"></div>
                         </div>
-                        <div class="col-4">
-                            <div id="scoreChart2" style="height: 350px;"></div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div id="scoreChart2" style="height: 300px;"></div>
                         </div>
-                        <div class="col-4">
-                            <div id="scoreChart3" style="height: 350px;"></div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div id="scoreChart3" style="height: 300px;"></div>
                         </div>
-                    
                     </div>
                 </div>
                 <hr>
                 <div class="container">
                     <div class="row">
-                        <div class="col-4">
-                            <p><strong>Notes:</strong><br> {{ latest_score.notes|default:"N/A" }}</p>
+                        <div class="col-12 col-md-4 mb-3">
+                            <p><span class="text-info"><strong>Notes:</strong></span><br> {{ latest_score.notes|default:"N/A" }}</p>
                         </div>
-                        <div class="col-4">
-                            <p><strong>Adjustment Made:</strong><br> {% if latest_score.adjustment_made %} Yes {% else %} No {% endif %}</p>
+                        <div class="col-12 col-md-4 mb-3">
+                            <p><span class="text-info"><strong>Adjustment Made:</strong></span><br> {% if latest_score.adjustment_made %} Yes {% else %} No {% endif %}</p>
                         </div>
-                        <div class="col-4">
-                            <p><strong>Adjustment Comment:</strong><br> {{ latest_score.adjustment_comment|default:"N/A" }}<p>
+                        <div class="col-12 col-md-4 mb-3">
+                            <p><span class="text-info"><strong>Adjustment Comment:</strong></span><br> {{ latest_score.adjustment_comment|default:"N/A" }}<p>
                         </div>
                     </div>
                 </div>
@@ -113,41 +123,43 @@
             {% if latest_score %}
                 <div>
                     <h3>Match Summary</h3>
-                    <table class="table table-dark table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Match Type</th>
-                                <th>Average (shot)</th>
-                                <th>Average (series)</th>
-                                <th>Total Score</th>
-                                <th>Duration</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{ latest_score.date }}</td>
-                                <td>{{ latest_score.match_type }}</td>
-                                <td>{{ latest_score.average_shot_score }}</td>
-                                <td>{{ latest_score.average_series_score }}</td>
-                                <td>{{ latest_score.total }}</td>
-                                <td>{{ latest_score.duration }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Match Type</th>
+                                    <th>Average (shot)</th>
+                                    <th>Average (series)</th>
+                                    <th>Total Score</th>
+                                    <th>Duration(mins)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ latest_score.date }}</td>
+                                    <td>{{ latest_score.match_type }}</td>
+                                    <td>{{ latest_score.average_shot_score }}</td>
+                                    <td>{{ latest_score.average_series_score }}</td>
+                                    <td>{{ latest_score.total }}</td>
+                                    <td>{{ latest_score.duration }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <!-- ApexCharts Container -->
                  <hr>
                 <div class="container">
                     <div class="row">
-                        <div class="col-4">
-                            <div id="scoreChart1" style="height: 350px;"></div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div id="scoreChart1" style="height: 300px;"></div>
                         </div>
-                        <div class="col-4" style="padding:10px;">
-                            <div id="scoreChart2" style="height: 350px;"></div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div id="scoreChart2" style="height: 300px;"></div>
                         </div>
-                        <div class="col-4">
-                            <div id="scoreChart3" style="height: 350px;"></div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div id="scoreChart3" style="height: 300px;"></div>
                         </div>
                     
                     </div>
@@ -155,13 +167,13 @@
                 <hr>
                 <div class="container">
                     <div class="row">
-                        <div class="col-4">
+                        <div class="col-12 col-md-4 mb-3">
                             <p><strong>Notes:</strong><br> {{ latest_score.notes|default:"N/A" }}</p>
                         </div>
-                        <div class="col-4">
+                        <div class="col-12 col-md-4 mb-3">
                             <p><strong>Adjustment Made:</strong><br> {% if latest_score.adjustment_made %} Yes {% else %} No {% endif %}</p>
                         </div>
-                        <div class="col-4">
+                        <div class="col-12 col-md-4 mb-3">
                             <p><strong>Adjustment Comment:</strong><br> {{ latest_score.adjustment_comment|default:"N/A" }}<p>
                         </div>
                     </div>
@@ -181,7 +193,6 @@
 <script>
     let source = "{{ request.session.analytics_source|default:'' }}".trim(); // Trim to remove unwanted spaces
 
-    console.log("Analytics Source:", source); // Debugging
     // Error handling: Check if the source is valid
     if (source !== "manual" && source !== "pdf") {
         console.error("Invalid source:", source);
@@ -234,7 +245,10 @@ document.addEventListener("DOMContentLoaded", function () {
     var options = {
         chart: {
             type: 'bar',
-            height: 350
+            height: 350,
+            toolbar: {
+                show: false // This hides the entire toolbar
+              }
         },
         plotOptions: {
             bar: {
@@ -299,7 +313,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 🥧 Pie Chart Configuration
     var pieChartOptions = {
-        chart: { type: 'pie', height: 400 },
+        chart: { type: 'pie', height: 400,   toolbar: {show: false} },
         series: seriesData.map(item => item.y), // Extract Scores
         labels: seriesData.map(item => item.x), // Extract Series Names
         colors: ["#00DDFF", "#FF4560", "#FEB019", "#775DD0", "#008FFB", "#00E396"],
@@ -313,6 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         },
         legend: {
+            position: 'bottom',
             labels: {
                 colors: "#FFFFFF", // 🔥 White text for legend labels
                 useSeriesColors: false
@@ -327,7 +342,10 @@ document.addEventListener("DOMContentLoaded", function () {
 var radarChartOptions = {
     chart: { 
         type: "radar", 
-        height: 350 
+        height: 350,
+        toolbar: {
+            show: false // This hides the entire toolbar
+          }
     },
     series: [
         {
@@ -382,9 +400,6 @@ var radarChart = new ApexCharts(document.querySelector("#scoreChart3"), radarCha
 radarChart.render();
 
 });
-
-
-    
 
 </script>
 

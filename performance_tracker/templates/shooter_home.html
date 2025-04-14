@@ -453,7 +453,10 @@ if (dataSeries.every(value => value === 0)) {
 } else {
     var options = {
         chart: {
-            type: 'bar'
+            type: 'bar',
+            toolbar: {
+                show: false // This hides the entire toolbar
+              }
         },
         title: {
             text: "Average Practice Time Per Day",
@@ -517,7 +520,10 @@ if (dataSeries.every(value => value === 0)) {
             breakpoint: 768, // Tablets and below
             options: {
                 chart: {
-                    height: 300
+                    height: 300,
+                    toolbar: {
+                        show: false // This hides the entire toolbar
+                      }
                 },
                 xaxis: {
                     labels: {
@@ -541,7 +547,10 @@ if (dataSeries.every(value => value === 0)) {
             breakpoint: 480, // Mobile phones
             options: {
                 chart: {
-                    height: 280
+                    height: 280,
+                    toolbar: {
+                        show: false // This hides the entire toolbar
+                      }
                 },
                 plotOptions: {
                     bar: {

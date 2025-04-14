@@ -17,6 +17,29 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Category changed to:", categorySelect.value);  // Debugging log
         updateActivityNames();
     });
+
+    const viewButtons = document.querySelectorAll('.view-activity');
+
+    viewButtons.forEach(btn => {
+      btn.addEventListener('click', function () {
+        const activityId = this.getAttribute('data-id');
+
+        fetch(`/score/get-activity-modal/${activityId}/`)
+          .then(response => response.json())
+          .then(data => {
+            const container = document.getElementById('ajaxModalContainer');
+            container.innerHTML = data.modal_html;
+
+            // Now manually show the modal
+            const modal = new bootstrap.Modal(document.getElementById('activityModal'));
+            modal.show();
+          })
+          .catch(error => {
+            console.error('Error fetching modal:', error);
+          });
+      });
+    });
+
 });
 
 function updateActivityNames() {
@@ -49,3 +72,4 @@ function updateActivityNames() {
 
     console.log("Options updated:", nameSelect.innerHTML); // Debugging log
 }
+

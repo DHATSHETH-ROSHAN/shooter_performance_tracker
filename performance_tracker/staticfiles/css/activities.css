@@ -4,7 +4,7 @@
     padding: 20px;
     color: #ffffff;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    
 }
 
 .page-title {
@@ -83,4 +83,54 @@ th {
 
 tr:hover {
     background: #252525;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .activity-form,
+    .activity-log {
+        padding: 10px;
+    }
+
+    th, td {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+
+    .activity-form button {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 1.25rem;
+    }
+
+    .activity-form label {
+        font-size: 0.9rem;
+    }
+
+    .activity-form input,
+    .activity-form select,
+    .activity-form textarea {
+        font-size: 0.9rem;
+        padding: 6px;
+    }
+
+    .activity-form button {
+        font-size: 0.85rem;
+        padding: 8px;
+    }
+
+    th, td {
+        font-size: 0.85rem;
+    }
 }

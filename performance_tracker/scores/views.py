@@ -246,7 +246,6 @@ def pdf_uploading(request):
 
     return render(request, "pdf_upload.html")
 
-
 def pdf_extractor(text):
     data = {}
     patterns = {
@@ -876,4 +875,18 @@ def inspect(request, id):
         'total_60_shots': total_60_shots,
     }
     return render(request, 'inspect.html', context)
+
+@login_required
+def get_activity_modal(request, activity_id):
+    activity = get_object_or_404(activities, id=activity_id)
+
+    data = {
+        'date': activity.date.strftime('%Y-%m-%d'),
+        'name': activity.activity_name,
+        'category': activity.activity_category,
+        'duration': activity.duration,
+        'notes': activity.notes,
+    }
+    return JsonResponse(data)
+
 # Create your views here.

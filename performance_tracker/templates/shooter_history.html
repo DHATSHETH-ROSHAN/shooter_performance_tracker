@@ -12,7 +12,9 @@
     gap: 10px; /* Adds spacing between elements */
 }
 /* Ensure container fits the content properly */
+
 .container {
+    min-height: 500px;
     width: 90%;  /* Adjust as needed */
     max-width: 1300px; /* Prevent it from becoming too wide */
     margin: auto; /* Center it */
@@ -40,29 +42,33 @@ tr:nth-child(even) {
 {% endblock %}
 {% block content %}
 {% include 'navbar.html' %}
-<div class="container" style="background-color: #050505;padding-top: 10px; padding-bottom: 10px;">
-    <div class="position-relative text-center">
-        <h2 class="logo_txt">Shooter History</h2>
-        <button class="btn btn-info fw-bold text-dark position-absolute top-0 end-0" onclick="window.history.back();"><i class="bi bi-arrow-left"></i>Back</button>
+<div class="container my-3 py-2 bg-base-dark">
+    <div class="row">
+        <div class="gap-3 py-3 col-12 position-relative text-center">
+            <h2 class="logo_txt">Shooter History</h2>
+            <button class="btn btn-info text-dark position-absolute top-0 end-0" onclick="window.history.back();"><i class="bi bi-arrow-left"></i></button>
+        </div>
     </div>
-    <div class="toogle-container">
-        <span style="font-size: larger;"> Manual Scores</span>
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="toggleSwitch">
-        </div>        
-        <span style="font-size: larger;"> EST Scores</span>
+    <div class="row mt-3">
+        <div class="toogle-container col-12 d-flex flex-column flex-sm-row align-items-center justify-content-center gap-3">
+            <span class="fs-5"> Manual Scores</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="toggleSwitch">
+            </div>        
+            <span class="fs-5"> EST Scores</span>
+        </div>
     </div>
     <div id="manual-history" class="history-container">
         <h3 class="text-center">Manual Score History</h3>
         <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
         <!-- this is the second toogle switch to change between the 40 and 60 shots -->
-        <div class="btn-group" role="group" aria-label="Match type selection">
+        <div class="btn-group d-block justify-content-center mb-3" role="group" aria-label="Match type selection">
             <button type="button" class="btn active fw-bold btn-info text-dark" id="btn40manual">40 Shots Match</button>
             <button type="button" class="btn btn-info fw-bold text-dark" id="btn60manual">60 Shots Match</button>
         </div>
         <!-- this is the first part 40shots to be displayed initially -->
-         <div id="40shotsmanual">
-            <table>
+        <div class="table-responsive py-2 my-3" id="40shotsmanual">
+            <table class="table-hover">
                 <thead>
                     <tr>
                         <th> Date </th>
@@ -80,32 +86,58 @@ tr:nth-child(even) {
                 <tbody>
                     {% for score in manual_scores %}
                         {% if score.match_type == "40-Shots" %}
-                            <tr>
-                                <td>{{ score.date }}</td>
-                                <td>{{ score.match_type }}</td>
-                                <td>{{ score.s1t }}</td>
-                                <td>{{ score.s2t }}</td>
-                                <td>{{ score.s3t }}</td>
-                                <td>{{ score.s4t }}</td>
-                                <td>{{ score.total }}</td>
-                                <td>{{ score.average }}</td>
-                                <td>{{ score.duration }}</td>
-                                <td> 
-                                    <i class="bi bi-eye" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#scoreDetailsModal{{ score.id }}"></i> 
-                                </td>
-                            </tr>
-                        {% endif %}
-                    {% empty %}
-                    <tr>
-                        <td colspan="9" class="text-center">No records found</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-         </div>
+                        <tr>
+                            <td>{{ score.date|date:"M d, Y" }}</td>
+                            <td>{{ score.match_type }}</td>
+                            <td>{{ score.s1t }}</td>
+                            <td>{{ score.s2t }}</td>
+                            <td>{{ score.s3t }}</td>
+                            <td>{{ score.s4t }}</td>
+                            <td>{{ score.total }}</td>
+                            <td>{{ score.average }}</td>
+                            <td>{{ score.duration|default_if_none:"-" }}</td>
+                            <td> 
+                                <i class="bi bi-eye" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#scoreDetailsModal40Man{{ score.id }}"></i> 
+                            </td>
+                        </tr>
+                            <div class="modal fade" id="scoreDetailsModal40Man{{ score.id }}" tabindex="-1" aria-labelledby="scoreDetailsModalLabel40Man{{ score.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content bg-base-dark rounded">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title text-info" id="scoreDetailsModalLabel40Man{{ score.id }}">Score Details</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><strong>Date:</strong> {{ score.date|date:"M d, Y" }}</p>
+                                            <p><strong>Match-type:</strong> {{ score.match_type }}</p>
+                                            <p><strong>Series 1:</strong> {{ score.s1t }}</p>
+                                            <p><strong>Series 2:</strong> {{ score.s2t }}</p>
+                                            <p><strong>Series 3:</strong> {{ score.s3t }}</p>
+                                            <p><strong>Series 4:</strong> {{ score.s4t }}</p>
+                                            <p><strong>Total score:</strong> {{ score.total }}</p>
+                                            <p><strong>Average Score:</strong> {{ score.average }}</p>
+                                            <p><strong>Session Duration:</strong> {{ score.duration|default_if_none:"-" }}</p>
+                                            <p><strong>Adjustments:</strong> {{ score.adjustment_comment }}</p>
+                                            <p><strong>Notes</strong> {{ score.notes }}</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center">No records found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+        </div>
          <!-- this is the second div tag which displays the contents of 60 shots if manual -->
-        <div id="60shotsmanual" style="display: none;">
-            <table>
+        <div class="table-responsive py-2 my-3" id="60shotsmanual" style="display: none;">
+            <table class="table-hover">
                 <thead>
                     <tr>
                         <th> Date </th>
@@ -119,13 +151,14 @@ tr:nth-child(even) {
                         <th> Total score </th>
                         <th> Average Score </th>
                         <th> Session Duration </th>
+                        <th> View </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for score in manual_scores %}
                         {% if score.match_type == "60-Shots" %}
                             <tr>
-                                <td>{{ score.date }}</td>
+                                <td>{{ score.date|date:"M d, Y" }}</td>
                                 <td>{{ score.match_type }}</td>
                                 <td>{{ score.s1t }}</td>
                                 <td>{{ score.s2t }}</td>
@@ -135,156 +168,212 @@ tr:nth-child(even) {
                                 <td>{{ score.s6t }}</td>
                                 <td>{{ score.total }}</td>
                                 <td>{{ score.average }}</td>
-                                <td>{{ score.duration }}</td>
+                                <td>{{ score.duration|default_if_none:"-" }}</td>
+                                <td><i class="bi bi-eye" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#scoreDetailsModal60Man{{ score.id }}"></i></td>
                             </tr>
+
+                            <div class="modal fade" id="scoreDetailsModal60Man{{ score.id }}" tabindex="-1" aria-labelledby="scoreDetailsModalLabel60Man{{ score.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content bg-base-dark rounded">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title text-info" id="scoreDetailsModalLabel60Man{{ score.id }}">EST Score Details</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><strong>Date:</strong> {{ score.date|date:"M d, Y" }}</p>
+                                            <p><strong>Match-type:</strong> {{ score.match_type }}</p>
+                                            <p><strong>Series 1:</strong> {{ score.s1t }}</p>
+                                            <p><strong>Series 2:</strong> {{ score.s2t }}</p>
+                                            <p><strong>Series 3:</strong> {{ score.s3t }}</p>
+                                            <p><strong>Series 4:</strong> {{ score.s4t }}</p>
+                                            <p><strong>Series 5:</strong> {{ score.s5t }}</p>
+                                            <p><strong>Series 6:</strong> {{ score.s6t }}</p>
+                                            <p><strong>Total score:</strong> {{ score.total }}</p>
+                                            <p><strong>Avg Score per Shot:</strong> {{ score.average }}</p>
+                                            <p><strong>Session Duration:</strong> {{ score.duration|default_if_none:"-" }}</p>
+                                            <p><strong>Adjustments:</strong> {{ score.adjustment_comment }}</p>
+                                            <p><strong>Notes</strong> {{ score.notes }}</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         {% endif %}
                     {% empty %}
                     <tr>
-                        <td colspan="11" class="text-center">No records found</td>
+                        <td colspan="12" class="text-center">No records found</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-    
-        <!-- EST Score History -->
-        <div id="est-history" class="history-container" style="display: none;">
-            <h3 class="text-center">EST Score History</h3>
-            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <!-- EST Score History -->
+    <div id="est-history" class="history-container" style="display: none;">
+        <h3 class="text-center">EST Score History</h3>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
             <!-- this is the second toogle switch to change between the 40 and 60 shots -->
-            <div class="btn-group" role="group" aria-label="Match type selection">
-                <button type="button" class="btn btn-info fw-bold" id="btn40est">40 Shots Match</button>
-                <button type="button" class="btn btn-info fw-bold active" id="btn60est">60 Shots Match</button>
-            </div>
-            <div id="40shotsest" style="display: none;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th> Date </th>
-                            <th> Match-type</th>
-                            <th> series 1 </th>
-                            <th> series 2 </th>
-                            <th> series 3 </th>
-                            <th> series 4 </th>
-                            <th> Total score </th>
-                            <th> Average Score (shot) </th>
-                            <th> Average score (series) </th>
-                            <th> Session Duration </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% with has_40_shots=False %}
-                            {% for score in est_scores %}
-                                {% if score.match_type == "40-Shots" %}
-                                    {% with has_40_shots=True %}
-                                    <tr>
-                                        <td>{{ score.date }}</td>
-                                        <td>{{ score.match_type }}</td>
-                                        <td>{{ score.s1t }}</td>
-                                        <td>{{ score.s2t }}</td>
-                                        <td>{{ score.s3t }}</td>
-                                        <td>{{ score.s4t }}</td>
-                                        <td>{{ score.total }}</td>
-                                        <td>{{ score.average_shot_score }}</td>
-                                        <td>{{ score.average_series_score}}</td>
-                                        <td>{{ score.duration }}</td>
-                                    </tr>
-                                    {% endwith %}
-                                {% endif %}
-                            {% endfor %}
-                            {% if not has_40_shots %}
-                                <tr>
-                                    <td colspan="10" class="text-center">No records found</td>
-                                </tr>
-                            {% endif %}
-                        {% endwith %}
-                    </tbody>
-                </table>
-            </div>
-            <div id="60shotsest">
-                <table>
-                    <thead>
-                        <tr>
-                            <th> Date </th>
-                            <th> Match-type</th>
-                            <th> series 1 </th>
-                            <th> series 2 </th>
-                            <th> series 3 </th>
-                            <th> series 4 </th>
-                            <th> series 5 </th>
-                            <th> series 6 </th>
-                            <th> Total score </th>
-                            <th> Average Score (shot) </th>
-                            <th> Average score (series) </th>
-                            <th> Session Duration </th>
-                            <th> View</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        <div class="btn-group d-block justify-content-center mb-3" role="group" aria-label="Match type selection">
+            <button type="button" class="btn btn-info fw-bold" id="btn40est">40 Shots Match</button>
+            <button type="button" class="btn btn-info fw-bold active" id="btn60est">60 Shots Match</button>
+        </div>
+        <div class="table-responsive py-2 my-3" id="40shotsest" style="display: none;">
+            <table class="table-hover">
+                <thead>
+                    <tr>
+                        <th> Date </th>
+                        <th> Match-type</th>
+                        <th> series 1 </th>
+                        <th> series 2 </th>
+                        <th> series 3 </th>
+                        <th> series 4 </th>
+                        <th> Total score </th>
+                        <th> Average Score (shot) </th>
+                        <th> Average score (series) </th>
+                        <th> Session Duration </th>
+                        <th> View </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
                         {% for score in est_scores %}
-                            {% if score.match_type == "60-Shots" %}
+                            {% if score.match_type == "40-Shots" %}
+                                
                                 <tr>
-                                    <td>{{ score.date }}</td>
+                                    <td>{{ score.date|date:"M d, Y" }}</td>
                                     <td>{{ score.match_type }}</td>
                                     <td>{{ score.s1t }}</td>
                                     <td>{{ score.s2t }}</td>
                                     <td>{{ score.s3t }}</td>
                                     <td>{{ score.s4t }}</td>
-                                    <td>{{ score.s5t }}</td>
-                                    <td>{{ score.s6t }}</td>
                                     <td>{{ score.total }}</td>
                                     <td>{{ score.average_shot_score }}</td>
                                     <td>{{ score.average_series_score}}</td>
-                                    <td>{{ score.duration }}</td>
-                                    <td> <i class="bi bi-eye" style="cursor: pointer;" onclick="showScoreDetails({{ score.id }})"></i> </td>
+                                    <td>{{ score.duration|default_if_none:"-" }}</td>
+                                    <td><i class="bi bi-eye" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#scoreDetailsModal40Est{{ score.id }}"></i></td>
                                 </tr>
+                                
+                                <div class="modal fade" id="scoreDetailsModal40Est{{ score.id }}" tabindex="-1" aria-labelledby="scoreDetailsModalLabel40Est{{ score.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content" style="background-color:#050505; border-radius:12px;">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="scoreDetailsModalLabel40Est{{ score.id }}">Score Details</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p><strong>Date:</strong>{{ score.date|date:"M d, Y" }}</p>
+                                                <p><strong>Match-type:</strong> {{ score.match_type }}</p>
+                                                <p><strong>Series 1:</strong> {{ score.s1t }}</p>
+                                                <p><strong>Series 2:</strong> {{ score.s2t }}</p>
+                                                <p><strong>Series 3:</strong> {{ score.s3t }}</p>
+                                                <p><strong>Series 4:</strong> {{ score.s4t }}</p>
+                                                <p><strong>Total score:</strong> {{ score.total }}</p>
+                                                <p><strong>Average Score:</strong> {{ score.average }}</p>
+                                                <p><strong>Session Duration:</strong> {{ score.duration|default_if_none:"-" }}</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             {% endif %}
-                        {% empty %}
-                        <tr>
-                            <td colspan="11" class="text-center">No records found</td>
-                        </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                        {% if not has_40_shots %}
+                            <tr>
+                                <td colspan="11" class="text-center">No records found</td>
+                            </tr>
+                        {% endif %}
+                </tbody>
+            </table>
         </div>
-
-        <div class="modal fade" id="scoreDetailsModal{{ score.id }}" tabindex="-1" aria-labelledby="scoreDetailsModalLabel{{ score.id }}" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content" style="background-color:#050505; border-radius:12px;">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="scoreDetailsModalLabel{{ score.id }}">Score Details</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p><strong>Date:</strong> {{ score.date }}</p>
-                        <p><strong>Match-type:</strong> {{ score.match_type }}</p>
-                        <p><strong>Series 1:</strong> {{ score.s1t }}</p>
-                        <p><strong>Series 2:</strong> {{ score.s2t }}</p>
-                        <p><strong>Series 3:</strong> {{ score.s3t }}</p>
-                        <p><strong>Series 4:</strong> {{ score.s4t }}</p>
-                        <p><strong>Total score:</strong> {{ score.total }}</p>
-                        <p><strong>Average Score:</strong> {{ score.average }}</p>
-                        <p><strong>Session Duration:</strong> {{ score.duration }}</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
+        <div class="table-responsive py-2 my-3" id="60shotsest">
+            <table class="table-hover">
+                <thead>
+                    <tr>
+                        <th> Date </th>
+                        <th> Match-type</th>
+                        <th> series 1 </th>
+                        <th> series 2 </th>
+                        <th> series 3 </th>
+                        <th> series 4 </th>
+                        <th> series 5 </th>
+                        <th> series 6 </th>
+                        <th> Total score </th>
+                        <th> Average Score (shot) </th>
+                        <th> Average score (series) </th>
+                        <th> Session Duration </th>
+                        <th> View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for score in est_scores %}
+                        {% if score.match_type == "60-Shots" %}
+                            <tr>
+                                <td>{{ score.date|date:"M d, Y" }}</td>
+                                <td>{{ score.match_type }}</td>
+                                <td>{{ score.s1t }}</td>
+                                <td>{{ score.s2t }}</td>
+                                <td>{{ score.s3t }}</td>
+                                <td>{{ score.s4t }}</td>
+                                <td>{{ score.s5t }}</td>
+                                <td>{{ score.s6t }}</td>
+                                <td>{{ score.total }}</td>
+                                <td>{{ score.average_shot_score }}</td>
+                                <td>{{ score.average_series_score}}</td>
+                                <td>{{ score.duration|default_if_none:"-" }}</td>
+                                <td><i class="bi bi-eye" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#scoreDetailsModal60Est{{ score.id }}"></i></td>
+                            </tr>
+                            <!-- Modal -->
+                                <div class="modal fade" id="scoreDetailsModal60Est{{ score.id }}" tabindex="-1" aria-labelledby="estScoreModalLabel{{ score.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content" style="background-color:#050505; border-radius:12px;">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="estScoreModalLabel{{ score.id }}">EST Score Details</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p><strong>Date:</strong> {{ score.date|date:"M d, Y" }}</p>
+                                                <p><strong>Match-type:</strong> {{ score.match_type }}</p>
+                                                <p><strong>Series 1:</strong> {{ score.s1t }}</p>
+                                                <p><strong>Series 2:</strong> {{ score.s2t }}</p>
+                                                <p><strong>Series 3:</strong> {{ score.s3t }}</p>
+                                                <p><strong>Series 4:</strong> {{ score.s4t }}</p>
+                                                <p><strong>Series 5:</strong> {{ score.s5t }}</p>
+                                                <p><strong>Series 6:</strong> {{ score.s6t }}</p>
+                                                <p><strong>Total score:</strong> {{ score.total }}</p>
+                                                <p><strong>Avg Score per Shot:</strong> {{ score.average_shot_score }}</p>
+                                                <p><strong>Avg Score per Series:</strong> {{ score.average_series_score }}</p>
+                                                <p><strong>Session Duration:</strong>{{ score.duration|default_if_none:"-" }}</p>
+                                                <p><strong>Notes: </strong> {{ score.notes }}</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        {% endif %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="12" class="text-center">No records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+    </div>
 </div>
-
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
 document.getElementById("toggleSwitch").addEventListener("change", function() {
     let manualContainer = document.getElementById("manual-history");
     let estContainer = document.getElementById("est-history");
+
     let toggleValue = this.checked ? "est" : "manual"; // Send "est" if checked, else "manual"
-    if (this.checked) {
+    if (toggleValue === "est") {
         manualContainer.style.display = "none";
         estContainer.style.display = "block";
     } else {
@@ -321,7 +410,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
-
 document.addEventListener("DOMContentLoaded", function() {
     let btn40Manual = document.getElementById("btn40manual");
     let btn60Manual = document.getElementById("btn60manual");
@@ -363,8 +451,6 @@ document.addEventListener("DOMContentLoaded", function() {
         btn40EST.classList.remove("active");
     });
 });
-
 </script>
-
 {% include 'footer.html'%}
 {% endblock %}

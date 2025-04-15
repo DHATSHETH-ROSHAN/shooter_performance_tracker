@@ -15,6 +15,14 @@
         color: #FFFFFF; !important;
     }
     
+    .bg-base-dark {
+        background-color: #050505;
+    }
+    
+    .bg-base-light {
+        background-color: #202020;
+    }
+
     .toggle-container {
         display: flex;
         justify-content: center;
@@ -43,25 +51,29 @@
 {% endblock %}
 
 {% block content %}
-
-<div class="score-container text-col" style="background-color: #050505;">
-    <div class="position-relative text-center" style="margin:10px" >
-        <h2 class="logo_txt">Inspecting <span style="font-weight: normal;">{{ username }}</span></h2>
-        <button class="btn btn-info fw-bold text-dark position-absolute top-0 end-0" onclick="window.history.back();"><i class="bi bi-arrow-left"></i>Back</button>
-    </div>
-    <div class="toggle-container text-col">
-        <label class="toggle-label ">Manual Score</label>
-        <label class="toggle-switch">
-            <input type="checkbox" id="scoreToggle">
-            <span class="slider"></span>
-        </label>
-        <label class="toggle-label">PDF Score</label>
-    </div>
+<div class="mb-3">
+    <div class="score-container mb-3 text-col bg-base-dark">
+        <div class="position-relative text-center mt-2">
+            <h2 class="mb-3"> <span class="logo_txt"> Inspecting</span> <br> <span class="text-info fw-3">{{ username }}</span></h2>
+            <button class="btn btn-info fw-bold text-dark position-absolute top-0 end-0" onclick="window.history.back();"><i class="bi bi-arrow-left"></i>Back</button>
+        </div>
+        <div class="d-flex justify-content-center align-items-center mb-4 text-col">
+            <div class="d-flex align-items-center">
+                <label class="toggle-label me-3">Manual Score</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="scoreToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="d-flex align-items-center ms-3">
+                <label class="toggle-label">PDF Score</label>
+            </div>
+        </div>
     </div>
     
-    <div id="manualScore" class="score-container " style="background-color: #050505;">
+    <div id="manualScore" class="score-container bg-base-dark">
         <div class="row text-center text-col">
-            <div class="col-3 ">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
                 <h5 style="font-weight: bold;" >Total Session</h5>
                 <div class="row">
                 <div class="col-6">
@@ -74,7 +86,7 @@
                 </div>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
                 <h5 style="font-weight: bold;">Personal Best</h5>
                 <div class="row">
                 <div class="col-6">
@@ -87,7 +99,7 @@
                 </div>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
                 <h5 style="font-weight: bold;">30 Days Average</h5>
                 <div class="row">
                     <div class="col-6">
@@ -98,9 +110,9 @@
                         <p>60 shots</p>    
                         <p class="fw-bold text-success">{{ last_30_avg_60_man }}</p>
                     </div>
-                    </div>
+                </div>
             </div>
-            <div class="col-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
                 <div class="card-body text-center">
                     <h5 class="card-title" style="font-weight: bold;">Streaks</h5>
                     <p class="fw-bold">Current Streak:<span id="streakDays">{{ streak_count }}</span>Days</p>
@@ -113,9 +125,9 @@
         </div>
     </div>
     
-    <div id="pdfScore" class="score-container text-col" style="display: none; background-color: #050505;">
+    <div id="pdfScore" class="score-container text-col bg-base-dark" style="display: none;">
         <div class="row text-center">
-            <div class="col-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
                 <h5 style="font-weight: bold;">Total Session</h5>
                 <div class="row">
                 <div class="col-6">
@@ -128,7 +140,7 @@
                 </div>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
                 <h5 style="font-weight: bold;">Personal Best</h5>
                 <div class="row">
                 <div class="col-6">
@@ -141,7 +153,7 @@
                 </div>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
                 <h5 style="font-weight: bold;">30 Days Average</h5>
                 <div class="row">
                     <div class="col-6">
@@ -154,7 +166,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
                 <div class="card-body text-center">
                     <h5 class="card-title">Streaks</h5>
                     <p class="fw-bold">Current Streak:<span id="streakDays">{{ streak_count }}</span>Days</p>
@@ -168,7 +180,7 @@
         <hr style="border-top: 2px solid #00DDFF;">
         {% comment %} second part for the est {% endcomment %}
         <div class="row text-center">
-            <div class="col-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
                 <h5 style="font-weight: bold;">Series Average</h5>
                 <div class="row">
                 <div class="col-6">
@@ -181,7 +193,7 @@
                 </div>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
                 <h5 style="font-weight: bold;">Shot Average</h5>
                 <div class="row">
                 <div class="col-6">
@@ -194,7 +206,7 @@
                 </div>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
                 <h5 style="font-weight: bold;">Average group size</h5>
                 <div class="row">
                     <div class="col-6">
@@ -207,7 +219,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
                 <h5 style="font-weight: bold;">Average Inner 10'S</h5>
                 <div class="row">
                     <div class="col-6">
@@ -223,30 +235,30 @@
         </div>
     </div>
     {% comment %} manual container {% endcomment %}
-    <div class="score-container text-col text-center" id="manualscoredash" style="background-color: #050505;">
+    <div class="score-container mb-3 text-col text-center bg-base-dark" id="manualscoredash">
         <div class="row">
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt">Series trends</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="seriesTrendChart40man"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="seriesTrendChart60man"></div>
                     </div>
                 </div>
             </div>
     
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt" >Score distribution</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="pieChart40man"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="pieChart60man"></div>
                     </div>
@@ -255,27 +267,27 @@
         </div>
         <hr style="border-top: 2px solid #00DDFF;">
         <div class="row">
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt">Performance vs Duration</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="scatterChart40man"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="scatterChart60man"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt">Series score Performance</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="score40timeChartman"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="score60timeChartman"></div>
                     </div>
@@ -284,27 +296,27 @@
         </div>
         <hr style="border-top: 2px solid #00DDFF;">
         <div class="row">
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt">Shot average over the time</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="shotline40man"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="shotline60man"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt">Score Performance over the time</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="scoreover_timemanual40"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="scoreover_timemanual60"></div>
                     </div>
@@ -315,28 +327,28 @@
     {% comment %} est score Dashboard {% endcomment %}
     <div class="score-container text-col text-center" id="estscoredash" style="display: none; background-color: #050505;">
         <div class="row">
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt">Series trends</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="seriesTrendChart40est"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="seriesTrendChart60est"></div>
                     </div>
                 </div>
             </div>
     
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt" >Score distribution</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="pieChart40est"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="pieChart60est"></div>
                     </div>
@@ -345,27 +357,27 @@
         </div>
         <hr style="border-top: 2px solid #00DDFF;">
         <div class="row">
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt">Performance vs Duration</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="scatterChart40est"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="scatterChart60est"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt">Series score Performance</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="score40timeChartest"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="score60timeChartest"></div>
                     </div>
@@ -374,27 +386,27 @@
         </div>
         <hr style="border-top: 2px solid #00DDFF;">
         <div class="row">
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt">Shot average over the time</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="shotline40est"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="shotline60est"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt">Series score Performance</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="scoreover_timeest40"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="scoreover_timeest60"></div>
                     </div>
@@ -404,27 +416,27 @@
     
     <hr style="border-top: 2px solid #00DDFF;">
         <div class="row">
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt">Inner tens</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="inner10line40est"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="inner10line60est"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="row">
                     <h3 class="logo_txt">Group size</h3>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>40-Shots trends</h4>
                         <div id="gps_timeradarest40"></div>
                     </div>
-                    <div class="chart-container col-6">
+                    <div class="chart-container col-12 col-sm-6 mb-3">
                         <h4>60-Shots trends</h4>
                         <div id="gps_timeradarest60"></div>
                     </div>
@@ -432,6 +444,7 @@
             </div>
         </div>
     </div>
+</div>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     
     <script>

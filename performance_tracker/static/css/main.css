@@ -62,4 +62,14 @@ html, body {
     margin-top: auto; /* Push footer to bottom */
 }
 
+.bg-base-dark {
+    background-color: #050505;
+}
 
+.bg-base-light {
+    background-color: #202020;
+}
+
+.text-col {
+    color: #e0e0e0
+}

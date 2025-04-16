@@ -284,7 +284,8 @@ def shooter_home(request):
                     "last_message": msg,
                     "unread_count": Message.objects.filter(receiver=shooter, sender=other_user, is_read=False).count()
                 }
-
+        events = Event.objects.filter(visibility__in=['shooter', 'both'], date__gte=now().date()).order_by('date')
+        day_plans = DayPlanner.objects.filter(shooter=request.user, shared_with_shooter=True, date__gte=now().date())
         context = {
             "conversations": conversations.values(),
             'total_session_40': total_session_40,
@@ -321,6 +322,9 @@ def shooter_home(request):
             'coaches': available_coaches,
             'coach_relation':coach_relation,
             'current_shooters_count' : current_shooters_count,
+            'events': events,
+            'day_plans': day_plans,
+            
         }
         
         return render(request, 'shooter_home.html', context)

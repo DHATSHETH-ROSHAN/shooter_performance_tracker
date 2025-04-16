@@ -366,6 +366,26 @@ select.form-control {
     .btn-custom {
         padding: 6px 0;
     }
+    .scrollable-element {
+        max-height: 50vh;
+        overflow-y: auto;
+    }
+
+    .message-preview {
+        font-size: 0.9rem;
+    }
+
+    .chat-box {
+        padding: 1rem 0.5rem;
+    }
+
+    .avatar-text {
+        font-size: 1.2rem;
+    }
+}
+
+.card.p-3 {
+    padding: 1rem !important;
 }
 
 @media (max-width: 576px) {
@@ -423,5 +443,20 @@ select.form-control {
     .message-preview {
         font-size: 11px;
     }
+
+    .card.p-3 {
+        padding: 0.75rem !important;
+    }
+
+    .btn-sm {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+    }
+
+    .logo_txt {
+        font-size: 1.3rem;
+        text-align: center;
+    }
+    
     
 }

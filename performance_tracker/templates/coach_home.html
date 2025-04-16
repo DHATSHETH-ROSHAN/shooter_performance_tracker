@@ -23,7 +23,6 @@ Coach Home
             <span class="ms-2 logo_txt d-none d-sm-inline d-md-none fs-5">Performance Tracker</span>
             <span class="ms-2 logo_txt d-none d-md-inline d-lg-none fs-4">Performance Tracker</span>
             <span class="ms-2 logo_txt d-none d-lg-inline fs-2">Performance Tracker</span>
-            {% comment %} <span class="ms-2 logo_txt fs-4 fs-md-2 fs-lg-1 fw-semibold d-none d-sm-inline">Performance Tracker</span> {% endcomment %}
         </a>
         <!-- Toggler for mobile -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,7 +67,7 @@ Coach Home
             <button id="shrink-btn"><i class="bi bi-arrows-angle-contract"></i><span>Shrink</span></button>
             <button id="home-btn" class="custom-btn"><i class="bi bi-house-door"></i><span> Home</span></button>
             <button id="dashboard-btn" class="custom-btn"><i class="bi bi-speedometer"></i><span> Dashboard</span></button>
-            <button id="shooters-btn" class="custom-btn d-none d-mb-block"><i class="bi bi-bullseye"></i><span> Shooters</span></button>
+            <button id="shooters-btn" class="custom-btn "><i class="bi bi-bullseye"></i><span> Shooters</span></button>
             <button id="notifications-btn" class="custom-btn position-relative">
                 <i class="bi bi-chat-left-dots"></i>
                 <span>Notifications & Message</span>
@@ -79,7 +78,7 @@ Coach Home
                     </span>
                 {% endif %}
             </button>
-            <button id="profile-btn" class="custom-btn"><i class="bi bi-person-circle"></i><span> Profile</span></button>
+            {% comment %} <button id="profile-btn" class="custom-btn"><i class="bi bi-person-circle"></i><span> Profile</span></button> {% endcomment %}
             <button id="settings-btn" class="custom-btn"><i class="bi bi-gear"></i><span> Settings</span></button>
         </div>
         <div id="main-content" class="rounded pb-2 col-10 bg-base-light">
@@ -107,14 +106,14 @@ Coach Home
                             </div>
                         </div>
                         {% comment %} day Planner {% endcomment %}
-                        <div class="row pt-3 text-center align-items-center mt-4 bg-base-dark rounded">
+                        <div class="row pt-3 align-items-center mt-4 bg-base-dark rounded">
                             <div class="col-12">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <!-- Spacer (Pushes the title to center) -->
                                     <div class="flex-grow-1 text-center">
-                                        <h4 class="m-0 fs-6 fs-sm-5 fs-md-4 text-info fw-bold fst-italic">
+                                        <p class="m-0 fs-5 text-info fw-bold fst-italic">
                                             Day Planner
-                                        </h4>
+                                        </p>
                                     </div>
                                     <!-- Create Button (Aligned to the Right) -->
                                     <button id="showFormBtn" class="btn btn-sm btn-info text-black">
@@ -183,7 +182,7 @@ Coach Home
                                 <div class="d-flex align-items-center">
                                     <!-- Spacer (Pushes the title to center) -->
                                     <div class="flex-grow-1 text-center">
-                                        <h4 class="m-0 text-info fs-6 fs-sm-5 fs-md-4 fw-bold fst-italic">Upcoming Matches & Events</h4>
+                                        <h4 class="m-0 text-info fs-5 fw-bold fst-italic">Upcoming Matches & Events</h4>
                                     </div>
                                     <!-- Create Button (Aligned to the Right) -->
                                     <button id="toggleEventFormBtn" class="btn btn-sm btn-info mb-2"><i class="bi bi-plus-lg"></i> Add</button>
@@ -421,17 +420,16 @@ Coach Home
             <div id="shooters-container" class="container-fluid text-light bg-base-light rounded " style="display:none;">
                 <h4 class="mb-3 logo_txt py-3">Shooters List</h4>
                 <div class="table-responsive">
-                    <table class="table table-bordered custom-table table-hover align-middle text-light">
+                    <table class="table table-bordered table-dark align-middle text-light" style="border-color: #0ddfff;">
                         <thead class="fs-6">
-                            <tr>
-                                <th class="text-center">S.No</th>
+                            <tr class="bg-base-dark text-info" >
+                                <th class="text-center" style="width:10%;">S.No</th>
                                 <th>Name</th>
                                 <th class="text-center">Average (40) Manual</th>
                                 <th class="text-center">Average (60) Manual</th>
                                 <th class="text-center">Average (40) EST</th>
                                 <th class="text-center">Average (60) EST</th>
-                                <th class="text-center">View</th>
-                                <th class="text-center">Remove</th>
+                                <th class="text-center">Operations</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -447,9 +445,7 @@ Coach Home
                                     <a href="{% url 'inspect' shooter.id %}" class="btn view-btn btn-sm">
                                         <i class="fa-solid fa-eye"  style="color: #00ddff;"></i> 
                                     </a>
-                                </td>
-                                <td class="text-center">
-                                    <button class="btn btn-danger btn-sm" onclick="openRemoveModal({{ shooter.id }})"><i class="bi bi-person-dash"></i> Remove</button>
+                                    <button class="btn btn-danger btn-sm" onclick="openRemoveModal({{ shooter.id }})"><i class="bi bi-person-dash"></i></button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -458,14 +454,14 @@ Coach Home
                 </div>
             </div>
             {% comment %} Notification container {% endcomment %}
-            <div id="notifications-container" class="container-fluid py-3 text-light" style="background-color:#202020; border-radius:15px; display:none;">
-                <div class="container-fluid" style="background-color: #050505; padding-bottom:10px; margin-bottom:10px; border-radius:12px;">
+            <div id="notifications-container" class="container-fluid py-3 text-light rounded bg-base-light" style="display:none;">
+                <div class="container-fluid bg-base-dark pb-2 mb-2 rounded">
                     <h2 class="logo_txt py-3" > Notifications</h2>
                     {% if pending_requests %}
                     <h4 class="text-center my-2 logo_txt">Coaching Requests</h4>
                     <div class="py-3">
                         {% for request in pending_requests %}
-                            <div class="card p-3 mb-3" style="background-color: #0A0A0A; border-radius: 12px; border: 1px solid #303030; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);">
+                            <div class="card p-3 mb-3 rounded" style="background-color: #0A0A0A; border: 1px solid #303030; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="text-light"><b>{{ request.shooter.username }} wants you as a coach.</b></span>
                                     <div class="d-flex gap-2">
@@ -493,7 +489,7 @@ Coach Home
                         <div class="py-3">
                             <div class="row">
                                 <!-- Conversation List -->
-                                <div class="col-4 ">
+                                <div class="col-12 col-md-4 mb-3 mb-md-0">
                                     {% for convo in conversations %}
                                         <div class="card p-3 mb-3 message-card open-chat" data-user-id="{{ convo.other_user.id }}" style="cursor: pointer; transition: background-color 0.3s;">
                                             <div class="d-flex justify-content-between align-items-center">
@@ -516,7 +512,7 @@ Coach Home
                                 </div>
 
                                 <!-- Chat Window (Will be loaded dynamically) -->
-                                <div class="col-8">
+                                <div class="col-12 col-md-8">
                                     <div id="chat-window" class="chat-box">
                                         <p class="text-light text-center">Select a chat to start messaging</p>
                                     </div>
@@ -529,14 +525,14 @@ Coach Home
                 </div>  
             </div>
             {% comment %} profile container{% endcomment %}
-            <div id="profile-container" class="container-fluid text-light rounded bg-base-light" style="display:none;">
-                <div class=" py-5">
-                    <div class="mx-auto p-4 bg-base-dark rounded" style="width: 80%; box-shadow: 0 4px 10px rgba(0, 221, 255, 0.3);">
+            {% comment %} <div id="profile-container" class="container-fluid text-light rounded bg-base-light" style="display:none;">
+                <div class="py-3">
+                    <div class="mx-auto p-4 bg-base-dark rounded" style=" box-shadow: 0 4px 10px rgba(0, 221, 255, 0.3);">
                         <h2 class="text-start text-info mb-2">Profile Settings</h2>
                             <div class="row">
                                 <!-- Profile Image & Name -->
                                 <div class="col-12 col-md-4 text-center mb-4 mb-md-0">
-                                    <i class="fas fa-user-circle" style="font-size: 120px; color: #00DDFF;"></i>
+                                    <i class="fas fa-user-circle text-accent d-block mb-2" style="font-size: 10vh;"></i>
                                     <h3 class="mt-2" style="color: #00DDFF;"><i class="bi bi-credit-card-2-front"></i>{{ user.username }}</h3>
                                     <p class="text-secondary"><i class="bi bi-bullseye"></i> {{ specialization }}</p>
                                     <p class="text-secondary"><i class="bi bi-gender-ambiguous"></i> Gender {{ gender }}</p>
@@ -548,25 +544,60 @@ Coach Home
                                     </button>
                                 </div>
                                 <!-- Profile Info - Left Column -->
-                                <div class="col-12 col-md-4 py-3" >
-                                    <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-envelope-paper" style="margin-right: 8px;"></i> Email:</strong> <span style="color: white; border-bottom:2px;">{{ coach_email}}</span></p>
-                                    <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-telephone" style="margin-right: 8px;"></i> Phone:</strong> <span style="color: white;">{{ coach_phone }}</span></p>
-                                    <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-calendar-event" style="margin-right: 8px;"></i> DOB:</strong> <span style="color: white;">{{ date_of_birth }}</span></p>
+                                <div class="col-12 col-md-4 py-md-3" >
+                                    <p class="mb-3 fs-6 fs-md-5 fs-lg-5 fs-xl-4"><strong class="fs-5 fs-md-5 fs-lg-4" style="color: #00DDFF; margin-right: 8px;"><i class="bi bi-envelope-paper" style="margin-right: 8px;"></i> Email:</strong> <span style="color: white; border-bottom:2px;">{{ coach_email}}</span></p>
+                                    <p class="mb-3 fs-6 fs-md-5 fs-lg-5 fs-xl-4"><strong class="fs-5 fs-md-5 fs-lg-4" style="color: #00DDFF; margin-right: 8px;"><i class="bi bi-telephone" style="margin-right: 8px;"></i> Phone:</strong> <span style="color: white;">{{ coach_phone }}</span></p>
+                                    <p class="mb-3 fs-6 fs-md-5 fs-lg-5 fs-xl-4"><strong class="fs-5 fs-md-5 fs-lg-4" style="color: #00DDFF; margin-right: 8px;"><i class="bi bi-calendar-event" style="margin-right: 8px;"></i> DOB:</strong> <span style="color: white;">{{ date_of_birth }}</span></p>
                                 </div>
                                 <!-- Profile Info - Right Column -->
-                                <div class="col-12 col-md-4 py-3">
-                                    <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-people" style="margin-right: 8px;"></i> Shooters:</strong> <span style="color: white;">{{ shooters_count }}</span></p>
-                                    <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-graph-up-arrow" style="margin-right: 8px;"></i> Experience:</strong> <span style="color: white;">{{ experience }}</span></p>
-                                    <p style="margin-bottom: 15px; font-size: 20px;"><strong style="color: #00DDFF; font-size:22px; margin-right: 8px;"><i class="bi bi-cup-hot" style="margin-right: 8px;"></i> Club:</strong> <span style="color: white;">{{ club }}</span></p>
+                                <div class="col-12 col-md-4 py-md-3">
+                                    <p class="mb-3 fs-6 fs-md-5 fs-lg-5 fs-xl-4"><strong class="fs-5 fs-md-5 fs-lg-4" style="color: #00DDFF; margin-right: 8px;"><i class="bi bi-people" style="margin-right: 8px;"></i> Shooters:</strong> <span style="color: white;">{{ shooters_count }}</span></p>
+                                    <p class="mb-3 fs-6 fs-md-5 fs-lg-5 fs-xl-4"><strong class="fs-5 fs-md-5 fs-lg-4" style="color: #00DDFF; margin-right: 8px;"><i class="bi bi-graph-up-arrow" style="margin-right: 8px;"></i> Experience:</strong> <span style="color: white;">{{ experience }}</span></p>
+                                    <p class="mb-3 fs-6 fs-md-5 fs-lg-5 fs-xl-4"><strong class="fs-5 fs-md-5 fs-lg-4" style="color: #00DDFF; margin-right: 8px;"><i class="bi bi-cup-hot" style="margin-right: 8px;"></i> Club:</strong> <span style="color: white;">{{ club }}</span></p>
                                 </div>
                             </div>
                         
                     </div>
                 </div>
-            </div>
+            </div> {% endcomment %}
             {% comment %} settings {% endcomment %}
             <div id="settings-container" class="container-fluid text-light bg-base-light rounded" style="display:none; height: 82vh; overflow-y: auto;scrollbar-width: none; -ms-overflow-style: none;">
                 <h3 class="text-center py-3 logo_txt">Settings</h3>
+                <!-- Profile -->
+                <div class="py-3">
+                    <div class="mx-auto p-4 bg-base-dark rounded">
+                        <h2 class="text-start mb-2">Profile Settings</h2>
+                            <div class="row">
+                                <!-- Profile Image & Name -->
+                                <div class="col-12 col-md-4 text-center mb-4 mb-md-0">
+                                    <i class="fas fa-user-circle text-accent d-block mb-2" style="font-size: 10vh;"></i>
+                                    <h3 class="mt-2" style="color: #00DDFF;"><i class="bi bi-credit-card-2-front"></i> {{ user.username }}</h3>
+                                    <p class="text-secondary"><i class="bi bi-bullseye"></i> {{ specialization }}</p>
+                                    <p class="text-secondary"><i class="bi bi-gender-ambiguous"></i> Gender {{ gender }}</p>
+                                    <button class="btn btn-info mb-2 fw-bold" data-bs-toggle="modal" data-bs-target="#editProfileModal" style=" margin-right: 12px; padding: 8px 15px; cursor: pointer; margin-top: 10px;">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-info mb-2 fw-bold" onclick="document.getElementById('shooters-btn').click();" style="padding: 8px 15px; cursor: pointer; margin-top: 10px;">
+                                        <i class="bi bi-people"></i> Students
+                                    </button>
+                                </div>
+                                <!-- Profile Info - Left Column -->
+                                <div class="col-12 col-md-4 py-md-3" >
+                                    <p class="mb-3 fs-6 fs-md-5 fs-lg-5 fs-xl-4"><strong class="fs-5 fs-md-5 fs-lg-4" style="color: #00DDFF; margin-right: 8px;"><i class="bi bi-envelope-paper" style="margin-right: 8px;"></i> Email:</strong> <span style="color: white; border-bottom:2px;">{{ coach_email}}</span></p>
+                                    <p class="mb-3 fs-6 fs-md-5 fs-lg-5 fs-xl-4"><strong class="fs-5 fs-md-5 fs-lg-4" style="color: #00DDFF; margin-right: 8px;"><i class="bi bi-telephone" style="margin-right: 8px;"></i> Phone:</strong> <span style="color: white;">{{ coach_phone }}</span></p>
+                                    <p class="mb-3 fs-6 fs-md-5 fs-lg-5 fs-xl-4"><strong class="fs-5 fs-md-5 fs-lg-4" style="color: #00DDFF; margin-right: 8px;"><i class="bi bi-calendar-event" style="margin-right: 8px;"></i> DOB:</strong> <span style="color: white;">{{ date_of_birth }}</span></p>
+                                </div>
+                                <!-- Profile Info - Right Column -->
+                                <div class="col-12 col-md-4 py-md-3">
+                                    <p class="mb-3 fs-6 fs-md-5 fs-lg-5 fs-xl-4"><strong class="fs-5 fs-md-5 fs-lg-4" style="color: #00DDFF; margin-right: 8px;"><i class="bi bi-people" style="margin-right: 8px;"></i> Shooters:</strong> <span style="color: white;">{{ shooters_count }}</span></p>
+                                    <p class="mb-3 fs-6 fs-md-5 fs-lg-5 fs-xl-4"><strong class="fs-5 fs-md-5 fs-lg-4" style="color: #00DDFF; margin-right: 8px;"><i class="bi bi-graph-up-arrow" style="margin-right: 8px;"></i> Experience:</strong> <span style="color: white;">{{ experience }}</span></p>
+                                    <p class="mb-3 fs-6 fs-md-5 fs-lg-5 fs-xl-4"><strong class="fs-5 fs-md-5 fs-lg-4" style="color: #00DDFF; margin-right: 8px;"><i class="bi bi-cup-hot" style="margin-right: 8px;"></i> Club:</strong> <span style="color: white;">{{ club }}</span></p>
+                                </div>
+                            </div>
+                        
+                    </div>
+                </div>
+
                 <!-- Shooter Management -->
                 <div class="mt-4 p-3 bg-base-dark rounded" >
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
@@ -722,7 +753,7 @@ Coach Home
     <!-- Download Shooter Data Modal -->
     <div class="modal fade" id="downloadShooterDataModal" tabindex="-1" aria-labelledby="downloadShooterDataModalLabel" aria-hidden="true">
         <div class="modal-dialog text-light">
-            <div class="modal-content" style="background-color: #050505; border: 2px solid #00ddff;">
+            <div class="modal-content bg-base-dark" style=" border: 2px solid #00ddff;">
                 <div class="modal-header">
                     <h5 class="modal-title text-info" id="downloadShooterDataModalLabel">Download Shooter Data</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -771,7 +802,6 @@ document.addEventListener("DOMContentLoaded", function() {
             'dashboard-container',
             'shooters-container',
             'notifications-container',
-            'profile-container',
             'settings-container'
         ];
         
@@ -801,10 +831,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.getElementById('notifications-btn').addEventListener('click', function() {
         showOnly('notifications-container');
-    });
-
-    document.getElementById('profile-btn').addEventListener('click', function() {
-        showOnly('profile-container');
     });
 
     document.getElementById('settings-btn').addEventListener('click', function() {

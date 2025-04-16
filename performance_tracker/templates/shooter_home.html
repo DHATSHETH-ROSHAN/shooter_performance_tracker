@@ -376,13 +376,46 @@ Shooter's Home
                         </div>
                         <p  class="mt-2"><b>Progress: <span id="progressPercentage60"></span></b></p>
                     </div>
-                    <div id="notificationsPopup" class="popup">
-                        <div class="popup-content">
+                    <div id="notificationsPopup" class="popup bg-base-dark">
+                        <div class="popup-content ">
                             <span class="close" onclick="closePopup('notificationsPopup')">&times;</span>
-                            <h5>Notifications</h5>
+                            <h5 class="text-info" >Notifications</h5>
+                            <ul class=" list-group">
+                                <li class="bg-dark text-light list-group-item">Your coach Commented on your session!</li>
+                                <li class="bg-dark text-light list-group-item">New training module available.</li>
+                            </ul>
+                            <h6 class="mt-2">Day plans </h6>
                             <ul class="list-group">
-                                <li class="list-group-item">Your coach Commented on your session!</li>
-                                <li class="list-group-item">New training module available.</li>
+                                {% for event in day_plans %}
+                                    <li class="list-group-item" 
+                                        style="background-color: #050505; color: white; border: 1px solid #00DDFF; border-radius: 10px; margin-bottom: 5px;">
+                                        <strong style="color: #00DDFF;">{{ event.time }}</strong> - {{ event.activity }}
+                                        {% if event.shared_with_shooter %}
+                                            <span style="color: #00DDFF;">(Shared)</span>
+                                        {% endif %}
+                                    </li>
+                                {% empty %}
+                                    <li class="list-group-item text-center bg-dark text-light">
+                                        No activities planned for today.
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                            <h6 class="mt-2"> Upcoming Matches </h6>
+                            <ul class="list-group pt-2">
+                                {% for event in events %}
+                                <li class="list-group-item bg-dark d-flex justify-content-between">
+                                    <div class="text-light">
+                                        <strong>{{ event.title }}</strong> - {{ event.date }}<br>
+                                        📍 {{ event.location|default:"TBA" }}
+                                    </div>
+                                    {% comment %} <span class="fw-bold text-info">{{ event.visibility|title }}</span> {% endcomment %}
+                                </li>
+                                {% empty %}
+                                <li class="list-group-item text-center bg-base-dark text-info rounded" style="border: 1px solid #00DDFF; ">
+                                No upcoming events
+                                </li>
+                                {% endfor %}
                             </ul>
                         </div>
                     </div>

@@ -76,7 +76,7 @@
 
 /* Main Content */
 #main-content {
-    width: calc(100% - 230px);
+    width: calc(100% - 240px);
     height: 84vh;
     transition: width 0.3s ease-in-out;
     border-radius:12px;
@@ -121,7 +121,7 @@ select.form-control {
 }
 /* Table Styling */
 .custom-table {
-    width: 100%;
+    
     table-layout: fixed;
     border-collapse: collapse;
     background-color: #050505; /* Table Background */
@@ -235,4 +235,193 @@ select.form-control {
 .btn-custom:hover {
     background-color: #00B8D9;
     color: white;
+}
+
+/* Base styles remain unchanged from your original CSS */
+/* Add responsive adjustments below */
+
+@media (max-width: 1200px) {
+    #sidebar {
+        width: 160px;
+    }
+
+    #main-content {
+        width: calc(100% - 180px);
+    }
+
+    #sidebar.collapsed + #main-content {
+        width: calc(100% - 80px);
+    }
+
+    .custom-btn span,
+    #shrink-btn span {
+        font-size: 14px;
+    }
+
+    .custom-btn i,
+    #shrink-btn i {
+        font-size: 18px;
+    }
+
+    .form-control {
+        font-size: 14px;
+    }
+
+    .custom-table th,
+    .custom-table td {
+        font-size: 14px;
+        padding: 6px;
+    }
+}
+
+@media (max-width: 992px) {
+    #sidebar {
+        width: 140px;
+    }
+
+    #main-content {
+        width: calc(100% - 150px);
+    }
+
+    .custom-btn,
+    #shrink-btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .custom-btn span,
+    #shrink-btn span {
+        font-size: 12px;
+    }
+
+    .form-control,
+    select.form-control {
+        font-size: 13px;
+        padding: 6px 8px;
+    }
+
+    .message-card .username {
+        font-size: 14px;
+    }
+
+    .message-preview {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        position: absolute;
+        z-index: 1000;
+        height: 100vh;
+        left: 0;
+        top: 0;
+        width: 180px;
+        transition: left 0.3s ease-in-out;
+    }
+
+    #main-content {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .navbar-message {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .d-flex {
+        flex-direction: column !important;
+    }
+
+    .form-control,
+    select.form-control {
+        width: 100% !important;
+        margin-bottom: 10px;
+    }
+
+    #scoreFilter {
+        width: 100% !important;
+    }
+
+    .custom-table {
+        font-size: 13px;
+    }
+
+    .message-preview {
+        max-width: 100%;
+    }
+
+    .message-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+
+    .btn-custom {
+        padding: 6px 0;
+    }
+}
+
+@media (max-width: 576px) {
+    
+    .custom-table thead {
+        display: none;
+    }
+
+    .custom-table, .custom-table tbody, .custom-table tr, .custom-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .custom-table tr {
+        margin-bottom: 15px;
+        border: 1px solid #00DDFF;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .custom-table td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+    }
+
+    .custom-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        top: 8px;
+        font-weight: bold;
+        text-align: left;
+        color: #00DDFF;
+    }
+
+    .form-control {
+        font-size: 12px;
+    }
+
+    .btn-custom {
+        font-size: 14px;
+        padding: 6px;
+    }
+
+    .custom-btn,
+    #shrink-btn {
+        font-size: 12px;
+    }
+
+    .username {
+        font-size: 13px;
+    }
+
+    .message-preview {
+        font-size: 11px;
+    }
+    
 }

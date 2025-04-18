@@ -291,16 +291,16 @@ Shooter's Home
                     </div>
                     <hr>
                     <div class="d-flex flex-wrap gap-2 justify-content-around">
-                        <button class="btn btn-info btn-sm" onclick="openPopup('notificationsPopup')">🔔 Notifications</button>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#notificationsModal">🔔 Notifications</button>
                         <button class="btn btn-sm btn-info mt-2" onclick="toggleMessages()">💬 Messages</button>
                     </div>
                     <!-- Coach Profile Modal -->
                     <div class="modal fade" id="coachProfileModal" tabindex="-1" aria-labelledby="coachProfileModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content" style="background-color:#050505; border-radius:12px; width: 75%;">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content" style="background-color:#050505; border-radius:12px; width: 75%; border: 2px solid #00DDFF;">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="coachProfileModalLabel">Coach Profile</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <p><strong>Name:</strong> {{ coach_relation.coach.username }}</p>
@@ -322,7 +322,7 @@ Shooter's Home
                     {% if not coach_relation %}
                     <div class="modal fade" id="selectcoachModal" tabindex="-1" aria-labelledby="selectcoachModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content" style="background-color:#050505; border-radius:12px;">
+                            <div class="modal-content" style="background-color:#050505; border-radius:12px; border: 2px solid #00DDFF;">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="selectcoachModalLabel">Available Coaches</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -376,47 +376,59 @@ Shooter's Home
                         </div>
                         <p  class="mt-2"><b>Progress: <span id="progressPercentage60"></span></b></p>
                     </div>
-                    <div id="notificationsPopup" class="popup bg-base-dark">
-                        <div class="popup-content ">
-                            <span class="close" onclick="closePopup('notificationsPopup')">&times;</span>
-                            <h5 class="text-info" >Notifications</h5>
-                            <ul class=" list-group">
-                                <li class="bg-dark text-light list-group-item">Your coach Commented on your session!</li>
+                    <!-- Modal -->
+                    <div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+                        <div class="modal-content" style="background-color: #050505; color: white; border: 2px solid #00DDFF;">
+                            <div class="modal-header">
+                            <h5 class="modal-title text-info" id="notificationsModalLabel">Notifications</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                    
+                            <div class="modal-body">
+                            <ul class="list-group mb-3">
+                                <li class="bg-dark text-light list-group-item">Your coach commented on your session!</li>
                                 <li class="bg-dark text-light list-group-item">New training module available.</li>
                             </ul>
-                            <h6 class="mt-2">Day plans </h6>
-                            <ul class="list-group">
+                    
+                            <h6>Day Plans</h6>
+                            <ul class="list-group mb-3">
                                 {% for event in day_plans %}
-                                    <li class="list-group-item" 
-                                        style="background-color: #050505; color: white; border: 1px solid #00DDFF; border-radius: 10px; margin-bottom: 5px;">
-                                        <strong style="color: #00DDFF;">{{ event.time }}</strong> - {{ event.activity }}
-                                        {% if event.shared_with_shooter %}
-                                            <span style="color: #00DDFF;">(Shared)</span>
-                                        {% endif %}
-                                    </li>
+                                <li class="list-group-item" 
+                                    style="background-color: #050505; color: white; border: 1px solid #00DDFF; border-radius: 10px; margin-bottom: 5px;">
+                                    <strong style="color: #00DDFF;">{{ event.time }}</strong> - {{ event.activity }}
+                                    {% if event.shared_with_shooter %}
+                                    <span style="color: #00DDFF;">(Shared)</span>
+                                    {% endif %}
+                                </li>
                                 {% empty %}
-                                    <li class="list-group-item text-center bg-dark text-light">
-                                        No activities planned for today.
-                                    </li>
+                                <li class="list-group-item text-center bg-dark text-light">
+                                    No activities planned for today.
+                                </li>
                                 {% endfor %}
                             </ul>
-
-                            <h6 class="mt-2"> Upcoming Matches </h6>
-                            <ul class="list-group pt-2">
+                    
+                            <h6>Upcoming Matches</h6>
+                            <ul class="list-group">
                                 {% for event in events %}
                                 <li class="list-group-item bg-dark d-flex justify-content-between">
                                     <div class="text-light">
-                                        <strong>{{ event.title }}</strong> - {{ event.date }}<br>
-                                        📍 {{ event.location|default:"TBA" }}
+                                    <strong>{{ event.title }}</strong> - {{ event.date }}<br>
+                                    📍 {{ event.location|default:"TBA" }}
                                     </div>
-                                    {% comment %} <span class="fw-bold text-info">{{ event.visibility|title }}</span> {% endcomment %}
                                 </li>
                                 {% empty %}
-                                <li class="list-group-item text-center bg-base-dark text-info rounded" style="border: 1px solid #00DDFF; ">
-                                No upcoming events
+                                <li class="list-group-item text-center bg-base-dark text-info rounded" style="border: 1px solid #00DDFF;">
+                                    No upcoming events
                                 </li>
                                 {% endfor %}
                             </ul>
+                            </div>
+                    
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-info" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
                         </div>
                     </div>
                 </div>

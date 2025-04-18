@@ -75,6 +75,7 @@ function closeFunction(id) {
 // Function to create and reconnect WebSocket
 function setupChatSocket(conversationId, messageCardElement) {
     const currentUserId = document.body.getAttribute('data-user-id');
+    const chatWindow = document.getElementById("chat-window");
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const chatSocket = new WebSocket(`${protocol}://${window.location.host}/ws/chat/${conversationId}/`);
     
@@ -83,20 +84,36 @@ function setupChatSocket(conversationId, messageCardElement) {
 
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        const chatWindow = document.getElementById('chat-window');
+
+        const messagesDiv = document.getElementById('chat-messages');
         
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message');
 
         if (data.sender_id == currentUserId) {
-            messageDiv.classList.add('sent');
+            messageDiv.classList.add('sent-message');
         } else {
-            messageDiv.classList.add('received');
+            messageDiv.classList.add('received-message');
         }
 
-        messageDiv.innerHTML = `<p>${data.message}</p>`;
-        chatWindow.appendChild(messageDiv);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
+        const timestamp = new Date(data.timestamp);
+        const formattedTime = timestamp.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        });
+
+
+        messageDiv.innerHTML = `<p>${data.message}</p>
+            <small class="text-muted">${formattedTime}</small>
+            `;
+    
+        if (messagesDiv) {
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        } else {
+            console.error("Chat messages container not found");
+        }
     };
 
     chatSocket.onerror = e => console.error("WebSocket error:", e);
@@ -133,7 +150,9 @@ document.querySelectorAll(".open-chat").forEach(button => {
         }).then(response => response.json())
           .then(() => {
               const unreadBadge = this.querySelector('.unread-badge');
-              if (unreadBadge) unreadBadge.style.display = 'none';
+              if (unreadBadge) {
+                unreadBadge.style.display = 'none';
+              }
           })
           .catch(error => console.error('Error marking messages as read:', error));
 
@@ -246,10 +265,7 @@ function connectAllChats() {
 function scrollChatToBottom() {
     const messagesDiv = document.getElementById('chat-messages');
     if (messagesDiv) {
-        // Ensure scroll after DOM has been updated
-        setTimeout(() => {
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }, 50);
     }
 }
 
@@ -257,8 +273,6 @@ function scrollChatToBottom() {
 document.addEventListener('DOMContentLoaded', connectAllChats);
 
 // end of chats
-
-
 
 function viewShooter(shooter_id) {
     //maek ajax request call to fetch details

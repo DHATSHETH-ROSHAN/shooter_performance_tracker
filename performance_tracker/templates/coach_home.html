@@ -257,7 +257,7 @@ Coach Home
                         <div class="d-flex py-1 flex-column gap-2 w-100" style="max-height: 400px; overflow-y: auto;">
                             <h5 class="text-info">Message Shooters</h5>
                             {% for shooter in shooters %}
-                                <a class="btn btn-sm btn-outline-info">{{ shooter.name }}</a>
+                                <a class="btn btn-sm btn-outline-info" onclick="specificShooterMessage('{{ shooter.id }}') ">{{ shooter.name }}</a>
                             {% endfor %}
                         </div>
                     </div>
@@ -483,7 +483,7 @@ Coach Home
                     {% endif %}
                 </div>
                 {% comment %} this is the part of messsages inside the notifications and messages thing {% endcomment %}
-                <div class="container-fluid scrollable-element" style="background-color: #050505; max-height:65vh; overflow-y:auto; border-radius:12px;">
+                <div class="container-fluid scrollable-element bg-base-dark rounded" style=" max-height:65vh; overflow-y:auto;">
                     <h2 class="logo_txt py-3">Messages</h2>
                     {% if conversations %}
                         <div class="py-3">
@@ -500,7 +500,7 @@ Coach Home
                                                     <span class="text-light ms-2 username"><b>{{ convo.other_user.username }}</b></span>
                                                 </div>
                                                 <div>
-                                                    <small class="text-muted">{{ convo.last_message.timestamp|date:"H:i" }}</small>
+                                                    <small class="text-light">{{ convo.last_message.timestamp|date:"H:i" }}</small>
                                                     {% if convo.unread_count > 0 %}
                                                         <span class="badge bg-danger unread-badge">{{ convo.unread_count }}</span>
                                                     {% endif %}
@@ -560,6 +560,8 @@ Coach Home
                     </div>
                 </div>
             </div> {% endcomment %}
+
+
             {% comment %} settings {% endcomment %}
             <div id="settings-container" class="container-fluid text-light bg-base-light rounded" style="display:none; height: 82vh; overflow-y: auto;scrollbar-width: none; -ms-overflow-style: none;">
                 <h3 class="text-center py-3 logo_txt">Settings</h3>
@@ -616,7 +618,7 @@ Coach Home
                 <div class="mt-4 p-3 rounded-3 bg-base-dark" >
                     <h4>Data & Privacy</h4>
                     <div class="d-flex flex-column flex-md-row gap-2 mt-3">
-                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#downloadShooterDataModal"><i class="bi bi-download"></i> Download Shooter Data</button>
+                        {% comment %} <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#downloadShooterDataModal"><i class="bi bi-download"></i> Download Shooter Data</button> {% endcomment %}
                         <!-- Delete Account Button -->
                         <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal"><i class="bi bi-trash3"></i> Delete Account</button>
                     </div>
@@ -836,7 +838,28 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('settings-btn').addEventListener('click', function() {
         showOnly('settings-container');
     });
+
 });
+
+function specificShooterMessage(shooterId) {
+        // Hide all containers first
+        let containers = [
+        'home-container',
+        'dashboard-container',
+        'shooters-container',
+        'notifications-container',
+        'settings-container'
+        ];
+
+        containers.forEach(id => {
+        document.getElementById(id).style.display = 'none';
+        });
+
+        // Show the selected container
+        document.getElementById('notifications-container').style.display = 'block';
+        // Optional: Load specific shooter messages based on shooterId if needed
+        console.log("Selected Shooter ID:", shooterId);
+    }
 
 {% comment %} shrink button {% endcomment %}
 document.addEventListener("DOMContentLoaded", function () {

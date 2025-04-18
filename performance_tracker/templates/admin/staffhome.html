@@ -8,19 +8,19 @@
 {% endblock %}
 {% block content %}
 {% include "admin/adminnavbar.html" %}
-<div class="container-fluid text-light page-container">
-    <div class="row">
-        <div id="sidebar" class="col-2 d-flex flex-column" style="background-color: #050505;">
+<div class="container-flex text-light page-container">
+    <div class="wrapper d-flex">
+        <div id="sidebar" class="rounded bg-base-dark d-flex flex-column">
             <button id="shrink-btn" class="custom-btn"><i class="fa-solid fa-down-left-and-up-right-to-center" ></i><span>Shrink</span></button>
             <button id="users-btn" class="custom-btn"><i class="fa-solid fa-users"></i><span>Users </span></button>
             <button id="coach-relation-btn" class="custom-btn"><i class="fa-solid fa-chalkboard-user"></i><span>Coaches</span></button>
             <button id="notifications-btn" class="custom-btn"><i class="fa-regular fa-bell" ></i><span>Notifications & Messages</span></button>
             <button id="profile-btn" class="custom-btn"><i class="fa-regular fa-address-card" ></i><span>Profile</span></button>
-            <button id="settings-btn" class="custom-btn"><i class="fa-solid fa-user-gear"></i><span> Settings</span></button>
+            {% comment %} <button id="settings-btn" class="custom-btn"><i class="fa-solid fa-user-gear"></i><span> Settings</span></button> {% endcomment %}
         </div>
-        <div id="main-Content" class="col-md-10 d-flex" >
+        <div id="main-Content" class="right-cnt bg-base-light rounded" >
             {% comment %} users container {% endcomment %}
-            <div id="users-container" class="container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
+            <div id="users-container" class="container-fluid text-light rounded w-100" style=" display:none;">
                 <div class="row d-flex justify-content-between align-items-start gap-3" style="padding-top:15px;">
                     <div class="col-md-12">
                         <div class="row align-items-center gx-3 p-3" style="background-color: #050505; border-radius: 12px;">
@@ -688,7 +688,7 @@
             <div id="notification-container" class="container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
                 <div class="row d-flex justify-content-between align-items-start gap-2" style="padding-top:10px;">
                     <div class="col-md-12">
-                        <div class="row text-center align-items-center gx-2"style="background-color: #050505; border-radius: 12px; padding-top: 12px;">
+                        <div class="row align-items-center gx-2"style="background-color: #050505; border-radius: 12px; padding-top: 12px;">
                             <div class="w-100" style="max-height: 40vh; overflow-y:auto; overflow-x: auto;scrollbar-width: none;" >
                                 <div class="row mt-1 p-3"style="background-color: #050505; border-radius: 15px;">
                                     <div class="col-12">
@@ -731,46 +731,45 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="tb-head">Messages</p>
-                            <div class="w-100" style="max-height: 60vh; overflow: auto:" >
-                                    {% if conversations %}  
-                                    <div class="py-3">
-                                        <div class="row">
-                                            <!-- Conversation List -->
-                                            <div class="col-4 scrollable-element" style="max-height: 40vh; overflow-y: auto;" >
-                                                {% for convo in conversations %}
-                                                    <div class="card p-2 m-3 message-card open-chat" data-profile-name="{{ userprofile.username }}" data-profile-id="{{ profile_id }}" data-user-id="{{ convo.other_user.id }}" style="cursor: pointer; transition: background-color 0.3s;">
-                                                        <div class="d-flex justify-content-between align-items-center">
-                                                            <div class="d-flex align-items-center">
-                                                                <div class="avatar">
-                                                                    <span class="avatar-text">{{ convo.other_user.username|first|upper }}</span>
-                                                                </div>
-                                                                <span class="text-light ms-2 username"><b>{{ convo.other_user.username }}</b></span>
+                            <p class="text-info">Messages</p>
+                            <div class="w-100" style="max-height: 70vh; overflow: auto:" >
+                                {% if conversations %}  
+                                <div class="py-3">
+                                    <div class="row">
+                                        <!-- Conversation List -->
+                                        <div class="col-12 col-md-4 mb-3 mb-md-0 scrollable-element ps-3" style="max-height: 40vh; overflow-y: auto;" >
+                                            {% for convo in conversations %}
+                                                <div class="card p-3 mb-3 message-card open-chat" data-profile-name="{{ userprofile.username }}" data-profile-id="{{ profile_id }}" data-user-id="{{ convo.other_user.id }}" style="cursor: pointer; transition: background-color 0.3s;">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar">
+                                                                <span class="avatar-text">{{ convo.other_user.username|first|upper }}</span>
                                                             </div>
-                                                            <div>
-                                                                <small style="color: #707070">{{ convo.last_message.timestamp|date:"H:i" }}</small>
-                                                                {% if convo.unread_count > 0 %}
-                                                                    <span class="badge bg-danger unread-badge">{{ convo.unread_count }}</span>
-                                                                {% endif %}
-                                                            </div>
+                                                            <span class="text-light ms-2 username"><b>{{ convo.other_user.username }}</b></span>
                                                         </div>
-                                                        <p class="text-light mt-2 message-preview">{{ convo.last_message.content|truncatechars:50 }}</p>
+                                                        <div>
+                                                            <small class="text-light">{{ convo.last_message.timestamp|date:"H:i" }}</small>
+                                                            {% if convo.unread_count > 0 %}
+                                                                <span class="badge bg-danger unread-badge">{{ convo.unread_count }}</span>
+                                                            {% endif %}
+                                                        </div>
                                                     </div>
-                                                {% endfor %}
-                                            </div>
-            
-                                            <!-- Chat Window (Will be loaded dynamically) -->
-                                            <div class="col-8" style="max-height: 40vh; overflow-y: auto;">
-                                                <div id="chat-window" class="chat-box">
-                                                    <p class="text-light text-center">Select a chat to start messaging</p>
+                                                    <p class="text-light mt-2 message-preview">{{ convo.last_message.content|truncatechars:50 }}</p>
                                                 </div>
+                                            {% endfor %}
+                                        </div>
+        
+                                        <!-- Chat Window (Will be loaded dynamically) -->
+                                        <div class="col-12 col-md-8 " style="max-height:40vh; overflow-y: auto;">
+                                            <div id="chat-window" class="chat-box">
+                                                <p class="text-light">Select a chat to start messaging</p>
                                             </div>
                                         </div>
                                     </div>
-                                    {% else %}
-                                        <p class="text-center">No messages yet.</p>
-                                    {% endif %}
                                 </div>
+                                {% else %}
+                                    <p class="text-center">No messages yet.</p>
+                                {% endif %}    
                             </div>
                         </div>
                     </div>
@@ -812,18 +811,13 @@
                 </div>
             </div>
             {% comment %} settings container {% endcomment %}
-            <div id="settings-container" class="container-fluid text-light" style="background-color: #202020; border-radius:12px; display:none;">
-                <div class="row d-flex justify-content-between align-items-start gap-2" style="padding-top:10px;">
-                    <div class="col=md-8">
-                        <div class="row text-center align-items-center gx-2"style="background-color: #050505; border-radius: 12px; padding-top: 12px;">
-                            
-                            <div class = "something">
-                                settings-container
-                            </div>
-                        </div>
+            <div id="settings-container" class="container-fluid text-light bg-base-dark rounded " style="display:none;">
+                <div class="row d-flex justify-content-between align-items-start gap-2 pt-2 " style="padding-top:10px;">
+                    <div class="col-md-8">
+
                     </div>
                 </div>
-            </div>
+            </div> 
         </div>
     </div>
 </div>
